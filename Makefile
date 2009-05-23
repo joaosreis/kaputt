@@ -74,6 +74,7 @@ default:
 	@echo "  clean-doc   deletes documentation files"
 	@echo "  install     copies library files"
 	@echo "  depend      generates dependency files"
+	@echo "installation is usually done by: 'make all' and 'sudo make install'"
 
 
 ifeq ($(findstring $(OCAMLJAVA),$(wildcard $(OCAMLJAVA))),$(OCAMLJAVA))
