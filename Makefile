@@ -118,8 +118,6 @@ clean-doc:
 install:
 	mkdir -p $(INSTALL_DIR)
 	cp $(PATH_BIN)/$(LIBRARY).* $(INSTALL_DIR)
-	if test `grep -s -c '$(INSTALL_DIR)$$' $(INSTALL_DIR_BASE)/ld.conf` = 0; \
-	then echo '$(INSTALL_DIR)' >> $(INSTALL_DIR_BASE)/ld.conf; fi
 
 
 # GENERIC TARGETS
