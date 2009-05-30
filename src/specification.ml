@@ -63,11 +63,9 @@ let is_zero_int32 x = x = Int32.zero
 
 let is_nonzero_int32 x = x <> Int32.zero
 
-let two32 = Int32.of_int 2
+let is_even_int32 x = (Int32.rem x 2l) = Int32.zero
 
-let is_even_int32 x = (Int32.rem x two32) = Int32.zero
-
-let is_odd_int32 x = (Int32.rem x two32) <> Int32.zero
+let is_odd_int32 x = (Int32.rem x 2l) <> Int32.zero
 
 let is_pos_int64 x = (Int64.compare x Int64.zero) >= 0
 
@@ -77,11 +75,9 @@ let is_zero_int64 x = x = Int64.zero
 
 let is_nonzero_int64 x = x <> Int64.zero
 
-let two64 = Int64.of_int 2
+let is_even_int64 x = (Int64.rem x 2L) = Int64.zero
 
-let is_even_int64 x = (Int64.rem x two64) = Int64.zero
-
-let is_odd_int64 x = (Int64.rem x two64) <> Int64.zero
+let is_odd_int64 x = (Int64.rem x 2L) <> Int64.zero
 
 let is_pos_nativeint x = (Nativeint.compare x Nativeint.zero) >= 0
 
@@ -91,11 +87,9 @@ let is_zero_nativeint x = x = Nativeint.zero
 
 let is_nonzero_nativeint x = x <> Nativeint.zero
 
-let twonat = Nativeint.of_int 2
+let is_even_nativeint x = (Nativeint.rem x 2n) = Nativeint.zero
 
-let is_even_nativeint x = (Nativeint.rem x twonat) = Nativeint.zero
-
-let is_odd_nativeint x = (Nativeint.rem x twonat) <> Nativeint.zero
+let is_odd_nativeint x = (Nativeint.rem x 2n) <> Nativeint.zero
 
 let is_pos_float x = x >= 0.
 
