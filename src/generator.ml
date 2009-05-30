@@ -206,6 +206,28 @@ let complex (gen_re, _) (gen_im, _) =
     { Complex.re = re_val; Complex.im = im_val }),
   (fun x -> Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im)
 
+let gen_big_int_digit, _ = make_int 0 10
+
+let big_int (gen_l, _) =
+  (fun r ->
+    let s = Random.State.bool r in
+    let len = gen_l r in
+    let res = ref Big_int.zero_big_int in
+    for i = 1 to len do
+      res := Big_int.add_int_big_int
+          (gen_big_int_digit r)
+          (Big_int.mult_int_big_int  10 !res)
+    done;
+    if s then !res else Big_int.minus_big_int !res),
+  Big_int.string_of_big_int
+
+let num (gen_a, _) (gen_b, _) =
+  (fun r ->
+    let a = gen_a r in
+    let b = gen_b r in
+    Num.div_num (Num.Big_int a) (Num.Big_int b)),
+  Num.string_of_num
+
 
 (* Generators for containers *)
 
@@ -256,7 +278,7 @@ let option (gen_k, _) (gen_e, prn_e) =
 
 let ref (gen_e, prn_e) =
   (fun r -> ref (gen_e r)),
-  (fun x -> "ref (" ^ (prn_e !x) ^ ")")
+  (fun x -> "ref (" ^ (prn_e !x) ^ ")")    
 
 let buffer (gen_e, _) =
   (fun r ->
@@ -264,6 +286,156 @@ let buffer (gen_e, _) =
     Buffer.add_string buf (gen_e r);
     buf),
   (fun x -> Buffer.contents x)
+
+module type Gen = sig
+  type g
+  val g : g t
+end
+
+module Map (M : Map.S) (G : Gen with type g = M.key) = struct
+  let gen (gen_l, _) (gen_v, prn_v) =
+    let (gen_k, prn_k) = G.g in
+    (fun r ->
+      let len = gen_l r in
+      let res = Pervasives.ref M.empty in
+      let size = Pervasives.ref 0 in
+      while !size < len do
+        let k = gen_k r in
+        if not (M.mem k !res) then begin
+          let v = gen_v r in
+          res := M.add k v !res;
+          incr size
+        end
+      done;
+      !res),
+    (fun m ->
+      let l = M.fold
+          (fun k v acc -> (Printf.sprintf "%s -> %s" (prn_k k) (prn_v v)) :: acc)
+          m
+          [] in
+      String.concat "; " (List.rev l))
+end
+
+module Set (S : Set.S) (G : Gen with type g = S.elt) = struct
+  let gen (gen_l, _) =
+    let (gen_e, prn_e) = G.g in
+    (fun r ->
+      let len = gen_l r in
+      let res = Pervasives.ref S.empty in
+      let size = Pervasives.ref 0 in
+      while !size < len do
+        let e = gen_e r in
+        if not (S.mem e !res) then begin
+          res := S.add e !res;
+          incr size
+        end
+      done;
+      !res),
+    (fun s ->
+      let l = S.fold (fun e acc -> (prn_e e) :: acc) s [] in
+      String.concat "; " (List.rev l))
+end
+
+let hashtbl (gen_l, _) (gen_k, prn_k) (gen_v, prn_v) =
+  (fun r ->
+    let len = gen_l r in
+    let res = Hashtbl.create len in
+    let size = Pervasives.ref 0 in
+    while !size < len do
+      let k = gen_k r in
+      if not (Hashtbl.mem res k) then begin
+        let v = gen_v r in
+        Hashtbl.add res k v;
+        incr size
+      end
+    done;
+    res),
+  (fun h ->
+    let l = Hashtbl.fold
+        (fun k v acc -> (Printf.sprintf "%s -> %s" (prn_k k) (prn_v v)) :: acc)
+        h
+        [] in
+    String.concat "; " (List.rev l))
+
+let queue (gen_l, _) (gen_e, prn_e) =
+  (fun r ->
+    let len = gen_l r in
+    let res = Queue.create () in
+    for i = 1 to len do
+      let e = gen_e r in
+      Queue.push e res
+    done;
+    res),
+  (fun s ->
+    let buf = Buffer.create 16 in
+    Queue.iter (fun e -> Buffer.add_string buf (prn_e e)) s;
+    Buffer.contents buf)
+
+let stack (gen_l, _) (gen_e, prn_e) =
+  (fun r ->
+    let len = gen_l r in
+    let res = Stack.create () in
+    for i = 1 to len do
+      let e = gen_e r in
+      Stack.push e res
+    done;
+    res),
+  (fun s ->
+    let buf = Buffer.create 16 in
+    Stack.iter (fun e -> Buffer.add_string buf (prn_e e)) s;
+    Buffer.contents buf)
+
+let weak (gen_l, _) (gen_e, prn_e) =
+  (fun r ->
+    let len = gen_l r in
+    let res = Weak.create len in
+    for i = 0 to (pred len) do
+      let e = gen_e r in
+      Weak.set res i e
+    done;
+    res),
+  (fun w ->
+    let buf = Buffer.create 16 in
+    let len = Weak.length w in
+    Buffer.add_string buf "[|| ";
+    for i = 0 to (pred len) do
+      Buffer.add_string buf (prn_e (Weak.get w i));
+      Buffer.add_string buf "; ";
+    done;
+    Buffer.add_string buf "||]";
+    Buffer.contents buf)
+
+module Weak (W : Weak.S) (G : Gen with type g = W.data) = struct
+  let gen (gen_l, _) =
+    let (gen_e, prn_e) = G.g in
+    (fun r ->
+      let len = gen_l r in
+      let res = W.create len in
+      let size = Pervasives.ref 0 in
+      while !size < len do
+        let e = gen_e r in
+        if not (W.mem res e) then begin
+          W.add res e;
+          incr size
+        end
+      done;
+      res),
+    (fun w ->
+      let l = W.fold (fun e acc -> (prn_e e) :: acc) w [] in
+      String.concat "; " (List.rev l))
+end
+
+let bigarray k l (gen_dims, _) (gen_e, prn_e) =
+  (fun r ->
+    let dims = gen_dims r in
+    let res = Bigarray.Genarray.create k l dims in
+    Utils.bigarray_iteri
+      (fun c _ ->
+        let e = gen_e r in
+        Bigarray.Genarray.set res c e)
+      res;
+    res),
+  (fun b -> Utils.string_of_bigarray prn_e b)
 
 
 (* Combinators over generators *)

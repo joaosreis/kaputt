@@ -177,6 +177,104 @@ let for_all_array p x =
   done;
   !i = l
 
+exception Return
+
+module type Pred = sig
+  type p
+  val p : p predicate
+end
+
+module Map (M : Map.S) (P : Pred with type p = M.key) = struct
+  let exists p m =
+    try
+      M.iter (fun k v -> if (P.p k) && (p v) then raise Return) m;
+      false
+    with Return -> true
+  let for_all p m =
+    try
+      M.iter (fun k v -> if not ((P.p k) && (p v)) then raise Return) m;
+      true
+    with Return -> false
+end
+
+module Set (S : Set.S) (P : Pred with type p = S.elt) = struct
+  let exists s =
+    try
+      S.iter (fun e -> if P.p e then raise Return) s;
+      false
+    with Return -> true
+  let for_all s =
+    try
+      S.iter (fun e -> if not (P.p e) then raise Return) s;
+      true
+    with Return -> false
+end
+
+let exists_hashtbl p x =
+  try
+    Hashtbl.iter (fun k v -> if p (k, v) then raise Return) x;
+    false
+  with Return -> true
+
+let for_all_hashtbl p x =
+  try
+    Hashtbl.iter (fun k v -> if not (p (k, v)) then raise Return) x;
+    true
+  with Return -> false
+
+let exists_queue p x =
+  try
+    Queue.iter (fun e -> if p e then raise Return) x;
+    false
+  with Return -> true
+
+let for_all_queue p x =
+  try
+    Queue.iter (fun e-> if not (p e) then raise Return) x;
+    true
+  with Return -> false
+
+let exists_stack p x =
+  try
+    Stack.iter (fun e -> if p e then raise Return) x;
+    false
+  with Return -> true
+
+let for_all_stack p x =
+  try
+    Stack.iter (fun e-> if not (p e) then raise Return) x;
+    true
+  with Return -> false
+
+let exists_weak p x =
+  let i = ref 0 in
+  let l = Weak.length x in
+  while (!i < l) && not (p (Weak.get x !i)) do
+    incr i
+  done;
+  !i < l
+
+let for_all_weak p x =
+  let i = ref 0 in
+  let l = Weak.length x in
+  while (!i < l) && (p (Weak.get x !i)) do
+    incr i
+  done;
+  !i = l
+
+module Weak (W : Weak.S) (P : Pred with type p = W.data) = struct
+  let exists s =
+    try
+      W.iter (fun e -> if P.p e then raise Return) s;
+      false
+    with Return -> true
+  let for_all s =
+    try
+      W.iter (fun e -> if not (P.p e) then raise Return) s;
+      true
+    with Return -> false
+end
+
 
 (* Combinators over predicates *)
 

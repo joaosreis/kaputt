@@ -218,6 +218,62 @@ val for_all_array : 'a predicate -> ('a array) predicate
 (** [for_all_array p] constructs a predicate that evaluates to [true]
     iff all of the elements make [p] evaluate to [true]. *)
 
+module type Pred = sig
+  type p
+  val p : p predicate
+end
+(** Module type used for functor-based predicates. *)
+
+module Map (M : Map.S) (P : Pred with type p = M.key) : sig
+  val exists : 'a predicate -> 'a M.t predicate
+  val for_all : 'a predicate -> 'a M.t predicate
+end
+(** Functor used to build predicates for [Map.S.t] values. *)
+
+module Set (S : Set.S) (P : Pred with type p = S.elt) : sig
+  val exists : S.t predicate
+  val for_all : S.t predicate
+end
+(** Functor used to build predicates for [Set.S.t] values. *)
+
+val exists_hashtbl : ('a * 'b) predicate -> (('a, 'b) Hashtbl.t) predicate
+(** [exists_hashtbl p] constructs a predicate that evaluates to [true]
+    iff any of the element makes [p] evaluate to [true]. *)
+
+val for_all_hashtbl : ('a * 'b) predicate -> (('a, 'b) Hashtbl.t) predicate
+(** [for_all_hashtbl p] constructs a predicate that evaluates to [true]
+    iff all of the elements make [p] evaluate to [true]. *)
+
+val exists_queue : 'a predicate -> ('a Queue.t) predicate
+(** [exists_queue p] constructs a predicate that evaluates to [true]
+    iff any of the element makes [p] evaluate to [true]. *)
+
+val for_all_queue : 'a predicate -> ('a Queue.t) predicate
+(** [for_all_queue p] constructs a predicate that evaluates to [true]
+    iff all of the elements make [p] evaluate to [true]. *)
+
+val exists_stack : 'a predicate -> ('a Stack.t) predicate
+(** [exists_stack p] constructs a predicate that evaluates to [true]
+    iff any of the element makes [p] evaluate to [true]. *)
+
+val for_all_stack : 'a predicate -> ('a Stack.t) predicate
+(** [for_all_stack p] constructs a predicate that evaluates to [true]
+    iff all of the elements make [p] evaluate to [true]. *)
+
+val exists_weak : ('a option) predicate -> ('a Weak.t) predicate
+(** [exists_weak p] constructs a predicate that evaluates to [true]
+    iff any of the element makes [p] evaluate to [true]. *)
+
+val for_all_weak : ('a option) predicate -> ('a Weak.t) predicate
+(** [for_all_weak p] constructs a predicate that evaluates to [true]
+    iff all of the elements make [p] evaluate to [true]. *)
+
+module Weak (W : Weak.S) (P : Pred with type p = W.data) : sig
+  val exists : W.t predicate
+  val for_all : W.t predicate
+end
+(** Functor used to build predicates for [Weak.S.t] values. *)
+
 
 (** {6 Combinators over predicates} *)
 

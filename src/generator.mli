@@ -154,6 +154,15 @@ val complex : float t -> float t -> Complex.t t
     [r] is the generator used to generate the real part,
     while [i] is the generator used to generate the imaginary part. *)
 
+val big_int : int t -> Big_int.big_int t
+(* [big_int l] constructs a generator for [Big_int.big_int] values.
+   [l] is used to determine the number of (decimal) digit of the value. *)
+
+val num : Big_int.big_int t -> Big_int.big_int t -> Num.num t
+(* [num n d] constructs a generator for [Num.num] values.
+   [n] is used to generate the numerator, while [d] is used to generate the
+   denominator. *)
+
 
 (** {6 Generators for containers} *)
 
@@ -179,6 +188,53 @@ val ref : 'a t -> ('a ref) t
 val buffer : string t -> Buffer.t t
 (** [buffer b] constructs a generator for [Buffer.t] values.
     [b] is used to generate the embedded element. *)
+
+module type Gen = sig
+  type g
+  val g : g t
+end
+(** Module type used for functor-based generators. *)
+
+module Map (M : Map.S) (G : Gen with type g = M.key) : sig
+  val gen : int t -> 'a t -> 'a M.t t
+end
+(** Functor used to build generators for [Map.S.t] values. *)
+
+module Set (S : Set.S) (G : Gen with type g = S.elt) : sig
+  val gen : int t -> S.t t
+end
+(** Functor used to build generators for [Set.S.t] values. *)
+
+val hashtbl : int t -> 'a t -> 'b t -> ('a, 'b) Hashtbl.t t
+(** [hashtbl s k v] constructs a generator for [Hashtbl.t] values.
+    [s] is used to determine the size of the hash table, while
+    [k] and [v] are respectively used to generate keys and values. *)
+
+val queue : int t -> 'a t -> 'a Queue.t t
+(** [queue s e] constructs a generator for [Queue.t] values.
+    [s] is used to determine the size of the queue, while [e] is used
+    to generate elements. *)
+
+val stack : int t -> 'a t -> 'a Stack.t t
+(** [stack s e] constructs a generator for [Stack.t] values.
+    [s] is used to determine the size of the stack, while [e] is used
+    to generate elements. *)
+
+val weak : int t -> 'a option t -> 'a Weak.t t
+(** [weak s e] constructs a generator for [Weak.t] values.
+    [s] is used to determine the size of the weak array, while [e] is used
+    to generate elements. *)
+
+module Weak (W : Weak.S) (G : Gen with type g = W.data) : sig
+  val gen : int t -> W.t t
+end
+(** Functor used to build generators for [Weak.S.t] values. *)
+
+val bigarray : ('a, 'b) Bigarray.kind -> 'c Bigarray.layout -> int array t -> 'a t -> ('a, 'b, 'c) Bigarray.Genarray.t t
+(** [bigarray k l d e] constructs a generator for [Bigarray.Genarray.t] values.
+    [k] is the kind of generated arrays and [l] is the layout of generated arrays.
+    [d] is used to determine the dimensions of the array, while [e] is used to
+    generate elements. *)
 
 
 (** {6 Combinators over generators} *)
