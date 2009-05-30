@@ -31,7 +31,7 @@ type ('a, 'b) t = { precond : 'a predicate; postcond : ('a * 'b) predicate }
     - ['b] is the type for the codomain (or range) of the function to be tested.
     The precondition is thus evaluated over values of the domain. The postcondition
     is evaluated over couples where the first element is a value of the domain
-    while the second one is its imaged through the tested function. *)
+    while the second one is its image through the tested function. *)
 
 val implies : 'a predicate -> ('a * 'b) predicate -> ('a, 'b) t
 (** [implies p1 p2] is equivalent to [{ precond = p1; postcond = p2 }]. *)
