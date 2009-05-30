@@ -44,6 +44,9 @@ type result =
           - number of uncaught exceptions;
           - list of counterexamples found;
           - map from categories to occurrences. *)
+  | Exit_code of int
+      (** Indicates of the shell-based execution performed
+          (parameter being the exit code of the executed command). *)
 (** The type of test outcomes. *)
 
 type 'a classifier = 'a -> string
@@ -85,6 +88,13 @@ val make_random_test : ?title:string -> ?nb_runs:int -> ?classifier:'a classifie
     order to have a better understanding of what the random elements actually
     tested.
     Raises [Invalid_arg] if [nb] is not strictly positive. *)
+
+
+(** {6 Shell-based tests} *)
+
+val make_shell_test : ?title:string -> ('a, 'b, 'c) Shell.command list -> t
+(** [make_shell_test ~title:t l] constructs a test running the commands from
+    [l] using [Shell.run_list]. *)
 
 
 (** {6 Test runners} *)

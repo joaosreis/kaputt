@@ -23,6 +23,7 @@ type result =
   | Passed
   | Failed of string * string * string
   | Report of int * int * int * (string list) * ((string * int) list)
+  | Exit_code of int
 
 type 'a classifier = 'a -> string
 
@@ -93,6 +94,14 @@ let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_c
     Report (!valid, nb_runs, !uncaught, (List.rev !counterexamples), categories'))
 
 
+(* Shell-based tests *)
+
+let make_shell_test ?(title=get_title ()) l =
+  title,
+  (fun () ->
+    Exit_code (try Shell.run_list l with _ -> min_int))
+
+
 (* Test runners *)
 
 let exec_test (_, func) =
@@ -129,6 +138,8 @@ let run_test (name, func) =
             Printf.printf "    %s -> %d occurrence%s\n" c n (if n > 1 then "s" else ""))
           categories
       end
+  | Exit_code c ->
+      Printf.printf "Test '%s' ... returned code %d\n" name c
 
 let run_tests = List.iter run_test
 

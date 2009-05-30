@@ -208,6 +208,7 @@ module Test :
         | Passed
         | Failed of string * string * string
         | Report of int * int * int * (string list) * ((string * int) list)
+        | Exit_code of int
       type 'a classifier = 'a -> string
       type t
       val return : 'a -> (unit -> 'a)

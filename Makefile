@@ -46,7 +46,7 @@ CMA_FILES=$(patsubst %,%.cma,$(OCAML_LIBRARIES))
 CMXA_FILES=$(patsubst %,%.cmxa,$(OCAML_LIBRARIES))
 CMJA_FILES=$(patsubst %,%.cmja,$(OCAML_LIBRARIES))
 
-MODULES=utils assertion generator specification test abbreviations
+MODULES=utils assertion generator specification shell test abbreviations
 
 ifeq ($(findstring $(OCAMLJAVA),$(wildcard $(OCAMLJAVA))),$(OCAMLJAVA))
 	EXTENSIONS=cmi cmo cmx cmj
