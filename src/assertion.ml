@@ -30,68 +30,68 @@ let fail_msg = fail "" ""
 
 let default_printer _ = ""
 
-let assert_equal ?(eq=(=)) ?(prn=default_printer) ?(msg="") x y =
+let equal ?(eq=(=)) ?(prn=default_printer) ?(msg="") x y =
   if not (eq x y) then fail (prn x) (prn y) msg
 
-let assert_not_equal ?(eq=(=)) ?(prn=default_printer) ?(msg="") x y =
+let not_equal ?(eq=(=)) ?(prn=default_printer) ?(msg="") x y =
   if eq x y then fail (prn x) (prn y) msg
 
-let assert_same ?(prn=default_printer) ?(msg="") x y =
+let same ?(prn=default_printer) ?(msg="") x y =
   if not (x == y) then fail (prn x) (prn y) msg
 
-let assert_not_same ?(prn=default_printer) ?(msg="") x y =
+let not_same ?(prn=default_printer) ?(msg="") x y =
   if x == y then fail (prn x) (prn y) msg
 
 
 (* Function builders *)
 
-let make_equal e p = assert_equal ~eq:e ~prn:p
+let make_equal e p = equal ~eq:e ~prn:p
 
-let make_not_equal e p = assert_not_equal ~eq:e ~prn:p
+let make_not_equal e p = not_equal ~eq:e ~prn:p
 
 
 (* Specialized functions *)
 
-let assert_equal_bool = make_equal (=) string_of_bool
+let equal_bool = make_equal (=) string_of_bool
 
-let assert_not_equal_bool = make_not_equal (=) string_of_bool
+let not_equal_bool = make_not_equal (=) string_of_bool
 
-let assert_equal_int = make_equal (=) string_of_int
+let equal_int = make_equal (=) string_of_int
 
-let assert_not_equal_int = make_not_equal (=) string_of_int
+let not_equal_int = make_not_equal (=) string_of_int
 
-let assert_equal_int32 = make_equal (=) Int32.to_string
+let equal_int32 = make_equal (=) Int32.to_string
 
-let assert_not_equal_int32 = make_not_equal (=) Int32.to_string
+let not_equal_int32 = make_not_equal (=) Int32.to_string
 
-let assert_equal_int64 = make_equal (=) Int64.to_string
+let equal_int64 = make_equal (=) Int64.to_string
 
-let assert_not_equal_int64 = make_not_equal (=) Int64.to_string
+let not_equal_int64 = make_not_equal (=) Int64.to_string
 
-let assert_equal_nativeint = make_equal (=) Nativeint.to_string
+let equal_nativeint = make_equal (=) Nativeint.to_string
 
-let assert_not_equal_nativeint = make_not_equal (=) Nativeint.to_string
+let not_equal_nativeint = make_not_equal (=) Nativeint.to_string
 
 let string_of_char c = "'" ^ (Char.escaped c) ^ "'"
 
-let assert_equal_char = make_equal (=) string_of_char
+let equal_char = make_equal (=) string_of_char
 
-let assert_not_equal_char = make_not_equal (=) string_of_char
+let not_equal_char = make_not_equal (=) string_of_char
 
 let string_of_string s = "\"" ^ (String.escaped s) ^ "\""
 
-let assert_equal_string = make_equal (=) string_of_string
+let equal_string = make_equal (=) string_of_string
 
-let assert_not_equal_string = make_not_equal (=) string_of_string
+let not_equal_string = make_not_equal (=) string_of_string
 
 let make_float_eq eps =
   fun x y -> let delta = y -. x in (abs_float delta) <= eps
 
-let assert_equal_float ?(eps=epsilon_float) =
-  assert_equal ~eq:(make_float_eq eps) ~prn:string_of_float
+let equal_float ?(eps=epsilon_float) =
+  equal ~eq:(make_float_eq eps) ~prn:string_of_float
 
-let assert_not_equal_float ?(eps=epsilon_float) =
-  assert_not_equal ~eq:(make_float_eq eps) ~prn:string_of_float
+let not_equal_float ?(eps=epsilon_float) =
+  not_equal ~eq:(make_float_eq eps) ~prn:string_of_float
 
 let make_complex_eq eps =
   fun x y ->
@@ -104,21 +104,96 @@ let make_complex_eq eps =
 
 let string_of_complex x = Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im
 
-let assert_equal_complex ?(eps=epsilon_float) =
-  assert_equal ~eq:(make_complex_eq eps) ~prn:string_of_complex
+let equal_complex ?(eps=epsilon_float) =
+  equal ~eq:(make_complex_eq eps) ~prn:string_of_complex
 
-let assert_not_equal_complex ?(eps=epsilon_float) =
-  assert_not_equal ~eq:(make_complex_eq eps) ~prn:string_of_complex
+let not_equal_complex ?(eps=epsilon_float) =
+  not_equal ~eq:(make_complex_eq eps) ~prn:string_of_complex
+
+let equal_big_int = make_equal Big_int.eq_big_int Big_int.string_of_big_int
+
+let not_equal_big_int = make_not_equal Big_int.eq_big_int Big_int.string_of_big_int
+
+let equal_num = make_equal Num.eq_num Num.string_of_num
+
+let not_equal_num = make_not_equal Num.eq_num Num.string_of_num
 
 
 (* Miscellaneous *)
 
-let assert_true ?(msg="") x =
+let is_true ?(msg="") x =
   if not x then fail_msg msg
 
-let assert_false ?(msg="") x =
+let is_false ?(msg="") x =
   if x then fail_msg msg
 
-let assert_raises ?(msg="") f =
-  let exn = try ignore (f ()); true with _ -> false in
+let raises ?(msg="") f =
+  let exn = try ignore (f ()); false with _ -> true in
+  if not exn then fail_msg msg
+
+let no_raise ?(msg="") f =
+  let exn = try ignore (f ()); false with _ -> true in
   if exn then fail_msg msg
+
+
+(* Deprecated functions *)
+
+let assert_equal = equal
+
+let assert_not_equal = not_equal
+
+let assert_same = same
+
+let assert_not_same = not_same
+
+let assert_equal_bool = equal_bool
+
+let assert_not_equal_bool = not_equal_bool
+
+let assert_equal_int = equal_int
+
+let assert_not_equal_int = not_equal_int
+
+let assert_equal_int32 = equal_int32
+
+let assert_not_equal_int32 = not_equal_int32
+
+let assert_equal_int64 = equal_int64
+
+let assert_not_equal_int64 = not_equal_int64
+
+let assert_equal_nativeint = equal_nativeint
+
+let assert_not_equal_nativeint = not_equal_nativeint
+
+let assert_equal_char = equal_char
+
+let assert_not_equal_char = not_equal_char
+
+let assert_equal_string = equal_string
+
+let assert_not_equal_string = not_equal_string
+
+let assert_equal_float = equal_float
+
+let assert_not_equal_float = not_equal_float
+
+let assert_equal_complex = equal_complex
+
+let assert_not_equal_complex = not_equal_complex
+
+let assert_equal_big_int = equal_big_int
+
+let assert_not_equal_big_int = not_equal_big_int
+
+let assert_equal_num = equal_num
+
+let assert_not_equal_num = not_equal_num
+
+let assert_true = is_true
+
+let assert_false = is_false
+
+let assert_raises = raises
+
+let assert_no_raise = no_raise
