@@ -35,7 +35,7 @@ type result =
       (** Indicates that the assertion-based test passed. *)
   | Failed of string * string * string
       (** Indicates that the assertion-based test failed
-          (parameters are waited value, actual value, and message). *)
+          (parameters are expected value, actual value, and message). *)
   | Report of int * int * int * (string list) * ((string * int) list)
       (** Indicates how the generator-based execution performed
           Parameters are:
@@ -54,6 +54,17 @@ type 'a classifier = 'a -> string
 
 type t
 (** The type of tests. *)
+
+type output_mode =
+  | Text_output of out_channel
+      (** Classical output, parameter being destination. *)
+  | Html_output of out_channel
+      (** XML output, parameter being destination. *)
+  | Xml_output of out_channel
+      (** XML output, parameter being destination. *)
+  | Csv_output of out_channel * string
+      (** CSV output, parameters being destination and separator. *)
+(** The type of output modes, that is how tests result are written.*)
 
 
 (** {6 Assertion-based tests} *)
@@ -105,11 +116,13 @@ val exec_test : t -> result
 val exec_tests : t list -> result list
 (** [exec_tests l] is equivalent to [List.map exec_test l]. *)
 
-val run_test : t -> unit
-(** Runs the passed test, printing result on the standard output. *)
+val run_test : ?output:output_mode -> t -> unit
+(** Runs the passed test, printing result according to passed output mode
+    (by default bare text on the standard output). *)
 
-val run_tests : t list -> unit
-(** Runs the passed test list, printing result on the standard output. *)
+val run_tests : ?output:output_mode -> t list -> unit
+(** Runs the passed test list, printing result according to passed output mode
+    (by default bare text on the standard output). *)
 
 val check : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** [check ...] is equivalent to [run_test (make_random_test ...)]. *)

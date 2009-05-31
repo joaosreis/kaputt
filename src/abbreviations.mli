@@ -21,18 +21,49 @@
 
 (** {6 Shorthands for modules} *)
 
-(** Shorthand for [Assertion] module. *)
+(** Shorthand for [Assertion] module.
+    {b The {i assert_xyz} are deprecated.} *)
 module Assert :
     sig
       val fail : string -> string -> string -> 'a
       val fail_msg : string -> 'a
       val default_printer : 'a -> string
+      val equal : ?eq:('a -> 'a -> bool) -> ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
+      val not_equal : ?eq:('a -> 'a -> bool) -> ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
+      val same : ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
+      val not_same : ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
+      val make_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a -> 'a -> unit
+      val make_not_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a -> 'a -> unit
+      val equal_bool : ?msg:string -> bool -> bool -> unit
+      val not_equal_bool : ?msg:string -> bool -> bool -> unit
+      val equal_int : ?msg:string -> int -> int -> unit
+      val not_equal_int : ?msg:string -> int -> int -> unit
+      val equal_int32 : ?msg:string -> int32 -> int32 -> unit
+      val not_equal_int32 : ?msg:string -> int32 -> int32 -> unit
+      val equal_int64 : ?msg:string -> int64 -> int64 -> unit
+      val not_equal_int64 : ?msg:string -> int64 -> int64 -> unit
+      val equal_nativeint : ?msg:string -> nativeint -> nativeint -> unit
+      val not_equal_nativeint : ?msg:string -> nativeint -> nativeint -> unit
+      val equal_char : ?msg:string -> char -> char -> unit
+      val not_equal_char : ?msg:string -> char -> char -> unit
+      val equal_string : ?msg:string -> string -> string -> unit
+      val not_equal_string : ?msg:string -> string -> string -> unit
+      val equal_float : ?eps:float -> ?msg:string -> float -> float -> unit
+      val not_equal_float : ?eps:float -> ?msg:string -> float -> float -> unit
+      val equal_complex : ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
+      val not_equal_complex : ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
+      val equal_big_int : ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
+      val not_equal_big_int : ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
+      val equal_num : ?msg:string -> Num.num -> Num.num -> unit
+      val not_equal_num : ?msg:string -> Num.num -> Num.num -> unit
+      val is_true : ?msg:string -> bool -> unit
+      val is_false : ?msg:string -> bool -> unit
+      val raises : ?msg:string -> (unit -> 'a) -> unit
+      val no_raise : ?msg:string -> (unit -> 'a) -> unit
       val assert_equal : ?eq:('a -> 'a -> bool) -> ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
       val assert_not_equal : ?eq:('a -> 'a -> bool) -> ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
       val assert_same : ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
       val assert_not_same : ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
-      val make_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a -> 'a -> unit
-      val make_not_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a -> 'a -> unit
       val assert_equal_bool : ?msg:string -> bool -> bool -> unit
       val assert_not_equal_bool : ?msg:string -> bool -> bool -> unit
       val assert_equal_int : ?msg:string -> int -> int -> unit
@@ -51,6 +82,10 @@ module Assert :
       val assert_not_equal_float : ?eps:float -> ?msg:string -> float -> float -> unit
       val assert_equal_complex : ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
       val assert_not_equal_complex : ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
+      val assert_equal_big_int : ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
+      val assert_not_equal_big_int : ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
+      val assert_equal_num : ?msg:string -> Num.num -> Num.num -> unit
+      val assert_not_equal_num : ?msg:string -> Num.num -> Num.num -> unit
       val assert_true : ?msg:string -> bool -> unit
       val assert_false : ?msg:string -> bool -> unit
       val assert_raises : ?msg:string -> (unit -> 'a) -> unit
@@ -93,11 +128,28 @@ module Gen :
       val float : float t
       val make_float : float -> float -> float t
       val complex : float t -> float t -> Complex.t t
+      val big_int : int t -> Big_int.big_int t
+      val num : Big_int.big_int t -> Big_int.big_int t -> Num.num t
       val array : int t -> 'a t -> ('a array) t
       val list : int t -> 'a t -> ('a list) t
       val option : bool t -> 'a t -> ('a option) t
       val ref : 'a t -> ('a ref) t
       val buffer : string t -> Buffer.t t
+      module type Gen = sig type g val g : g t end
+      module Map (M : Map.S) (G : Gen with type g = M.key) : sig
+        val gen : int t -> 'a t -> 'a M.t t
+      end
+      module Set (S : Set.S) (G : Gen with type g = S.elt) : sig
+        val gen : int t -> S.t t
+      end
+      val hashtbl : int t -> 'a t -> 'b t -> ('a, 'b) Hashtbl.t t
+      val queue : int t -> 'a t -> 'a Queue.t t
+      val stack : int t -> 'a t -> 'a Stack.t t
+      val weak : int t -> 'a option t -> 'a Weak.t t
+      module Weak (W : Weak.S) (G : Gen with type g = W.data) : sig
+        val gen : int t -> W.t t
+      end
+      val bigarray : ('a, 'b) Bigarray.kind -> 'c Bigarray.layout -> int array t -> 'a t -> ('a, 'b, 'c) Bigarray.Genarray.t t
       val lift : 'a -> string -> 'a t
       val select_list : 'a list -> ('a -> string) -> 'a t
       val select_list_weighted : ('a * int) list -> ('a -> string) -> 'a t
@@ -187,6 +239,27 @@ module Spec :
       val for_all_list : 'a predicate -> ('a list) predicate
       val exists_array : 'a predicate -> ('a array) predicate
       val for_all_array : 'a predicate -> ('a array) predicate
+      module type Pred = sig type p val p : p predicate end
+      module Map (M : Map.S) (P : Pred with type p = M.key) : sig
+        val exists : 'a predicate -> 'a M.t predicate
+        val for_all : 'a predicate -> 'a M.t predicate
+      end
+      module Set (S : Set.S) (P : Pred with type p = S.elt) : sig
+        val exists : S.t predicate
+        val for_all : S.t predicate
+      end
+      val exists_hashtbl : ('a * 'b) predicate -> (('a, 'b) Hashtbl.t) predicate
+      val for_all_hashtbl : ('a * 'b) predicate -> (('a, 'b) Hashtbl.t) predicate
+      val exists_queue : 'a predicate -> ('a Queue.t) predicate
+      val for_all_queue : 'a predicate -> ('a Queue.t) predicate
+      val exists_stack : 'a predicate -> ('a Stack.t) predicate
+      val for_all_stack : 'a predicate -> ('a Stack.t) predicate
+      val exists_weak : ('a option) predicate -> ('a Weak.t) predicate
+      val for_all_weak : ('a option) predicate -> ('a Weak.t) predicate
+      module Weak (W : Weak.S) (P : Pred with type p = W.data) : sig
+        val exists : W.t predicate
+        val for_all : W.t predicate
+      end
       val logand : 'a predicate -> 'a predicate -> 'a predicate
       val (&&&) : 'a predicate -> 'a predicate -> 'a predicate
       val logor : 'a predicate -> 'a predicate -> 'a predicate
@@ -201,6 +274,62 @@ module Spec :
       val zip5 : 'a predicate -> 'b predicate -> 'c predicate -> 'd predicate -> 'e predicate -> ('a * 'b * 'c * 'd * 'e) predicate
     end
 
+(** Shorthand for [Shell] module. *)
+module Shell :
+    sig
+      type ('a, 'b, 'c) command
+        constraint 'a = [< `Input | `No_input ]
+        constraint 'b = [< `Output | `No_output]
+        constraint 'c = [< `Error | `No_error]
+      val read_lines : string -> string list
+      val write_lines : string list -> string -> unit
+      val command : string -> ('a, 'b, 'c) command
+      val run : ('a, 'b, 'c) command -> int
+      val run_list : ('a, 'b, 'c) command list -> int
+      val file_exists : string -> bool
+      val is_directory : string -> bool
+      val getenv : string -> string
+      val files : string -> string list
+      val current_dir_name : string
+      val parent_dir_name : string
+      val is_relative : string -> bool
+      val is_implicit : string -> bool
+      val check_suffix : string -> string -> bool
+      val chop_suffix : string -> string -> string
+      val chop_extension : string -> string
+      val basename : string -> string
+      val dirname : string -> string
+      val concatname : string -> string -> string
+      val temp_file : string -> string -> string
+      val quote : string -> string
+      val pwd : unit -> string
+      val cd : string -> unit
+      val pushd : string -> unit
+      val popd : unit -> string
+      val chdir : string -> ([`No_input], [`No_output], [`Error]) command
+      val mkdir : ?options:string list -> string -> ([`No_input], [`No_output], [`Error]) command 
+      val rmdir : ?options:string list -> string -> ([`No_input], [`No_output], [`Error]) command
+      val ls : ?options:string list -> string list -> ([`No_input], [`Output], [`Error]) command
+      val cp : ?options:string list -> string list -> string -> ([`No_input], [`No_output], [`Error]) command
+      val rm : ?options:string list -> string list -> ([`No_input], [`No_output], [`Error]) command
+      val mv : ?options:string list -> string list -> string -> ([`No_input], [`No_output], [`Error]) command
+      val touch : ?options:string list -> string list -> ([`No_input], [`No_output], [`Error]) command
+      val cat : ?options:string list -> string list -> ([`No_input], [`Output], [`Error]) command
+      val echo : ?options:string list -> string -> ([`No_input], [`Output], [`Error]) command
+      val diff : ?options:string list -> string -> string -> ([`No_input], [`Output], [`Error]) command
+      val grep : ?options:string list -> string -> ([`Input], [`Output], [`Error]) command
+      val grep_files : ?options:string list -> string -> string list -> ([`No_input], [`Output], [`Error]) command
+      val sed : ?options:string list -> string -> ([`Input], [`Output], [`Error]) command
+      val pipe : ('a, [`Output], 'c1) command -> ([`Input], 'b , 'c2) command -> ('a, 'b, 'c2) command
+      val (|>) : ('a, [`Output], 'c1) command -> ([`Input], 'b , 'c2) command -> ('a, 'b, 'c2) command
+      val redirect_output : ('a, [`Output], 'c) command -> string -> ('a, [`No_output], 'c) command
+val (>>) : ('a, [`Output], 'c) command -> string -> ('a, [`No_output], 'c) command
+      val redirect_append : ('a, [`Output], 'c) command -> string -> ('a, [`No_output], 'c) command
+      val (>>>) : ('a, [`Output], 'c) command -> string -> ('a, [`No_output], 'c) command
+      val redirect_error : ('a, 'b, [`Error]) command -> string -> ('a, 'b, [`No_error]) command
+val (>>>>) : ('a, 'b, [`Error]) command -> string -> ('a, 'b, [`No_error]) command
+    end
+
 (** Bare alias for [Test] module. *)
 module Test :
     sig
@@ -211,15 +340,21 @@ module Test :
         | Exit_code of int
       type 'a classifier = 'a -> string
       type t
+      type output_mode = Test.output_mode =
+        | Text_output of out_channel
+        | Html_output of out_channel
+        | Xml_output of out_channel
+        | Csv_output of out_channel * string
       val return : 'a -> (unit -> 'a)
       val make_assert_test : ?title:string -> (unit -> 'a) -> ('a -> 'b) -> ('b -> unit) -> t
       val make_simple_test : ?title:string -> (unit -> unit) -> t
       val default_classifier : 'a classifier
       val make_random_test : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
+      val make_shell_test : ?title:string -> ('a, 'b, 'c) Shell.command list -> t
       val exec_test : t -> result
       val exec_tests : t list -> result list
-      val run_test : t -> unit
-      val run_tests : t list -> unit
+      val run_test : ?output:output_mode -> t -> unit
+      val run_tests : ?output:output_mode -> t list -> unit
       val check : ?title:string -> ?nb_runs:int -> ?classifier:('a -> string) -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
     end
 
@@ -243,3 +378,15 @@ val (^^^) : 'a Specification.predicate -> 'a Specification.predicate -> 'a Speci
 
 val check : ?title:string -> ?nb_runs:int -> ?classifier:'a Test.classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** Shorthand for [Test.check] function. *)
+
+val (|>) : ('a, [`Output], 'c1) Shell.command -> ([`Input], 'b , 'c2) Shell.command -> ('a, 'b, 'c2) Shell.command
+(** Shorthand for [Shell.pipe] function. *)
+
+val (>>) : ('a, [`Output], 'c) Shell.command -> string -> ('a, [`No_output], 'c) Shell.command
+(** Shorthand for [Shell.redirect_output] function. *)
+
+val (>>>) : ('a, [`Output], 'c) Shell.command -> string -> ('a, [`No_output], 'c) Shell.command
+(** Shorthand for [Shell.redirect_append] function. *)
+
+val (>>>>) : ('a, 'b, [`Error]) Shell.command -> string -> ('a, 'b, [`No_error]) Shell.command
+(** Shorthand for [Shell.redirect_error] function. *)

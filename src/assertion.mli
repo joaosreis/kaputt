@@ -24,13 +24,13 @@
 exception Failed of string * string * string
 (** The exception raised when an assertion fails.
     The parameters are:
-    - the waited value (as a string);
+    - the expected value (as a string);
     - the actual value (as a string);
     - the message associated with the failure. *)
 
 val fail : string -> string -> string -> 'a
 (** Raises [Failed] with the passed parameters
-    (waited value, actual value, and message). *)
+    (expected value, actual value, and message). *)
 
 val fail_msg : string -> 'a
 (** [fail_msg m] is equivalent to [fail "" "" m]. *)

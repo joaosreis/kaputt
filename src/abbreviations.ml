@@ -25,6 +25,8 @@ module Gen = Generator
 
 module Spec = Specification
 
+module Shell = Shell
+
 module Test = Test
 
 
@@ -41,3 +43,11 @@ let (|||) = Specification.logor
 let (^^^) = Specification.logxor
 
 let check = Test.check
+
+let (|>) = Shell.pipe
+
+let (>>) = Shell.redirect_output
+
+let (>>>) = Shell.redirect_append
+
+let (>>>>) = Shell.redirect_error

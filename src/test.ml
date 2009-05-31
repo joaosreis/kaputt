@@ -29,6 +29,12 @@ type 'a classifier = 'a -> string
 
 type t = string * (unit -> result)
 
+type output_mode =
+  | Text_output of out_channel
+  | Html_output of out_channel
+  | Xml_output of out_channel
+  | Csv_output of out_channel * string
+
 
 (* Generation of titles *)
 
@@ -109,39 +115,268 @@ let exec_test (_, func) =
 
 let exec_tests = List.map exec_test
 
-let run_test (name, func) =
-  match func () with
-  | Passed ->
-      Printf.printf "Test '%s' ... passed\n" name
-  | Failed (waited, actual, "") ->
-      Printf.printf "Test '%s' ... failed\n  waited `%s` but received `%s`\n" name waited actual
-  | Failed (waited, actual, message) ->
-      Printf.printf "Test '%s' ... failed\n  %s (waited `%s` but received `%s`)\n" name message waited actual
-  | Report (valid, total, uncaught, counterexamples, categories) ->
-      Printf.printf "Test '%s' ... %d/%d case%s passed %s\n"
-        name
-        valid
-        total
-        (if valid > 1 then "s" else "")
-        (match uncaught with
-        | 0 -> ""
-        | 1 -> "(1 uncaught exception)"
-        | n -> "(" ^ (string_of_int n) ^ " uncaught exceptions)");
-      if counterexamples <> [] then
-        Printf.printf "  counterexample%s: %s\n"
-          (if (List.length counterexamples) > 1 then "s" else "")
-          (String.concat ", " counterexamples);
-      if (List.length categories) > 1 then begin
-        print_endline "  categories:";
-        List.iter
-          (fun (c, n) ->
-            Printf.printf "    %s -> %d occurrence%s\n" c n (if n > 1 then "s" else ""))
-          categories
-      end
-  | Exit_code c ->
-      Printf.printf "Test '%s' ... returned code %d\n" name c
+let escape s =
+  let buff = Buffer.create (String.length s) in
+  String.iter
+    (function
+      | '<' -> Buffer.add_string buff "&lt;"
+      | '>' -> Buffer.add_string buff "&gt;"
+      | '\"' -> Buffer.add_string buff "&quot;"
+      | '&' -> Buffer.add_string buff "&amp;"
+      | '\t' -> for i = 1 to 4 do Buffer.add_string buff "&nbsp;" done
+      | ch -> Buffer.add_char buff ch)
+    s;
+  Buffer.contents buff
 
-let run_tests = List.iter run_test
+let version = "1.0-beta"
+
+let make_output = function
+  | Text_output out ->
+      object
+        method header = ()
+        method footer = ()
+        method result name res =
+          match res with
+          | Passed ->
+              Printf.fprintf out "Test '%s' ... passed\n" name
+          | Failed (expected, actual, "") ->
+              Printf.fprintf out "Test '%s' ... failed\n  expected `%s` but received `%s`\n" name expected actual
+          | Failed (expected, actual, message) ->
+              Printf.fprintf out "Test '%s' ... failed\n  %s (expected `%s` but received `%s`)\n" name message expected actual
+          | Report (valid, total, uncaught, counterexamples, categories) ->
+              Printf.fprintf out "Test '%s' ... %d/%d case%s passed%s\n"
+                name
+                valid
+                total
+                (if valid > 1 then "s" else "")
+                (match uncaught with
+                | 0 -> ""
+                | 1 -> " (1 uncaught exception)"
+                | n -> " (" ^ (string_of_int n) ^ " uncaught exceptions)");
+              if counterexamples <> [] then
+                Printf.fprintf out "  counterexample%s: %s\n"
+                  (if (List.length counterexamples) > 1 then "s" else "")
+                  (String.concat ", " counterexamples);
+              if (List.length categories) > 1 then begin
+                Printf.fprintf out "  categories:\n";
+                List.iter
+                  (fun (c, n) ->
+                    Printf.fprintf out "    %s -> %d occurrence%s\n" c n (if n > 1 then "s" else ""))
+                  categories
+              end
+          | Exit_code c ->
+              Printf.fprintf out "Test '%s' ... returned code %d\n" name c
+        method close =
+          if (out != stdout) && (out != stderr) then close_out_noerr out
+      end
+  | Html_output out ->
+      let output_lines =
+        List.iter
+          (fun x ->
+            output_string out x;
+            output_char out '\n') in
+      object
+        method header =
+          output_lines
+            [ "<html>";
+              "<head>";
+              "<title>Kaputt report</title>";
+              "<style type=\"text/css\">";
+              "table.sample {";
+              "  border-width: 1px;";
+              "  border-style: solid;";
+              "  border-color: black;";
+              "  border-collapse: collapse;";
+              "  background-color: white;";
+              "}";
+              "table.sample th {";
+              "  border-width: 1px;";
+              "  padding: 3px;";
+              "  border-style: solid;";
+              "  border-color: black;";
+              "  background-color: white;";
+              "}";
+              "table.sample td {";
+              "  border-width: 1px;";
+              "  padding: 3px;";
+              "  border-style: solid;";
+              "  border-color: black;";
+              "  background-color: white;";
+              "}";
+              "</style>";
+              "</head>";
+              "<body>";
+              "<p align=\"center\">";
+              "<table class=\"sample\" width=\"85%\">";
+              ("<tr>" ^
+               "<th width=\"25%\">Test kind</th>" ^
+               "<th width=\"25%\">Test name</th>" ^
+               "<th>Test outcome</th>" ^
+               "</tr>") ]
+        method footer =
+          output_lines
+            [  "</table>";
+               "<p style=\"font-size: smaller; text-align: center;\">Generated by <a href=\"http://kaputt.x9c.fr\">Kaputt" ^ version ^ "</a></p>";
+              "</body>";
+              "</html>" ]
+        method result name res =
+          let output_strings = List.iter (output_string out) in
+          match res with
+          | Passed ->
+              output_strings
+                [ "<tr style=\"font-family: monospace;\">";
+                  "<td align=\"center\">Assertion-based</td>";
+                  "<td align=\"center\">"; name; "</td>";
+                  "<td>passed</td>";
+                  "</tr>\n" ]
+          | Failed (expected, actual, message) ->
+              output_strings
+                [ "<tr style=\"font-family: monospace;\">";
+                  "<td align=\"center\">Assertion-based</td>";
+                  "<td align=\"center\">"; name; "</td>" ];
+              flush out;
+              Printf.fprintf out "<td>failed - expected '%s' but received '%s'%s"
+                (escape expected)
+                (escape actual)
+                (if message = "" then "" else ("<br/>" ^ (escape message)));
+              flush out;
+              output_strings [ "</td></tr>\n" ]
+          | Report (valid, total, uncaught, counterexamples, categories) ->
+              output_strings
+                [ "<tr style=\"font-family: monospace;\">";
+                  "<td align=\"center\">Random-based</td>";
+                  "<td align=\"center\">"; name; "</td>";
+                  "<td>" ];
+              flush out;
+              Printf.fprintf out "%d/%d case%s passed%s\n"
+                valid
+                total
+                (if valid > 1 then "s" else "")
+                (match uncaught with
+                | 0 -> ""
+                | 1 -> " (1 uncaught exception)"
+                | n -> " (" ^ (string_of_int n) ^ " uncaught exceptions)");
+              if counterexamples <> [] then
+                Printf.fprintf out "<br/>&nbsp;&nbsp;counterexample%s: %s\n"
+                  (if (List.length counterexamples) > 1 then "s" else "")
+                  (String.concat ", " counterexamples);
+              if (List.length categories) > 1 then begin
+                output_strings ["<br/>&nbsp;&nbsp;categories:"];
+                flush out;
+                List.iter
+                  (fun (c, n) ->
+                    Printf.fprintf out "<br/>&nbsp;&nbsp;&nbsp;&nbsp;%s -> %d occurrence%s\n" c n (if n > 1 then "s" else ""))
+                  categories
+              end;
+              flush out;
+              output_strings [ "</td></tr>\n" ]
+          | Exit_code c ->
+              output_strings
+                [ "<tr style=\"font-family: monospace;\">";
+                  "<td align=\"center\">Shell-based</td>";
+                  "<td align=\"center\">"; name; "</td>";
+                  "<td>return code: " ^ (string_of_int c) ^ "</td>";
+                  "</tr>\n" ]
+        method close =
+          if (out != stdout) && (out != stderr) then close_out_noerr out
+      end
+  | Xml_output out ->
+      object
+        method header =
+          output_string out "<kaputt-report>\n"
+        method footer =
+          output_string out "</kaputt-report>\n"
+        method result name res =
+          match res with
+          | Passed ->
+              Printf.fprintf out "  <passed-test name=\"%s\"/>\n" (escape name)
+          | Failed (expected, actual, "") ->
+              Printf.fprintf out "  <failed-test name=\"%s\" expected=\"%s\" actual=\"%s\"/>\n"
+                (escape name)
+                (escape expected)
+                (escape actual)
+          | Failed (expected, actual, message) ->
+              Printf.fprintf out "  <failed-test name=\"%s\" expected=\"%s\" actual=\"%s\" message=\"%s\"/>\n"
+                (escape name)
+                (escape expected)
+                (escape actual)
+                (escape message)
+          | Report (valid, total, uncaught, counterexamples, categories) ->
+              Printf.fprintf out "  <random-test name=\"%s\" valid=\"%d\" total=\"%d\" uncaught=\"%d\">\n"
+                (escape name)
+                valid
+                total
+                uncaught;
+              if counterexamples <> [] then begin
+                output_string out "    <counterexamples>\n";
+                List.iter
+                  (fun x -> Printf.fprintf out "      <counterexample value=\"%s\"/>\n" (escape x))
+                  counterexamples;
+                output_string out "    </counterexamples>\n"
+              end;
+              if (List.length categories) > 1 then begin
+                output_string out "    <categories>\n";
+                List.iter
+                  (fun (c, n) -> Printf.fprintf out "      <category name=\"%s\" total=\"%d\"/>\n" (escape c) n)
+                  categories;
+                output_string out "    </categories>\n"
+              end;
+              output_string out "  </random-test>\n";
+          | Exit_code c ->
+              Printf.fprintf out "  <shell-test name=\"%s\" exit-code=\"%d\"/>\n" (escape name) c
+        method close =
+          if (out != stdout) && (out != stderr) then close_out_noerr out
+      end
+  | Csv_output (out, sep) ->
+      object
+        method header = ()
+        method footer = ()
+        method result name res =
+          let output_strings = List.iter (output_string out) in
+          match res with
+          | Passed ->
+              output_strings ["passed-test"; sep; name; "\n"]
+          | Failed (expected, actual, message) ->
+              output_strings [ "failed-test"; sep;
+                               name; sep;
+                               expected; sep;
+                               actual; "\n" ];
+              if message <> "" then  output_strings [sep; message]
+          | Report (valid, total, uncaught, counterexamples, categories) ->
+              output_strings [ "random-test (stats)"; sep;
+                               name; sep;
+                               (string_of_int valid); sep;
+                               (string_of_int total); sep;
+                               (string_of_int uncaught); "\n" ];
+              if counterexamples <> [] then
+                output_strings [ "random-test (counterexamples)"; sep;
+                                 name; sep;
+                                 (String.concat sep counterexamples); "\n" ];
+              if (List.length categories) > 1 then begin
+                output_strings [ "random-test (categories)"; sep; name];
+                List.iter
+                  (fun (c, n) ->
+                    output_strings [sep; c; (string_of_int n)])
+                  categories;
+                output_string out "\n"
+              end
+          | Exit_code c ->
+              output_strings ["shell-test"; sep; name; sep; (string_of_int c); "\n"]
+        method close =
+          if (out != stdout) && (out != stderr) then close_out_noerr out
+      end
+
+let run_tests ?(output=(Text_output stdout)) l =
+  let out = make_output output in
+  out#header;
+  List.iter
+    (fun (n, f) -> out#result n (f ()))
+    l;
+  out#footer;
+  out#close
+
+let run_test ?(output=(Text_output stdout)) x =
+  run_tests ~output:output [x]
 
 let check ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) generator f spec =
   run_test
