@@ -64,7 +64,7 @@ CMJ_FILES=$(patsubst %,$(PATH_SRC)/%.cmj,$(MODULES))
 
 default:
 	@echo "available targets:"
-	@echo "  all         compiles all files"
+	@echo "  all         compiles all files, and generates html documentation"
 	@echo "  bytecode    compiles the bytecode version (ocamlc)"
 	@echo "  native      compiles the native version (ocamlopt)"
 	@echo "  java        compiles the java version (ocamljava)"
@@ -73,7 +73,7 @@ default:
 	@echo "  clean       deletes all produced files (excluding documentation)"
 	@echo "  clean-doc   deletes documentation files"
 	@echo "  install     copies library files"
-	@echo "  depend      generates dependency files"
+	@echo "  depend      populates the dependency files (they are initially empty)"
 	@echo "installation is usually done by: 'make all' and 'sudo make install'"
 
 
