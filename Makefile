@@ -34,6 +34,11 @@ endif
 OCAMLC=$(PATH_OCAML_BIN)/ocamlc
 OCAMLOPT=$(PATH_OCAML_BIN)/ocamlopt
 OCAMLJAVA=$(PATH_OCAML_BIN)/ocamljava
+ifeq ($(findstring $(OCAMLJAVA),$(wildcard $(OCAMLJAVA))),$(OCAMLJAVA))
+OCAMLJAVA_AVAILABLE=yes
+else
+OCAMLJAVA_AVAILABLE=no
+endif
 OCAMLDOC=$(PATH_OCAML_BIN)/ocamldoc
 OCAML_COMPILE_FLAGS=-w Ael -warn-error A -I $(PATH_SRC) -for-pack Kaputt
 OCAML_JAVA_FLAGS=-java-package fr.x9c.kaputt
@@ -51,7 +56,7 @@ CMJA_FILES=$(patsubst %,%.cmja,$(OCAML_LIBRARIES))
 
 MODULES=utils assertion generator specification shell test abbreviations
 
-ifeq ($(findstring $(OCAMLJAVA),$(wildcard $(OCAMLJAVA))),$(OCAMLJAVA))
+ifeq ($(OCAMLJAVA_AVAILABLE),yes)
 	EXTENSIONS=cmi cmo cmx cmj
 else
 	EXTENSIONS=cmi cmo cmx
@@ -80,7 +85,7 @@ default:
 	@echo "installation is usually done by: 'make all' and 'sudo make install'"
 
 
-ifeq ($(findstring $(OCAMLJAVA),$(wildcard $(OCAMLJAVA))),$(OCAMLJAVA))
+ifeq ($(OCAMLJAVA_AVAILABLE),yes)
 all: clean-all bytecode native java html-doc
 else
 all: clean-all bytecode native html-doc
