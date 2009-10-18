@@ -45,7 +45,7 @@ OCAML_JAVA_FLAGS=-java-package fr.x9c.kaputt
 OCAML_LIBRARIES=
 
 LIBRARY=kaputt
-OCAML_DOC_TITLE=Kaputt
+OCAML_DOC_TITLE=Kaputt $(shell cat VERSION)
 
 INSTALL_DIR_BASE=$(shell $(OCAMLC) -where)
 INSTALL_DIR=$(INSTALL_DIR_BASE)/kaputt
