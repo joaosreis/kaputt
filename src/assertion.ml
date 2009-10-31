@@ -123,6 +123,12 @@ let is_true ?(msg="") x =
 let is_false ?(msg="") x =
   if x then fail_msg msg
 
+let is_some ?(msg="") x =
+  if x = None then fail_msg msg
+
+let is_none ?(msg="") x =
+  if x <> None then fail_msg msg
+
 let raises ?(msg="") f =
   let exn = try ignore (f ()); false with _ -> true in
   if not exn then fail_msg msg

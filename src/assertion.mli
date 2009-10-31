@@ -160,6 +160,14 @@ val is_false : ?msg:string -> bool -> unit
 (** [false ~msg:m x] raises [Failed] if [x] true.
     The default value for [m] is [""]. *)
 
+val is_some : ?msg:string -> 'a option -> unit
+(** [is_some ~msg:m x] raises [Failed] if [x] is equal to [None].
+    The default value for [m] is [""]. *)
+
+val is_none : ?msg:string -> 'a option -> unit
+(** [is_none ~msg:m x] raises [Failed] if [x] is different from [None].
+    The default value for [m] is [""]. *)
+
 val raises : ?msg:string -> (unit -> 'a) -> unit
 (** [raises ~msg:m f] raises [Failed] if [f ()] evaluates without raising
     an exception. The default value for [m] is [""]. *)
