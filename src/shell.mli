@@ -71,6 +71,14 @@ val getenv : string -> string
 val files : string -> string list
 (** Equivalent to [Sys.readdir] except that a list is returned. *)
 
+val files_with_filter : (string -> bool) -> string -> string list
+(** Equivalent to [files] except that the returned list is filtered by
+    the passed function. *)
+
+val files_with_suffix : string -> string -> string list
+(** [files_with_suffix s d] equivalent to [files d] except that only
+    the files with the suffix [s] are returned. *)
+
 val current_dir_name : string
 (** Equivalent to [Filename.current_dir_name]. *)
 

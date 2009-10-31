@@ -82,6 +82,13 @@ let getenv = Sys.getenv
 
 let files s = Array.to_list (Sys.readdir s)
 
+let files_with_filter f s =
+  let res = files s in
+  List.filter f res
+
+let files_with_suffix suff s =
+  files_with_filter (fun x -> Filename.check_suffix x suff) s
+
 let current_dir_name = Filename.current_dir_name
 
 let parent_dir_name = Filename.parent_dir_name
