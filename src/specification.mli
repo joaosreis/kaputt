@@ -213,7 +213,7 @@ val for_all_string : char predicate -> string predicate
 
 val exists_list : 'a predicate -> ('a list) predicate
 (** [exists_list p] constructs a predicate that evaluates to [true]
-    iff any of the element makes [p] evaluate to [true]. *)
+    iff any of the elements makes [p] evaluate to [true]. *)
 
 val for_all_list : 'a predicate -> ('a list) predicate
 (** [for_all_list p] constructs a predicate that evaluates to [true]
@@ -221,7 +221,7 @@ val for_all_list : 'a predicate -> ('a list) predicate
 
 val exists_array : 'a predicate -> ('a array) predicate
 (** [exists_array p] constructs a predicate that evaluates to [true]
-    iff any of the element makes [p] evaluate to [true]. *)
+    iff any of the elements makes [p] evaluate to [true]. *)
 
 val for_all_array : 'a predicate -> ('a array) predicate
 (** [for_all_array p] constructs a predicate that evaluates to [true]
@@ -262,7 +262,7 @@ end
 
 val exists_hashtbl : ('a * 'b) predicate -> (('a, 'b) Hashtbl.t) predicate
 (** [exists_hashtbl p] constructs a predicate that evaluates to [true]
-    iff any of the element makes [p] evaluate to [true]. *)
+    iff any of the elements makes [p] evaluate to [true]. *)
 
 val for_all_hashtbl : ('a * 'b) predicate -> (('a, 'b) Hashtbl.t) predicate
 (** [for_all_hashtbl p] constructs a predicate that evaluates to [true]
@@ -270,7 +270,7 @@ val for_all_hashtbl : ('a * 'b) predicate -> (('a, 'b) Hashtbl.t) predicate
 
 val exists_queue : 'a predicate -> ('a Queue.t) predicate
 (** [exists_queue p] constructs a predicate that evaluates to [true]
-    iff any of the element makes [p] evaluate to [true]. *)
+    iff any of the elements makes [p] evaluate to [true]. *)
 
 val for_all_queue : 'a predicate -> ('a Queue.t) predicate
 (** [for_all_queue p] constructs a predicate that evaluates to [true]
@@ -278,7 +278,7 @@ val for_all_queue : 'a predicate -> ('a Queue.t) predicate
 
 val exists_stack : 'a predicate -> ('a Stack.t) predicate
 (** [exists_stack p] constructs a predicate that evaluates to [true]
-    iff any of the element makes [p] evaluate to [true]. *)
+    iff any of the elements makes [p] evaluate to [true]. *)
 
 val for_all_stack : 'a predicate -> ('a Stack.t) predicate
 (** [for_all_stack p] constructs a predicate that evaluates to [true]
@@ -286,7 +286,7 @@ val for_all_stack : 'a predicate -> ('a Stack.t) predicate
 
 val exists_weak : ('a option) predicate -> ('a Weak.t) predicate
 (** [exists_weak p] constructs a predicate that evaluates to [true]
-    iff any of the element makes [p] evaluate to [true]. *)
+    iff any of the elements makes [p] evaluate to [true]. *)
 
 val for_all_weak : ('a option) predicate -> ('a Weak.t) predicate
 (** [for_all_weak p] constructs a predicate that evaluates to [true]
