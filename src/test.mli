@@ -43,9 +43,9 @@ type result =
           - total number of cases;
           - number of uncaught exceptions;
           - list of counterexamples found;
-          - map from categories to occurrences. *)
+          - map from categories to occurrences (as an association list). *)
   | Exit_code of int
-      (** Indicates of the shell-based execution performed
+      (** Indicates how the shell-based execution performed
           (parameter being the exit code of the executed command). *)
 (** The type of test outcomes. *)
 
@@ -75,11 +75,15 @@ val return : 'a -> (unit -> 'a)
 val make_assert_test : ?title:string -> (unit -> 'a) -> ('a -> 'b) -> ('b -> unit) -> t
 (** [make_assert_test ~title:t set_up f tear_down] constructs a test running
     the function [f]. The function is feed by the result of a call to [set_up],
-    and the value returned by the function is passed to [tear_down]. *)
+    and the value returned by the function is passed to [tear_down].
+    The function is intended to use functions from the [Assertion] module to
+    check if computed values are equal to waited ones. *)
 
 val make_simple_test : ?title:string -> (unit -> unit) -> t
 (** [make_simple_test ~title:t f] constructs a test running the function [f].
-    It is equivalent to [make_assert_test ~title:t (return ()) f ignore]. *)
+    It is equivalent to [make_assert_test ~title:t (return ()) f ignore].
+    The function is intended to use functions from the [Assertion] module to
+    check if computed values are equal to waited ones. *)
 
 
 (** {6 Generator-based tests} *)
@@ -98,6 +102,14 @@ val make_random_test : ?title:string -> ?nb_runs:int -> ?classifier:'a classifie
     The classifier [c] is used to group generated elements into categories in
     order to have a better understanding of what the random elements actually
     tested.
+
+    The default values are:
+    - a auto-generated ["untitled no X"] string
+      ("X" being the value of a counter) for [title];
+    - [100] for [nb_runs];
+    - [default_classifier] for [classifier];
+    - [Generator.make_random ()] for [random_src].
+
     Raises [Invalid_arg] if [nb] is not strictly positive. *)
 
 
