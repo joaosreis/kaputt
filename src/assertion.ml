@@ -137,6 +137,13 @@ let no_raise ?(msg="") f =
   let exn = try ignore (f ()); false with _ -> true in
   if exn then fail_msg msg
 
+let make_raises eq prn ?(msg="") f =
+  try
+    ignore (f ());
+    fail_msg msg
+  with e ->
+    if not (eq e) then fail "" (prn e) msg
+
 
 (* Deprecated functions *)
 

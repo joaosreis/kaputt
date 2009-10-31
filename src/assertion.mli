@@ -176,6 +176,12 @@ val no_raise : ?msg:string -> (unit -> 'a) -> unit
 (** [no_raise ~msg:m f] raises [Failed] if [f ()] raises an exception.
     The default value for [m] is [""]. *)
 
+val make_raises : (exn -> bool) -> (exn -> string) -> ?msg:string -> (unit -> 'a) -> unit
+(** [make_raises eq p ~msg:m f] raises [Failed] if [f ()] evaluates without
+    raising an exception [e] that makes [eq e] evaluates to [true]. [p] is used
+    to convert [e] into a string (used only upon failure), and [m] is the
+    message associated with the assertion (defaulting to [""]). *)
+
 
 (** {6 Deprecated functions} *)
 
