@@ -30,6 +30,11 @@ let string_of_complex x =
 
 exception End_of_array
 
+(* returns a couple where the first component is the coordinates of the first
+   element of the array, while the second component is a function that will
+   update the coordinates to point to the next element of the array (raising
+   End_of_array if the coordinates already designate the last element of the
+   array). *)
 let iterator ba =
   let is_c_layout = Bigarray.Genarray.layout ba = (Obj.magic Bigarray.c_layout) in
   let dims = Bigarray.Genarray.dims ba in
