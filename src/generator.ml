@@ -563,38 +563,92 @@ let map1 f p (gen_g, _) =
   p
 
 let map2 f p ((gen_g1, _), (gen_g2, _)) =
-  (fun r -> f (gen_g1 r) (gen_g2 r)),
+  (fun r ->
+    let x1 = gen_g1 r in
+    let x2 = gen_g2 r in
+    f x1 x2),
   p
 
 let map3 f p ((gen_g1, _), (gen_g2, _), (gen_g3, _)) =
-  (fun r -> f (gen_g1 r) (gen_g2 r) (gen_g3 r)),
+  (fun r ->
+    let x1 = gen_g1 r in
+    let x2 = gen_g2 r in
+    let x3 = gen_g3 r in
+    f x1 x2 x3),
   p
 
 let map4 f p ((gen_g1, _), (gen_g2, _), (gen_g3, _), (gen_g4, _)) =
-  (fun r -> f (gen_g1 r) (gen_g2 r) (gen_g3 r) (gen_g4 r)),
+  (fun r ->
+    let x1 = gen_g1 r in
+    let x2 = gen_g2 r in
+    let x3 = gen_g3 r in
+    let x4 = gen_g4 r in
+    f x1 x2 x3 x4),
   p
 
 let map5 f p ((gen_g1, _), (gen_g2, _), (gen_g3, _), (gen_g4, _), (gen_g5, _)) =
-  (fun r -> f (gen_g1 r) (gen_g2 r) (gen_g3 r) (gen_g4 r) (gen_g5 r)),
+  (fun r ->
+    let x1 = gen_g1 r in
+    let x2 = gen_g2 r in
+    let x3 = gen_g3 r in
+    let x4 = gen_g4 r in
+    let x5 = gen_g5 r in
+    f x1 x2 x3 x4 x5),
   p
 
 external zip1 : 'a t -> 'a t = "%identity"
 
 let zip2 (f1, c1) (f2, c2) =
-  (fun r -> (f1 r), (f2 r)),
-  (fun (x, y) -> Printf.sprintf "(%s, %s)" (c1 x) (c2 y))
+  (fun r ->
+    let x1 = f1 r in
+    let x2 = f2 r in
+    (x1, x2)),
+  (fun (x, y) ->
+    let x1 = c1 x in
+    let x2 = c2 y in
+    Printf.sprintf "(%s, %s)" x1 x2)
 
 let zip3 (f1, c1) (f2, c2) (f3, c3) =
-  (fun r -> (f1 r), (f2 r), (f3 r)),
-  (fun (x, y, z) -> Printf.sprintf "(%s, %s, %s)" (c1 x) (c2 y) (c3 z))
+  (fun r ->
+    let x1 = f1 r in
+    let x2 = f2 r in
+    let x3 = f3 r in
+    (x1, x2, x3)),
+  (fun (x, y, z) ->
+    let x1 = c1 x in
+    let x2 = c2 y in
+    let x3 = c3 z in
+    Printf.sprintf "(%s, %s, %s)" x1 x2 x3)
 
 let zip4 (f1, c1) (f2, c2) (f3, c3) (f4, c4) =
-  (fun r -> (f1 r), (f2 r), (f3 r), (f4 r)),
-  (fun (x, y, z, t) -> Printf.sprintf "(%s, %s, %s, %s)" (c1 x) (c2 y) (c3 z) (c4 t))
+  (fun r ->
+    let x1 = f1 r in
+    let x2 = f2 r in
+    let x3 = f3 r in
+    let x4 = f4 r in
+    (x1, x2, x3, x4)),
+  (fun (x, y, z, t) ->
+    let x1 = c1 x in
+    let x2 = c2 y in
+    let x3 = c3 z in
+    let x4 = c4 t in
+    Printf.sprintf "(%s, %s, %s, %s)" x1 x2 x3 x4)
 
 let zip5 (f1, c1) (f2, c2) (f3, c3) (f4, c4) (f5, c5) =
-  (fun r -> (f1 r), (f2 r), (f3 r), (f4 r), (f5 r)),
-  (fun (x, y, z, t, u) -> Printf.sprintf "(%s, %s, %s, %s, %s)" (c1 x) (c2 y) (c3 z) (c4 t) (c5 u))
+  (fun r ->
+    let x1 = f1 r in
+    let x2 = f2 r in
+    let x3 = f3 r in
+    let x4 = f4 r in
+    let x5 = f5 r in
+    (x1, x2, x3, x4, x5)),
+  (fun (x, y, z, t, u) ->
+    let x1 = c1 x in
+    let x2 = c2 y in
+    let x3 = c3 z in
+    let x4 = c4 t in
+    let x5 = c5 u in
+    Printf.sprintf "(%s, %s, %s, %s, %s)" x1 x2 x3 x4 x5)
 
 
 (* Currying functions *)
