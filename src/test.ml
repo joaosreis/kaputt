@@ -70,6 +70,14 @@ let make_simple_test ?(title=get_title ()) f =
 let default_classifier _ = ""
 
 let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
+  let dummy_post _ = false in
+  let rec extract x = function
+    | hd :: tl ->
+	if hd.Specification.precond x then
+	  hd.Specification.postcond
+	else
+	  extract x tl
+    | [] -> dummy_post in
   if nb_runs <= 0 then invalid_arg "Kaputt.Test.make_random_test";
   title,
   (fun () ->
@@ -79,16 +87,18 @@ let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_c
     let categories = Hashtbl.create 16 in
     for i = 1 to nb_runs do
       let x = ref (gen random_src) in
-      while List.for_all (fun s -> not (s.Specification.precond !x)) spec do
-        x := gen random_src
+      let post = ref (extract !x spec) in
+      while !post == dummy_post do
+	let tmp = gen random_src in
+        x := tmp;
+	post := extract tmp spec
       done;
       try
         let y = f !x in
         let cat = classifier !x in
         let curr = try Hashtbl.find categories cat with _ -> 0 in
         Hashtbl.replace categories cat (succ curr);
-        let elem = List.find (fun s -> s.Specification.precond !x) spec in
-        if elem.Specification.postcond (!x, y) then
+        if !post (!x, y) then
           incr valid
         else
           let x' = prn !x in
