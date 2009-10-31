@@ -130,6 +130,9 @@ let escape s =
 
 let version = "1.0-beta"
 
+let safe_close out =
+  if (out != stdout) && (out != stderr) then close_out_noerr out
+
 let make_output = function
   | Text_output out ->
       object
@@ -166,8 +169,7 @@ let make_output = function
               end
           | Exit_code c ->
               Printf.fprintf out "Test '%s' ... returned code %d\n" name c
-        method close =
-          if (out != stdout) && (out != stderr) then close_out_noerr out
+        method close = safe_close out
       end
   | Html_output out ->
       let output_lines =
@@ -277,8 +279,7 @@ let make_output = function
                   "<td align=\"center\">"; name; "</td>";
                   "<td>return code: " ^ (string_of_int c) ^ "</td>";
                   "</tr>\n" ]
-        method close =
-          if (out != stdout) && (out != stderr) then close_out_noerr out
+        method close = safe_close out
       end
   | Xml_output out ->
       object
@@ -324,8 +325,7 @@ let make_output = function
               output_string out "  </random-test>\n";
           | Exit_code c ->
               Printf.fprintf out "  <shell-test name=\"%s\" exit-code=\"%d\"/>\n" (escape name) c
-        method close =
-          if (out != stdout) && (out != stderr) then close_out_noerr out
+        method close = safe_close out
       end
   | Csv_output (out, sep) ->
       object
@@ -362,8 +362,7 @@ let make_output = function
               end
           | Exit_code c ->
               output_strings ["shell-test"; sep; name; sep; (string_of_int c); "\n"]
-        method close =
-          if (out != stdout) && (out != stderr) then close_out_noerr out
+        method close = safe_close out
       end
 
 let run_tests ?(output=(Text_output stdout)) l =

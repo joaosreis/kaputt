@@ -118,11 +118,15 @@ val exec_tests : t list -> result list
 
 val run_test : ?output:output_mode -> t -> unit
 (** Runs the passed test, printing result according to passed output mode
-    (by default bare text on the standard output). *)
+    (by default bare text on the standard output).
+
+    The output channel if closed only iff it is neither [stdout], nor [stderr]. *)
 
 val run_tests : ?output:output_mode -> t list -> unit
 (** Runs the passed test list, printing result according to passed output mode
-    (by default bare text on the standard output). *)
+    (by default bare text on the standard output).
+
+    The output channel if closed only iff it is neither [stdout], nor [stderr]. *)
 
 val check : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** [check ...] is equivalent to [run_test (make_random_test ...)]. *)
