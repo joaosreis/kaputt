@@ -40,7 +40,7 @@ val read_lines : string -> string list
 
 val write_lines : string list -> string -> unit
 (** [write_lines l file] writes the strings from [l] to file [file],
-    a ['\n'] chracter being written after each string.
+    a ['\n'] character being written after each string.
     Raises an exception if an i/o error occurs. *)
 
 val command : string -> ('a, 'b, 'c) command
@@ -126,12 +126,12 @@ val cd : string -> unit
     Raises [Sys_error] if the directory does not exist. *)
 
 val pushd : string -> unit
-(** Pushes the current directory to the riectory stack, then changes the
+(** Pushes the current directory to the directory stack, then changes the
     current directory to the value of the passed argument.
     Raises [Sys_error] if the directory does not exist. *)
 
 val popd : unit -> string
-(** Changes the current directory to the value of poped from the directory stack.
+(** Changes the current directory to the value poped from the directory stack.
     Raise [Stack.Empty] if the directory stack is empty.
     Raises [Sys_error] if the directory does not exist. *)
 
