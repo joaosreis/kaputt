@@ -148,6 +148,11 @@ let popd () =
   res
 
 
+(* Basic commands *)
+
+let exit n = make_command "exit" [] [string_of_int n]
+
+
 (* Directory commands *)
 
 let chdir x = make_command "cd" [] [x]

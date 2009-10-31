@@ -136,6 +136,12 @@ val popd : unit -> string
     Raises [Sys_error] if the directory does not exist. *)
 
 
+(** {6 Basic commands} *)
+
+val exit : int -> ([`No_input], [`No_output], [`No_error]) command
+(** [exit n] builds a command returning the exit code [n]. *)
+
+
 (** {6 Directory commands} *)
 
 val chdir : string -> ([`No_input], [`No_output], [`Error]) command
