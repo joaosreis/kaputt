@@ -229,19 +229,34 @@ val for_all_array : 'a predicate -> ('a array) predicate
 
 module type Pred = sig
   type p
+  (** The type of predicate parameters. *)
+
   val p : p predicate
+  (** Actual predicate over [p] values. *)
 end
 (** Module type used for functor-based predicates. *)
 
 module Map (M : Map.S) (P : Pred with type p = M.key) : sig
   val exists : 'a predicate -> 'a M.t predicate
+  (** [exists p] constructs a predicate that evaluates to [true]
+      iff any of the map element [(k, v)] makes [P.p k && p v] evaluate
+      to [true]. *)
+
   val for_all : 'a predicate -> 'a M.t predicate
+  (** [for_all p] constructs a predicate that evaluates to [true]
+      iff all of the map elements [(k, v)] make [P.p k && p v] evaluate
+      to [true]. *)
 end
 (** Functor used to build predicates for [Map.S.t] values. *)
 
 module Set (S : Set.S) (P : Pred with type p = S.elt) : sig
   val exists : S.t predicate
+  (** Predicates that evaluates to [true] iff any of the set elements
+      makes [P.p] evaluate to [true]. *)
+
   val for_all : S.t predicate
+  (** Predicates that evaluates to [true] iff all of the set elements
+      make [P.p] evaluate to [true]. *)
 end
 (** Functor used to build predicates for [Set.S.t] values. *)
 
@@ -279,7 +294,12 @@ val for_all_weak : ('a option) predicate -> ('a Weak.t) predicate
 
 module Weak (W : Weak.S) (P : Pred with type p = W.data) : sig
   val exists : W.t predicate
+  (** Predicates that evaluates to [true] iff any of the weak hashtable
+      elements makes [P.p] evaluate to [true]. *)
+
   val for_all : W.t predicate
+  (** Predicates that evaluates to [true] iff all of the weak hashtable
+      elements make [P.p] evaluate to [true]. *)
 end
 (** Functor used to build predicates for [Weak.S.t] values. *)
 

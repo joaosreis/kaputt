@@ -218,17 +218,25 @@ val buffer : string t -> Buffer.t t
 
 module type Gen = sig
   type g
+  (** The type of generated values. *)
+
   val g : g t
+  (** Actual generator for [g] values. *)
 end
 (** Module type used for functor-based generators. *)
 
 module Map (M : Map.S) (G : Gen with type g = M.key) : sig
   val gen : int t -> 'a t -> 'a M.t t
+  (** [gen i g] constructs a generator for maps from [G.g] to ['a].
+      [i] is the generator used to determine the map size,
+      while [g] is used to generate ['a] values. *)
 end
 (** Functor used to build generators for [Map.S.t] values. *)
 
 module Set (S : Set.S) (G : Gen with type g = S.elt) : sig
   val gen : int t -> S.t t
+  (** [gen i] constructs a generator for sets of [G.g] values.
+      [i] is the generator used to determine the set size. *)
 end
 (** Functor used to build generators for [Set.S.t] values. *)
 
@@ -254,6 +262,8 @@ val weak : int t -> 'a option t -> 'a Weak.t t
 
 module Weak (W : Weak.S) (G : Gen with type g = W.data) : sig
   val gen : int t -> W.t t
+  (** [gen i] constructs a generator for weak hashtables of [G.g] values.
+      [i] is the generator used to determine the hashtable size. *)
 end
 (** Functor used to build generators for [Weak.S.t] values. *)
 
