@@ -153,11 +153,11 @@ val not_equal_num : ?msg:string -> Num.num -> Num.num -> unit
 (** {6 Miscellaneous} *)
 
 val is_true : ?msg:string -> bool -> unit
-(** [true ~msg:m x] raises [Failed] if [x] false.
+(** [is_true ~msg:m x] raises [Failed] if [x] false.
     The default value for [m] is [""]. *)
 
 val is_false : ?msg:string -> bool -> unit
-(** [false ~msg:m x] raises [Failed] if [x] true.
+(** [is_false ~msg:m x] raises [Failed] if [x] true.
     The default value for [m] is [""]. *)
 
 val is_some : ?msg:string -> 'a option -> unit
