@@ -166,8 +166,8 @@ val word : int t -> string t
 
 val words : int t -> int t -> string t
 (** [words n p] constructs a generator for [string] values representing sequences of words.
-    [n] is used to determine the number of words,
-    while [p] is used to determine the number of letters for a word. *)
+    [n] is used to determine the number of words, while [p] is used to determine the number
+    of letters for a word. Words are separated by single whitespaces. *)
 
 val float : float t
 (** Generator for [float] values. *)
