@@ -94,7 +94,7 @@ let not_equal_float ?(eps=epsilon_float) =
 let make_complex_eq eps =
   fun x y ->
     let delta = y.Complex.re -. x.Complex.re in
-    if (delta > eps) then
+    if (abs_float delta) > eps then
       false
     else
       let delta' = y.Complex.im -. x.Complex.im in
