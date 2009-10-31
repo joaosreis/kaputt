@@ -220,7 +220,7 @@ let big_int (gen_l, _) =
     for i = 1 to len do
       res := Big_int.add_int_big_int
           (gen_big_int_digit r)
-          (Big_int.mult_int_big_int  10 !res)
+          (Big_int.mult_int_big_int 10 !res)
     done;
     if s then !res else Big_int.minus_big_int !res),
   Big_int.string_of_big_int
@@ -282,14 +282,14 @@ let option (gen_k, _) (gen_e, prn_e) =
 
 let ref (gen_e, prn_e) =
   (fun r -> ref (gen_e r)),
-  (fun x -> "ref (" ^ (prn_e !x) ^ ")")    
+  (fun x -> "ref (" ^ (prn_e !x) ^ ")")
 
 let buffer (gen_e, _) =
   (fun r ->
     let buf = Buffer.create 16 in
     Buffer.add_string buf (gen_e r);
     buf),
-  (fun x -> Buffer.contents x)
+  (fun x -> Utils.string_of_string (Buffer.contents x))
 
 module type Gen = sig
   type g
@@ -372,7 +372,7 @@ let queue (gen_l, _) (gen_e, prn_e) =
     res),
   (fun s ->
     let buf = Buffer.create 16 in
-    Queue.iter (fun e -> Buffer.add_string buf (prn_e e)) s;
+    Queue.iter (fun e -> Buffer.add_string buf (prn_e e); Buffer.add_string buf "; ") s;
     Buffer.contents buf)
 
 let stack (gen_l, _) (gen_e, prn_e) =
@@ -386,7 +386,7 @@ let stack (gen_l, _) (gen_e, prn_e) =
     res),
   (fun s ->
     let buf = Buffer.create 16 in
-    Stack.iter (fun e -> Buffer.add_string buf (prn_e e)) s;
+    Stack.iter (fun e -> Buffer.add_string buf (prn_e e); Buffer.add_string buf "; ") s;
     Buffer.contents buf)
 
 let weak (gen_l, _) (gen_e, prn_e) =
@@ -539,7 +539,7 @@ let choose_array a =
 
 let choose_array_weighted a =
   if a = [||] then invalid_arg "Kaputt.Generator.choose_array_weighted";
-    let total = sum_array (Array.map snd a) in
+  let total = sum_array (Array.map snd a) in
   (fun r ->
     let w = Random.State.int r total in
     let (gen, _) = get_array w a 0 in
