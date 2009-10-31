@@ -23,6 +23,10 @@ type random = Random.State.t
 
 let make_random () = Random.State.make_self_init ()
 
+let make_random_seed x = Random.State.make [| x |]
+
+let make_random_full x = Random.State.make x
+
 
 (* Generator definition *)
 

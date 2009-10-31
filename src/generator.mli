@@ -27,6 +27,12 @@ type random = Random.State.t
 val make_random : unit -> random
 (** Creates a new random source. *)
 
+val make_random_seed : int -> random
+(** Creates a new random source, using the passed value as the seed. *)
+
+val make_random_full : int array -> random
+(** Creates a new random source, using the passed value as the seed. *)
+
 
 (** {6 Generator definition} *)
 
