@@ -17,6 +17,15 @@
  *)
 
 
+(* Conversion utilities *)
+
+let string_of_string s =
+  "\"" ^ (String.escaped s) ^ "\""
+
+let string_of_complex x =
+  Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im
+
+
 (* Bigarray utilities *)
 
 exception End_of_array

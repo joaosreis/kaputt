@@ -166,7 +166,7 @@ let string (gen_l, _) (gen_c, _) =
       res.[i] <- gen_c r
     done;
     res),
-  (fun x -> x)
+  Utils.string_of_string
 
 let strings sep (gen_l, _) (gen_s, _) =
   (fun r ->
@@ -176,7 +176,7 @@ let strings sep (gen_l, _) (gen_s, _) =
       lst := (gen_s r) :: !lst
     done;
     String.concat sep (List.rev !lst)),
-  (fun x -> x)
+  Utils.string_of_string
 
 let number l =
   string l digit
@@ -204,7 +204,7 @@ let complex (gen_re, _) (gen_im, _) =
     let re_val = gen_re r in
     let im_val = gen_im r in
     { Complex.re = re_val; Complex.im = im_val }),
-  (fun x -> Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im)
+  Utils.string_of_complex
 
 let gen_big_int_digit, _ = make_int 0 10
 

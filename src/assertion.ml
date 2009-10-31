@@ -78,11 +78,9 @@ let equal_char = make_equal (=) string_of_char
 
 let not_equal_char = make_not_equal (=) string_of_char
 
-let string_of_string s = "\"" ^ (String.escaped s) ^ "\""
+let equal_string = make_equal (=) Utils.string_of_string
 
-let equal_string = make_equal (=) string_of_string
-
-let not_equal_string = make_not_equal (=) string_of_string
+let not_equal_string = make_not_equal (=) Utils.string_of_string
 
 let make_float_eq eps =
   fun x y -> let delta = y -. x in (abs_float delta) <= eps
@@ -102,13 +100,11 @@ let make_complex_eq eps =
       let delta' = y.Complex.im -. x.Complex.im in
       (abs_float delta') <= eps
 
-let string_of_complex x = Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im
-
 let equal_complex ?(eps=epsilon_float) =
-  equal ~eq:(make_complex_eq eps) ~prn:string_of_complex
+  equal ~eq:(make_complex_eq eps) ~prn:Utils.string_of_complex
 
 let not_equal_complex ?(eps=epsilon_float) =
-  not_equal ~eq:(make_complex_eq eps) ~prn:string_of_complex
+  not_equal ~eq:(make_complex_eq eps) ~prn:Utils.string_of_complex
 
 let equal_big_int = make_equal Big_int.eq_big_int Big_int.string_of_big_int
 

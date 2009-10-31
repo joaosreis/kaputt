@@ -19,6 +19,15 @@
 (** This module provides utility functions for the other modules. *)
 
 
+(** {6 Conversion utilities} *)
+
+val string_of_string : string -> string
+(** Converts a string into an escaped string, for display. *)
+
+val string_of_complex : Complex.t -> string
+(** Converts a complex into a string. *)
+
+
 (** {6 Bigarray utilities} *)
 
 val bigarray_iter : ('a -> unit) -> ('a, 'b, 'c) Bigarray.Genarray.t -> unit
