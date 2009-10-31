@@ -161,6 +161,15 @@ val is_letter_char : char predicate
 val is_digit_char : char predicate
 (** Predicate testing whether the [char] argument is a (decimal) digit. *)
 
+val is_digit_bin_char : char predicate
+(** Predicate testing whether the [char] argument is a (binary) digit. *)
+
+val is_digit_oct_char : char predicate
+(** Predicate testing whether the [char] argument is a (octal) digit. *)
+
+val is_digit_hex_char : char predicate
+(** Predicate testing whether the [char] argument is a (hexadecimal) digit. *)
+
 val is_space_char : char predicate
 (** Predicate testing whether the [char] argument is either a bare space or a tabulation. *)
 

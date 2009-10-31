@@ -117,6 +117,15 @@ val char : char t
 val digit : char t
 (** Generator for [char] values representing (decimal) digits. *)
 
+val digit_bin : char t
+(** Generator for [char] values representing (binary) digits. *)
+
+val digit_oct : char t
+(** Generator for [char] values representing (octal) digits. *)
+
+val digit_hex : char t
+(** Generator for [char] values representing (hexadecimal) digits. *)
+
 val letter : char t
 (** Generator for [char] values representing letters. *)
 
@@ -138,6 +147,18 @@ val strings : string -> int t -> string t -> string t
 val number : int t -> string t
 (** [number n] constructs a generator for [string] values representing numbers.
     [n] is used to determine the number of (decimal) digits. *)
+
+val number_bin : int t -> string t
+(** [number_bin n] constructs a generator for [string] values representing numbers.
+    [n] is used to determine the number of (binary) digits. *)
+
+val number_oct : int t -> string t
+(** [number_oct n] constructs a generator for [string] values representing numbers.
+    [n] is used to determine the number of (octal) digits. *)
+
+val number_hex : int t -> string t
+(** [number_hex n] constructs a generator for [string] values representing numbers.
+    [n] is used to determine the number of (hexadecimal) digits. *)
 
 val word : int t -> string t
 (** [word n] constructs a generator for [string] values representing words.
@@ -162,7 +183,7 @@ val complex : float t -> float t -> Complex.t t
 
 val big_int : int t -> Big_int.big_int t
 (* [big_int l] constructs a generator for [Big_int.big_int] values.
-   [l] is used to determine the number of (decimal) digit of the value. *)
+   [l] is used to determine the number of (decimal) digits of the value. *)
 
 val num : Big_int.big_int t -> Big_int.big_int t -> Num.num t
 (* [num n d] constructs a generator for [Num.num] values.

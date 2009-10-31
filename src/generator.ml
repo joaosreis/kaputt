@@ -51,94 +51,87 @@ let make_bool w1 w2 =
     w < w1),
   string_of_bool
 
-let int_sign = 0b1000000000000000000000000000000
+let create_int_functions id gen max neg add sub prn =
+  let id' = "Kaputt.Generator.make_" ^ id in
+  let std_gen =
+    (fun r ->
+      let s = Random.State.bool r in
+      let x = gen r max in
+      if s then x else neg x),
+    prn in
+  let pos_gen =
+    (fun r -> gen r max),
+    prn in
+  let neg_gen =
+    (fun r -> neg (gen r max)),
+    prn in
+  let make x y =
+    if (compare x y) >= 0 then invalid_arg id';
+    (fun r -> let d = sub y x in add (gen r d) x),
+    prn in
+  std_gen, pos_gen, neg_gen, make
 
-let int =
-  (fun r ->
-    let s = Random.State.bool r in
-    let x = Random.State.bits r in
-    if s then x else (x lor int_sign)),
-  string_of_int
+let int, pos_int, neg_int, make_int =
+  create_int_functions
+    "int"
+    Random.State.int
+    max_int
+    (~-)
+    (+)
+    (-)
+    string_of_int
 
-let pos_int =
-  (fun r -> Random.State.bits r),
-  string_of_int
+let int32, pos_int32, neg_int32, make_int32 =
+  create_int_functions
+    "int32"
+    Random.State.int32
+    Int32.max_int
+    Int32.neg
+    Int32.add
+    Int32.sub
+    Int32.to_string
 
-let neg_int =
-  (fun r -> (Random.State.bits r) lor int_sign),
-  string_of_int
+let int64, pos_int64, neg_int64, make_int64 =
+  create_int_functions
+    "int64"
+    Random.State.int64
+    Int64.max_int
+    Int64.neg
+    Int64.add
+    Int64.sub
+    Int64.to_string
 
-let make_int x y =
-  if (compare x y) >= 0 then invalid_arg "Kaputt.Generator.make_int";
-  (fun r -> let d = y - x in (Random.State.int r d) + x),
-  string_of_int
-
-let int32 =
-  (fun r ->
-    let s = Random.State.bool r in
-    let x = Random.State.int32 r Int32.max_int in
-    if s then x else Int32.sub (Int32.neg x) Int32.one),
-  Int32.to_string
-
-let pos_int32 =
-  (fun r -> Random.State.int32 r Int32.max_int),
-  Int32.to_string
-
-let neg_int32 =
-  (fun r -> Int32.sub (Int32.neg (Random.State.int32 r Int32.max_int)) Int32.one),
-  Int32.to_string
-
-let make_int32 x y =
-  if (compare x y) >= 0 then invalid_arg "Kaputt.Generator.make_int32";
-  (fun r -> let d = Int32.sub y x in Int32.add (Random.State.int32 r d) x),
-  Int32.to_string
-
-let int64 =
-  (fun r ->
-    let s = Random.State.bool r in
-    let x = Random.State.int64 r Int64.max_int in
-    if s then x else Int64.sub (Int64.neg x) Int64.one),
-  Int64.to_string
-
-let pos_int64 =
-  (fun r -> Random.State.int64 r Int64.max_int),
-  Int64.to_string
-
-let neg_int64 =
-  (fun r -> Int64.sub (Int64.neg (Random.State.int64 r Int64.max_int)) Int64.one),
-  Int64.to_string
-
-let make_int64 x y =
-  if (compare x y) >= 0 then invalid_arg "Kaputt.Generator.make_int64";
-  (fun r -> let d = Int64.sub y x in Int64.add (Random.State.int64 r d) x),
-  Int64.to_string
-
-let nativeint =
-  (fun r ->
-    let s = Random.State.bool r in
-    let x = Random.State.nativeint r Nativeint.max_int in
-    if s then x else Nativeint.neg x),
-  Nativeint.to_string
-
-let pos_nativeint =
-  (fun r -> Random.State.nativeint r Nativeint.max_int),
-  Nativeint.to_string
-
-let neg_nativeint =
-  (fun r -> Nativeint.neg (Random.State.nativeint r Nativeint.max_int)),
-  Nativeint.to_string
-
-let make_nativeint x y =
-  if (compare x y) >= 0 then invalid_arg "Kaputt.Generator.make_nativeint";
-  (fun r -> let d = Nativeint.sub y x in Nativeint.add (Random.State.nativeint r d) x),
-  Nativeint.to_string
+let nativeint, pos_nativeint, neg_nativeint, make_nativeint =
+  create_int_functions
+    "nativeint"
+    Random.State.nativeint
+    Nativeint.max_int
+    Nativeint.neg
+    Nativeint.add
+    Nativeint.sub
+    Nativeint.to_string
 
 let char =
   (fun r -> Char.chr (Random.State.int r 256)),
   Char.escaped
 
-let digit =
-  (fun r -> Char.chr ((Random.State.int r 10) + (Char.code '0'))),
+let create_digit n =
+  (fun r -> Char.chr ((Random.State.int r n) + (Char.code '0'))),
+  Char.escaped
+
+let digit = create_digit 10
+
+let digit_bin = create_digit 2
+
+let digit_oct = create_digit 8
+
+let digit_hex =
+  (fun r ->
+    let x = Random.State.int r 16 in
+    if x < 10 then
+      Char.chr (x + (Char.code '0'))
+    else
+      Char.chr ((x - 10) + (Char.code 'A'))),
   Char.escaped
 
 let letter =
@@ -184,6 +177,15 @@ let strings sep (gen_l, _) (gen_s, _) =
 
 let number l =
   string l digit
+
+let number_bin l =
+  string l digit_bin
+
+let number_oct l =
+  string l digit_oct
+
+let number_hex l =
+  string l digit_hex
 
 let word l =
   string l letter

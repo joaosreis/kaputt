@@ -43,53 +43,33 @@ let always _ = true
 
 let never _ = false
 
-let is_pos_int x = x >= 0
+let create_int_functions cmp z rem two =
+  (fun x -> (cmp x z) >= 0),
+  (fun x -> (cmp x z) <= 0),
+  (fun x -> x = z),
+  (fun x -> x <> z),
+  (fun x -> (rem x two) = z),
+  (fun x -> (rem x two) <> z)
 
-let is_neg_int x = x <= 0
+let is_pos_int, is_neg_int,
+    is_zero_int, is_nonzero_int,
+    is_even_int, is_odd_int =
+  create_int_functions (fun (x : int) (y : int) -> compare x y) 0 (mod) 2
 
-let is_zero_int x = x = 0
+let is_pos_int32, is_neg_int32,
+    is_zero_int32, is_nonzero_int32,
+    is_even_int32, is_odd_int32 =
+  create_int_functions Int32.compare Int32.zero Int32.rem 2l
 
-let is_nonzero_int x = x <> 0
+let is_pos_int64, is_neg_int64,
+    is_zero_int64, is_nonzero_int64,
+    is_even_int64, is_odd_int64 =
+  create_int_functions Int64.compare Int64.zero Int64.rem 2L
 
-let is_even_int x = (x mod 2) = 0
-
-let is_odd_int x = (x mod 2) <> 0
-
-let is_pos_int32 x = (Int32.compare x Int32.zero) >= 0
-
-let is_neg_int32 x = (Int32.compare x Int32.zero) <= 0
-
-let is_zero_int32 x = x = Int32.zero
-
-let is_nonzero_int32 x = x <> Int32.zero
-
-let is_even_int32 x = (Int32.rem x 2l) = Int32.zero
-
-let is_odd_int32 x = (Int32.rem x 2l) <> Int32.zero
-
-let is_pos_int64 x = (Int64.compare x Int64.zero) >= 0
-
-let is_neg_int64 x = (Int64.compare x Int64.zero) <= 0
-
-let is_zero_int64 x = x = Int64.zero
-
-let is_nonzero_int64 x = x <> Int64.zero
-
-let is_even_int64 x = (Int64.rem x 2L) = Int64.zero
-
-let is_odd_int64 x = (Int64.rem x 2L) <> Int64.zero
-
-let is_pos_nativeint x = (Nativeint.compare x Nativeint.zero) >= 0
-
-let is_neg_nativeint x = (Nativeint.compare x Nativeint.zero) <= 0
-
-let is_zero_nativeint x = x = Nativeint.zero
-
-let is_nonzero_nativeint x = x <> Nativeint.zero
-
-let is_even_nativeint x = (Nativeint.rem x 2n) = Nativeint.zero
-
-let is_odd_nativeint x = (Nativeint.rem x 2n) <> Nativeint.zero
+let is_pos_nativeint, is_neg_nativeint,
+    is_zero_nativeint, is_nonzero_nativeint,
+    is_even_nativeint, is_odd_nativeint =
+  create_int_functions Nativeint.compare Nativeint.zero Nativeint.rem 2n
 
 let is_pos_float x = x >= 0.
 
@@ -113,6 +93,18 @@ let is_letter_char = function
 
 let is_digit_char = function
   | '0' .. '9' -> true
+  | _ -> false
+
+let is_digit_bin_char = function
+  | '0' .. '1' -> true
+  | _ -> false
+
+let is_digit_oct_char = function
+  | '0' .. '7' -> true
+  | _ -> false
+
+let is_digit_hex_char = function
+  | '0' .. '9' | 'a' .. 'f' | 'A' .. 'F'-> true
   | _ -> false
 
 let is_space_char = function
@@ -230,7 +222,7 @@ let exists_queue p x =
 
 let for_all_queue p x =
   try
-    Queue.iter (fun e-> if not (p e) then raise Return) x;
+    Queue.iter (fun e -> if not (p e) then raise Return) x;
     true
   with Return -> false
 
@@ -242,7 +234,7 @@ let exists_stack p x =
 
 let for_all_stack p x =
   try
-    Stack.iter (fun e-> if not (p e) then raise Return) x;
+    Stack.iter (fun e -> if not (p e) then raise Return) x;
     true
   with Return -> false
 
@@ -289,7 +281,7 @@ let logor p1 p2 =
 let (|||) = logor
 
 let logxor p1 p2 =
-    fun x -> let r1 = p1 x and r2 = p2 x in (r1 && (not r2)) || ((not r1) && r2)
+  fun x -> let r1 = p1 x and r2 = p2 x in (r1 && (not r2)) || ((not r1) && r2)
 
 let (^^^) = logxor
 
