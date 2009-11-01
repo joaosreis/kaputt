@@ -62,7 +62,7 @@ type output_mode =
   | Text_output of out_channel
       (** Classical output, parameter being destination. *)
   | Html_output of out_channel
-      (** XML output, parameter being destination. *)
+      (** HTML output, parameter being destination. *)
   | Xml_output of out_channel
       (** XML output, parameter being destination. *)
   | Xml_junit_output of out_channel
