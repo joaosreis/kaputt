@@ -74,10 +74,10 @@ let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_c
   let dummy_post _ = false in
   let rec extract x = function
     | hd :: tl ->
-	if hd.Specification.precond x then
-	  hd.Specification.postcond
-	else
-	  extract x tl
+        if hd.Specification.precond x then
+          hd.Specification.postcond
+        else
+          extract x tl
     | [] -> dummy_post in
   if nb_runs <= 0 then invalid_arg "Kaputt.Test.make_random_test";
   title,
@@ -90,9 +90,9 @@ let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_c
       let x = ref (gen random_src) in
       let post = ref (extract !x spec) in
       while !post == dummy_post do
-	let tmp = gen random_src in
+        let tmp = gen random_src in
         x := tmp;
-	post := extract tmp spec
+        post := extract tmp spec
       done;
       try
         let y = f !x in
