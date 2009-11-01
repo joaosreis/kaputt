@@ -147,7 +147,7 @@ let safe_close out =
 let make_output = function
   | Text_output out ->
       object
-        method header = ()
+        method header _ _ _ _ = ()
         method footer = ()
         method result name res =
           match res with
@@ -191,7 +191,7 @@ let make_output = function
             output_string out x;
             output_char out '\n') in
       object
-        method header =
+        method header _ _ _ _ =
           output_lines
             [ "<html>";
               "<head>";
@@ -307,7 +307,7 @@ let make_output = function
       end
   | Xml_output out ->
       object
-        method header =
+        method header _ _ _ _ =
           output_string out "<kaputt-report>\n"
         method footer =
           output_string out "</kaputt-report>\n"
@@ -359,7 +359,7 @@ let make_output = function
       end
   | Csv_output (out, sep) ->
       object
-        method header = ()
+        method header _ _ _ _ = ()
         method footer = ()
         method result name res =
           let output_strings = List.iter (output_string out) in
@@ -399,10 +399,36 @@ let make_output = function
 
 let run_tests ?(output=(Text_output stdout)) l =
   let out = make_output output in
-  out#header;
-  List.iter
-    (fun (n, f) -> out#result n (f ()))
-    l;
+  let passed = ref 0 in
+  let failed = ref 0 in
+  let uncaught = ref 0 in
+  let total = ref 0 in
+  let l' =
+    List.map
+      (fun (n, f) ->
+        let res = f () in
+        (match res with
+        | Passed ->
+            incr passed;
+            incr total
+        | Failed _ ->
+            incr failed;
+            incr total
+        | Uncaught _ ->
+            incr uncaught;
+            incr total
+        | Report (pass, tot, unc, _, _) ->
+            passed := !passed + pass;
+            failed := !failed + (tot - pass -unc);
+            uncaught := !uncaught + unc;
+            total := !total + tot
+        | Exit_code c ->
+            incr (if c = 0 then passed else failed);
+            incr total);
+        (n, res))
+      l in
+  out#header !passed !failed !uncaught !total;
+  List.iter (fun (n, r) -> out#result n (r)) l';
   out#footer;
   out#close
 
