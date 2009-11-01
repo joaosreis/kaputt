@@ -81,6 +81,7 @@ default:
 	@echo "  clean       deletes all produced files (excluding documentation)"
 	@echo "  clean-doc   deletes documentation files"
 	@echo "  install     copies library files"
+	@echo "  ocamlfind   installs through ocamlfind"
 	@echo "  depend      populates the dependency files (they are initially empty)"
 	@echo "installation is usually done by: 'make all' and 'sudo make install'"
 
@@ -126,6 +127,10 @@ clean-doc:
 install:
 	mkdir -p $(INSTALL_DIR)
 	cp $(PATH_BIN)/$(LIBRARY).* $(INSTALL_DIR)
+
+ocamlfind:
+	ocamlfind query kaputt && ocamlfind remove kaputt || echo ''
+	ocamlfind install kaputt META $(PATH_BIN)/$(LIBRARY)*.*
 
 
 # GENERIC TARGETS
