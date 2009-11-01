@@ -34,6 +34,7 @@ type output_mode =
   | Text_output of out_channel
   | Html_output of out_channel
   | Xml_output of out_channel
+  | Xml_junit_output of out_channel
   | Csv_output of out_channel * string
 
 
@@ -365,6 +366,71 @@ let make_output kind =
               output_string out "  </random-test>\n";
           | Exit_code c ->
               Printf.fprintf out "  <shell-test name=\"%s\" exit-code=\"%d\"/>\n" (escape name) c
+        method close = safe_close out
+      end
+  | Xml_junit_output out ->
+      object
+        method header _ failed uncaught total =
+          Printf.fprintf
+            out
+            "<testsuite name=\"Kaputt Report\" tests=\"%d\" errors=\"%d\" failures=\"%d\" time=\"0.1\" timestamp=\"%s\">\n"
+            total
+            failed
+            uncaught
+            timestamp;
+          output_string out "  <properties>\n";
+          Printf.fprintf out "    <property name=\"KAPUTT_VERSION\" version=\"%s\"/>\n" version;
+          output_string out "  </properties>\n"
+        method footer =
+          output_string out "</testsuite>\n"
+        method result name res =
+          Printf.fprintf out "  <testcase name=\"%s\" time=\"0.1\"" (escape name);
+          (match res with
+          | Passed ->
+              output_string out "/>\n"
+          | Failed (expected, actual, message) ->
+              output_string out ">\n";
+              Printf.fprintf
+                out
+                "    <failure type=\"expected '%s' but received '%s'\" message=\"%s\"/>\n"
+                (escape expected)
+                (escape actual)
+                (escape message);
+              output_string out "  </testcase>\n"
+          | Uncaught (e, bt) ->
+              output_string out ">\n";
+              Printf.fprintf
+                out
+                "    <failure type=\"uncaught exception\" message=\"%s\">\n"
+                (escape (Printexc.to_string e));
+              output_string out bt;
+              output_string out "    </failure>\n";
+              output_string out "  </testcase>\n"
+          | Report (valid, total, uncaught, counterexamples, _) ->
+              if valid = total then
+                output_string out "/>\n"
+              else begin
+                output_string out ">\n";
+                Printf.fprintf
+                  out
+                  "    <failure type=\"random test\" message=\"%d counterexample%s found, %d uncaught exception%s\">\n"
+                  (List.length counterexamples)
+                  (if (List.length counterexamples) > 1 then "s" else "")
+                  uncaught
+                  (if uncaught > 1 then "s" else "");
+                List.iter
+                  (Printf.fprintf out "      %s\n")
+                  counterexamples;
+                output_string out "    </failure>\n";
+                output_string out "  </testcase>\n"
+              end
+          | Exit_code c ->
+              output_string out ">\n";
+              Printf.fprintf
+                out
+                "    <failure type=\"exit code\" message=\"%d\"/>\n"
+                c;
+              output_string out "  </testcase>\n")
         method close = safe_close out
       end
   | Csv_output (out, sep) ->

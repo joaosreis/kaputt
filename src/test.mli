@@ -65,6 +65,9 @@ type output_mode =
       (** XML output, parameter being destination. *)
   | Xml_output of out_channel
       (** XML output, parameter being destination. *)
+  | Xml_junit_output of out_channel
+      (** XML output (in JUnit-compatible format - {i http://www.junit.org}),
+	  parameter being destination. *)
   | Csv_output of out_channel * string
       (** CSV output, parameters being destination and separator. *)
 (** The type of output modes, that is how tests result are written.*)
