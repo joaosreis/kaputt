@@ -36,6 +36,9 @@ type result =
   | Failed of string * string * string
       (** Indicates that the assertion-based test failed
           (parameters are expected value, actual value, and message). *)
+  | Uncaught of exn * string
+      (** Indicates that the assertion-based test raised a exception
+          (parameters are exception, and associated backtrace). *)
   | Report of int * int * int * (string list) * ((string * int) list)
       (** Indicates how the generator-based execution performed
           Parameters are:

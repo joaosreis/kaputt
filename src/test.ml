@@ -22,6 +22,7 @@
 type result =
   | Passed
   | Failed of string * string * string
+  | Uncaught of exn * string
   | Report of int * int * int * (string list) * ((string * int) list)
   | Exit_code of int
 
@@ -57,7 +58,7 @@ let make_assert_test ?(title=get_title ()) set_up f tear_down =
       Passed
     with
     | Assertion.Failed (x, y, z) -> Failed (x, y, z)
-    | e -> Failed ("", "", ("uncaught exception: " ^ (Printexc.to_string e))))
+    | e -> Uncaught (e, Printexc.get_backtrace ()))
 
 let return_unit = return ()
 
@@ -156,6 +157,8 @@ let make_output = function
               Printf.fprintf out "Test '%s' ... failed\n  expected `%s` but received `%s`\n" name expected actual
           | Failed (expected, actual, message) ->
               Printf.fprintf out "Test '%s' ... failed\n  %s (expected `%s` but received `%s`)\n" name message expected actual
+          | Uncaught (e, bt) ->
+              Printf.fprintf out "Test '%s' ... raised an exception\n  %s\n%s\n" name (Printexc.to_string e) bt
           | Report (valid, total, uncaught, counterexamples, categories) ->
               Printf.fprintf out "Test '%s' ... %d/%d case%s passed%s\n"
                 name
@@ -253,6 +256,17 @@ let make_output = function
                 (if message = "" then "" else ("<br/>" ^ (escape message)));
               flush out;
               output_strings [ "</td></tr>\n" ]
+          | Uncaught (e, bt) ->
+              output_strings
+                [ "<tr style=\"font-family: monospace;\">";
+                  "<td align=\"center\">Assertion-based</td>";
+                  "<td align=\"center\">"; name; "</td>" ];
+              flush out;
+              Printf.fprintf out "<td>raised an exception: %s%s"
+                (escape (Printexc.to_string e))
+                (if bt = "" then "" else ("<br/>" ^ (escape bt)));
+              flush out;
+              output_strings [ "</td></tr>\n" ]
           | Report (valid, total, uncaught, counterexamples, categories) ->
               output_strings
                 [ "<tr style=\"font-family: monospace;\">";
@@ -312,6 +326,12 @@ let make_output = function
                 (escape expected)
                 (escape actual)
                 (escape message)
+          | Uncaught (e, bt) ->
+              Printf.fprintf out "  <uncaught-exception name=\"%s\" exception=\"%s\">\n"
+                (escape name)
+                (escape (Printexc.to_string e));
+              output_string out (escape bt);
+              output_string out "  </uncaught-exception>"
           | Report (valid, total, uncaught, counterexamples, categories) ->
               Printf.fprintf out "  <random-test name=\"%s\" valid=\"%d\" total=\"%d\" uncaught=\"%d\">\n"
                 (escape name)
@@ -352,6 +372,8 @@ let make_output = function
                                expected; sep;
                                actual; "\n" ];
               if message <> "" then  output_strings [sep; message]
+          | Uncaught (e, _) ->
+              output_strings ["uncaught-exception"; sep; name; sep; (Printexc.to_string e); "\n"]
           | Report (valid, total, uncaught, counterexamples, categories) ->
               output_strings [ "random-test (stats)"; sep;
                                name; sep;
