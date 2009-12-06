@@ -173,9 +173,15 @@ let make_output kind =
           | Passed ->
               Printf.fprintf out "Test '%s' ... passed\n" name
           | Failed (expected, actual, "") ->
-              Printf.fprintf out "Test '%s' ... failed\n  expected `%s` but received `%s`\n" name expected actual
+              if expected <> actual then
+                Printf.fprintf out "Test '%s' ... failed\n  expected `%s` but received `%s`\n" name expected actual
+              else
+                Printf.fprintf out "Test '%s' ... failed\n  expected anything excluding `%s` but received `%s`\n" name expected actual
           | Failed (expected, actual, message) ->
-              Printf.fprintf out "Test '%s' ... failed\n  %s (expected `%s` but received `%s`)\n" name message expected actual
+              if expected <> actual then
+                Printf.fprintf out "Test '%s' ... failed\n  %s (expected `%s` but received `%s`)\n" name message expected actual
+              else
+                Printf.fprintf out "Test '%s' ... failed\n  %s (expected anything excluding `%s` but received `%s`)\n" name message expected actual
           | Uncaught (e, bt) ->
               Printf.fprintf out "Test '%s' ... raised an exception\n  %s\n%s\n" name (Printexc.to_string e) bt
           | Report (valid, total, uncaught, counterexamples, categories) ->
@@ -269,7 +275,8 @@ let make_output kind =
                   "<td align=\"center\">Assertion-based</td>";
                   "<td align=\"center\">"; name; "</td>" ];
               flush out;
-              Printf.fprintf out "<td>failed - expected '%s' but received '%s'%s"
+              Printf.fprintf out "<td>failed - %s '%s' but received '%s'%s"
+                (if expected <> actual then "expected" else "expected anything excluding")
                 (escape expected)
                 (escape actual)
                 (if message = "" then "" else ("<br/>" ^ (escape message)));
@@ -335,13 +342,15 @@ let make_output kind =
           | Passed ->
               Printf.fprintf out "  <passed-test name=\"%s\"/>\n" (escape name)
           | Failed (expected, actual, "") ->
-              Printf.fprintf out "  <failed-test name=\"%s\" expected=\"%s\" actual=\"%s\"/>\n"
+              Printf.fprintf out "  <failed-test name=\"%s\" %s=\"%s\" actual=\"%s\"/>\n"
                 (escape name)
+                (if expected <> actual then "expected" else "not-expected")
                 (escape expected)
                 (escape actual)
           | Failed (expected, actual, message) ->
-              Printf.fprintf out "  <failed-test name=\"%s\" expected=\"%s\" actual=\"%s\" message=\"%s\"/>\n"
+              Printf.fprintf out "  <failed-test name=\"%s\" %s=\"%s\" actual=\"%s\" message=\"%s\"/>\n"
                 (escape name)
+                (if expected <> actual then "expected" else "not-expected")
                 (escape expected)
                 (escape actual)
                 (escape message)
@@ -399,7 +408,8 @@ let make_output kind =
               output_string out ">\n";
               Printf.fprintf
                 out
-                "    <failure type=\"expected '%s' but received '%s'\" message=\"%s\"/>\n"
+                "    <failure type=\"%s '%s' but received '%s'\" message=\"%s\"/>\n"
+                (if expected <> actual then "expected" else "expected anything excluding")
                 (escape expected)
                 (escape actual)
                 (escape message);

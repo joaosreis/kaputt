@@ -110,31 +110,31 @@ let not_equal_complex ?(eps=epsilon_float) =
 (* Miscellaneous *)
 
 let is_true ?(msg="") x =
-  if not x then fail_msg msg
+  if not x then fail "true" "false" msg
 
 let is_false ?(msg="") x =
-  if x then fail_msg msg
+  if x then fail "false" "true" msg
 
 let is_some ?(msg="") x =
-  if x = None then fail_msg msg
+  if x = None then fail "Some _" "None" msg
 
 let is_none ?(msg="") x =
-  if x <> None then fail_msg msg
+  if x <> None then fail "None" "Some _" msg
 
 let raises ?(msg="") f =
   let exn = try ignore (f ()); false with _ -> true in
-  if not exn then fail_msg msg
+  if not exn then fail "any exception" "no exception" msg
 
 let no_raise ?(msg="") f =
   let exn = try ignore (f ()); false with _ -> true in
-  if exn then fail_msg msg
+  if exn then fail "no exception" "an exception" msg
 
 let make_raises eq prn ?(msg="") f =
   try
     ignore (f ());
     fail_msg msg
   with e ->
-    if not (eq e) then fail "" (prn e) msg
+    if not (eq e) then fail "a specific exception" (prn e) msg
 
 
 (* Deprecated functions *)
