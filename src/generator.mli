@@ -314,7 +314,7 @@ val choose_array_weighted : (('a t) * int) array -> 'a t
     Raises [Invalid_argument] if [a] is empty or if a weight is negative. *)
 
 val filter : ('a -> bool) -> 'a t -> 'a t
-(** [filfer f g] constructs a generator equivalent to [g] filtered by [f],
+(** [filter f g] constructs a generator equivalent to [g] filtered by [f],
     that is skips all values [x] such that [f x] returns [false]. *)
 
 val transform : ('a -> 'a) -> 'a t -> 'a t
@@ -350,16 +350,16 @@ val zip1 : 'a t -> 'a t
 (** The identity function. *)
 
 val zip2 : 'a t -> 'b t -> ('a * 'b) t
-(** [zip2 g1 g2] zips [g1] and [g2] into a generator producing couple values. *) 
+(** [zip2 g1 g2] zips [g1] and [g2] into a generator producing couple values. *)
 
 val zip3 : 'a t -> 'b t -> 'c t -> ('a * 'b * 'c) t
-(** [zip3 g1 g2 g3] zips [g1], [g2] and [g3] into a generator producing triple values. *) 
+(** [zip3 g1 g2 g3] zips [g1], [g2] and [g3] into a generator producing triple values. *)
 
 val zip4 : 'a t -> 'b t -> 'c t -> 'd t -> ('a * 'b * 'c * 'd) t
-(** [zip4 g1 g2 g3 g4] zips [g1], [g2], [g3] and [g4] into a generator producing quadruple values. *) 
+(** [zip4 g1 g2 g3 g4] zips [g1], [g2], [g3] and [g4] into a generator producing quadruple values. *)
 
 val zip5 : 'a t -> 'b t -> 'c t -> 'd t -> 'e t -> ('a * 'b * 'c * 'd * 'e) t
-(** [zip5 g1 g2 g3 g4 g5] zips [g1], [g2], [g3], [g4] and [g5] into a generator producing quintuple values. *) 
+(** [zip5 g1 g2 g3 g4 g5] zips [g1], [g2], [g3], [g4] and [g5] into a generator producing quintuple values. *)
 
 
 (** {6 Currying functions} *)
