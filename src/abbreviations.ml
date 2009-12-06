@@ -23,6 +23,8 @@ module Assert = Assertion
 
 module Gen = Generator
 
+module Enum = Enumerator
+
 module Spec = Specification
 
 module Shell = Shell

@@ -54,7 +54,7 @@ CMA_FILES=$(patsubst %,%.cma,$(OCAML_LIBRARIES))
 CMXA_FILES=$(patsubst %,%.cmxa,$(OCAML_LIBRARIES))
 CMJA_FILES=$(patsubst %,%.cmja,$(OCAML_LIBRARIES))
 
-MODULES=utils assertion generator specification shell test abbreviations
+MODULES=utils assertion generator enumerator specification shell test abbreviations
 NOT_PACKED_MODULES=kaputtBigarray kaputtNums
 
 ifeq ($(OCAMLJAVA_AVAILABLE),yes)

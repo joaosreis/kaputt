@@ -81,19 +81,21 @@ let add_simple_test ?(title=get_title ()) f =
   add_test (make_simple_test ~title:title f)
 
 
-(** {6 Generator-based tests} *)
+(* Generator-based tests *)
 
 let default_classifier _ = ""
 
+let dummy_post _ = false
+
+let rec extract x = function
+  | hd :: tl ->
+      if hd.Specification.precond x then
+        hd.Specification.postcond
+      else
+        extract x tl
+  | [] -> dummy_post
+
 let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
-  let dummy_post _ = false in
-  let rec extract x = function
-    | hd :: tl ->
-        if hd.Specification.precond x then
-          hd.Specification.postcond
-        else
-          extract x tl
-    | [] -> dummy_post in
   if nb_runs <= 0 then invalid_arg "Kaputt.Test.make_random_test";
   title,
   (fun () ->
@@ -124,6 +126,45 @@ let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_c
     done;
     let categories' = Hashtbl.fold (fun k v acc -> (k, v) :: acc) categories [] in
     Report (!valid, nb_runs, !uncaught, (List.rev !counterexamples), categories'))
+
+let add_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
+  add_test (make_random_test ~title:title ~nb_runs:nb_runs ~classifier:classifier ~random_src:random_src (gen, prn) f spec)
+
+
+(* Enumerator-based tests *)
+
+let make_enum_test ?(title=get_title ()) enum f spec =
+  title,
+  (fun () ->
+    let valid = ref 0 in
+    let nb = ref 0 in
+    let uncaught = ref 0 in
+    let counterexamples = ref [] in
+    let prn = snd enum in
+    Enumerator.iter
+      (fun x ->
+        let post = extract x spec in
+        if post == dummy_post then begin
+          let x' = prn x in
+          if not (List.mem x' !counterexamples) then
+            counterexamples := x' :: !counterexamples
+        end else begin
+          try
+            let y = f x in
+            if post (x, y) then
+              incr valid
+            else
+              let x' = prn x in
+              if not (List.mem x' !counterexamples) then
+                counterexamples := x' :: !counterexamples
+          with _ -> incr uncaught
+        end;
+        incr nb)
+      enum;
+    Report (!valid, !nb, !uncaught, (List.rev !counterexamples), []))
+
+let add_enum_test ?(title=get_title ()) enum f spec =
+  add_test (make_enum_test ~title:title enum f spec)
 
 
 (* Shell-based tests *)
@@ -361,7 +402,9 @@ let make_output kind =
               output_string out (escape bt);
               output_string out "  </uncaught-exception>"
           | Report (valid, total, uncaught, counterexamples, categories) ->
-              Printf.fprintf out "  <random-test name=\"%s\" valid=\"%d\" total=\"%d\" uncaught=\"%d\">\n"
+              let tag = if categories = [] then "enum-test" else "random-test" in
+              Printf.fprintf out "  <%s name=\"%s\" valid=\"%d\" total=\"%d\" uncaught=\"%d\">\n"
+                tag
                 (escape name)
                 valid
                 total
@@ -380,7 +423,7 @@ let make_output kind =
                   categories;
                 output_string out "    </categories>\n"
               end;
-              output_string out "  </random-test>\n";
+              Printf.fprintf out "  </%s>\n" tag;
           | Exit_code c ->
               Printf.fprintf out "  <shell-test name=\"%s\" exit-code=\"%d\"/>\n" (escape name) c
         method close = safe_close out
@@ -468,17 +511,18 @@ let make_output kind =
           | Uncaught (e, _) ->
               output_strings ["uncaught-exception"; sep; name; sep; (Printexc.to_string e); "\n"]
           | Report (valid, total, uncaught, counterexamples, categories) ->
-              output_strings [ "random-test (stats)"; sep;
+              let tag = if categories = [] then "enum-test" else "random-test" in
+              output_strings [ (tag ^ " (stats)"); sep;
                                name; sep;
                                (string_of_int valid); sep;
                                (string_of_int total); sep;
                                (string_of_int uncaught); "\n" ];
               if counterexamples <> [] then
-                output_strings [ "random-test (counterexamples)"; sep;
+                output_strings [ (tag ^ " (counterexamples)"); sep;
                                  name; sep;
                                  (String.concat sep counterexamples); "\n" ];
               if (List.length categories) > 1 then begin
-                output_strings [ "random-test (categories)"; sep; name];
+                output_strings [ (tag ^ " (categories)"); sep; name];
                 List.iter
                   (fun (c, n) ->
                     output_strings [sep; c; (string_of_int n)])

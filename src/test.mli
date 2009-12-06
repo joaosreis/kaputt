@@ -18,14 +18,17 @@
 
 (** This module provides the functions for creating and running tests.
 
-    Kaputt features two kinds of tests:
+    Kaputt features four kinds of tests:
     - {i assertion-based} tests, inspired by the {i x}Unit tools,
     are basic unit tests where the developer explicitly writes input
     values and checks that output values satisfy given asssertions;
     - {i generator-based} tests, inspired by the QuickCheck tool,
     are unit tests where the developer builds specifications (using
     combinators) and then requests the framework to generate random
-    values to be tested against the specification. *)
+    values to be tested against the specification;
+    - {i enumeration-based} tests, that are akin to {i generator-based}
+    ones except that values are enumerated rather than randomly generated;
+    - {i shell} tests, that are simply executions of shell commands. *)
 
 
 (** {6 Type definitions} *)
@@ -40,7 +43,7 @@ type result =
       (** Indicates that the assertion-based test raised a exception
           (parameters are exception, and associated backtrace). *)
   | Report of int * int * int * (string list) * ((string * int) list)
-      (** Indicates how the generator-based execution performed
+      (** Indicates how the generator- or enumerator-based execution performed
           Parameters are:
           - number of cases that passed;
           - total number of cases;
@@ -123,6 +126,21 @@ val make_random_test : ?title:string -> ?nb_runs:int -> ?classifier:'a classifie
     - [Generator.make_random ()] for [random_src].
 
     Raises [Invalid_arg] if [nb] is not strictly positive. *)
+
+val add_random_test : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
+(** Equivalent to [make_random_test], except that the built test is added to the ones to be run by [launch_tests]. *)
+
+
+(** {6 Enumerator-based tests} *)
+
+val make_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
+(** [make_enum_test  ~title:t e f spec] constructs an enumerator-based test
+    [f] is the function to be tested against the values enumerated by [e],
+    ensuring that the specification [spec] is satisfied
+    ({i cf.} {!Test.make_random_test}). *)
+
+val add_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
+(** Equivalent to [make_enum_test], except that the built test is added to the ones to be run by [launch_tests]. *)
 
 
 (** {6 Shell-based tests} *)

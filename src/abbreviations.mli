@@ -211,6 +211,54 @@ module Gen :
         ('a -> 'b -> 'c -> 'd -> 'e -> 'f) -> 'a * 'b * 'c * 'd * 'e -> 'f
     end
 
+(** Shorthand for [Enumerator] module. *)
+module Enum :
+    sig
+      type 'a lazy_list = 'a Enumerator.lazy_list = Nil | Cons of 'a * 'a lazy_list lazy_t
+      type 'a t = (unit -> 'a lazy_list) * ('a -> string)
+      val iter_list : ('a -> unit) -> 'a lazy_list -> unit
+      val iter : ('a -> unit) -> 'a t -> unit
+      val unit : unit t
+      val bool : bool t
+      val int : int -> int -> int t
+      val int32 : int32 -> int32 -> int32 t
+      val int64 : int64 -> int64 -> int64 t
+      val nativeint : nativeint -> nativeint -> nativeint t
+      val make_char : char -> char -> char t
+      val char : char t
+      val string : char t -> int -> string t
+      val float : float -> float -> int -> float t
+      val complex : float t -> float t -> Complex.t t
+      val array : 'a t -> int -> 'a array t
+      val list : 'a t -> int -> 'a list t
+      val option : 'a t -> 'a option t
+      val ref : 'a t -> 'a ref t
+      val buffer : char t -> int -> Buffer.t t
+      val queue : 'a t -> int -> 'a Queue.t t
+      val stack : 'a t -> int -> 'a Stack.t t
+      val weak : 'a option t -> int -> 'a Weak.t t
+      val lift : 'a -> string -> 'a t
+      val filter : ('a -> bool) -> 'a t -> 'a t
+      val transform : ('a -> 'a) -> 'a t -> 'a t
+      val sequence : 'a t list -> 'a t
+      val for_each : int -> int -> (int -> 'a t) -> 'a t
+      val map1 : ('a -> 'b) -> ('b -> string) -> 'a t -> 'b t
+      val map2 : ('a -> 'b -> 'c) -> ('c -> string) -> 'a t * 'b t -> 'c t
+      val map3 :
+        ('a -> 'b -> 'c -> 'd) -> ('d -> string) -> 'a t * 'b t * 'c t -> 'd t
+      val map4 :
+        ('a -> 'b -> 'c -> 'd -> 'e) ->
+        ('e -> string) -> 'a t * 'b t * 'c t * 'd t -> 'e t
+      val map5 :
+        ('a -> 'b -> 'c -> 'd -> 'e -> 'f) ->
+        ('f -> string) -> 'a t * 'b t * 'c t * 'd t * 'e t -> 'f t
+      val zip1 : 'a t -> 'a t
+      val zip2 : 'a t -> 'b t -> ('a * 'b) t
+      val zip3 : 'a t -> 'b t -> 'c t -> ('a * 'b * 'c) t
+      val zip4 : 'a t -> 'b t -> 'c t -> 'd t -> ('a * 'b * 'c * 'd) t
+      val zip5 : 'a t -> 'b t -> 'c t -> 'd t -> 'e t -> ('a * 'b * 'c * 'd * 'e) t
+    end
+
 (** Shorthand for [Specification] module. *)
 module Spec :
     sig
