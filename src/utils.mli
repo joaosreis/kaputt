@@ -26,16 +26,3 @@ val string_of_string : string -> string
 
 val string_of_complex : Complex.t -> string
 (** Converts a complex into a string. *)
-
-
-(** {6 Bigarray utilities} *)
-
-val bigarray_iter : ('a -> unit) -> ('a, 'b, 'c) Bigarray.Genarray.t -> unit
-(** [bigarray_iter f a] applies [f] in turn to all elements of [a]. *)
-
-val bigarray_iteri : (int array -> 'a -> unit) -> ('a, 'b, 'c) Bigarray.Genarray.t -> unit
-(** Same as [bigarray_iter], except that the function also reveices the coordinates of the
-    elements as the first argument. *)
-
-val string_of_bigarray : ('a -> string) -> ('a, 'b, 'c) Bigarray.Genarray.t -> string
-(** [string_of_bigarray f a] converts [a] into a string, using [f] to convert each element. *) 

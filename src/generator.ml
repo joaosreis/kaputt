@@ -212,28 +212,6 @@ let complex (gen_re, _) (gen_im, _) =
     { Complex.re = re_val; Complex.im = im_val }),
   Utils.string_of_complex
 
-let gen_big_int_digit, _ = make_int 0 10
-
-let big_int (gen_l, _) =
-  (fun r ->
-    let s = Random.State.bool r in
-    let len = gen_l r in
-    let res = ref Big_int.zero_big_int in
-    for i = 1 to len do
-      res := Big_int.add_int_big_int
-          (gen_big_int_digit r)
-          (Big_int.mult_int_big_int 10 !res)
-    done;
-    if s then !res else Big_int.minus_big_int !res),
-  Big_int.string_of_big_int
-
-let num (gen_a, _) (gen_b, _) =
-  (fun r ->
-    let a = gen_a r in
-    let b = gen_b r in
-    Num.div_num (Num.Big_int a) (Num.Big_int b)),
-  Num.string_of_num
-
 
 (* Generators for containers *)
 
@@ -430,18 +408,6 @@ module Weak (W : Weak.S) (G : Gen with type g = W.data) = struct
       let l = W.fold (fun e acc -> (prn_e e) :: acc) w [] in
       String.concat "; " (List.rev l))
 end
-
-let bigarray k l (gen_dims, _) (gen_e, prn_e) =
-  (fun r ->
-    let dims = gen_dims r in
-    let res = Bigarray.Genarray.create k l dims in
-    Utils.bigarray_iteri
-      (fun c _ ->
-        let e = gen_e r in
-        Bigarray.Genarray.set res c e)
-      res;
-    res),
-  (fun b -> Utils.string_of_bigarray prn_e b)
 
 
 (* Combinators over generators *)

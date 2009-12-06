@@ -55,6 +55,7 @@ CMXA_FILES=$(patsubst %,%.cmxa,$(OCAML_LIBRARIES))
 CMJA_FILES=$(patsubst %,%.cmja,$(OCAML_LIBRARIES))
 
 MODULES=utils assertion generator specification shell test abbreviations
+NOT_PACKED_MODULES=kaputtBigarray kaputtNums
 
 ifeq ($(OCAMLJAVA_AVAILABLE),yes)
 	EXTENSIONS=cmi cmo cmx cmj
@@ -96,21 +97,39 @@ bytecode: $(CMI_FILES) $(CMO_FILES)
 	$(OCAMLC) -I $(PATH_SRC) -pack -o $(LIBRARY).cmo $(CMO_FILES)
 	$(OCAMLC) -a -o $(LIBRARY).cma $(LIBRARY).cmo
 	mv $(LIBRARY).cm* $(PATH_BIN)
+	for file in $(patsubst %,$(PATH_SRC)/%.mli,$(NOT_PACKED_MODULES)); do \
+	  $(OCAMLC) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $$file; \
+	done
+	for file in $(patsubst %,$(PATH_SRC)/%.ml,$(NOT_PACKED_MODULES)); do \
+	  $(OCAMLC) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $$file; \
+	done
+	cp $(patsubst %,$(PATH_SRC)/%.cmi,$(NOT_PACKED_MODULES)) $(PATH_BIN)
+	cp $(patsubst %,$(PATH_SRC)/%.cmo,$(NOT_PACKED_MODULES)) $(PATH_BIN)
 
 native: $(CMI_FILES) $(CMX_FILES)
 	$(OCAMLOPT) -I $(PATH_SRC) -pack -o $(LIBRARY).cmx $(CMX_FILES)
 	$(OCAMLOPT) -a -o $(LIBRARY).cmxa $(LIBRARY).cmx
 	mv $(LIBRARY).cm* $(LIBRARY).a $(PATH_BIN)
 	rm $(LIBRARY).o
+	for file in $(patsubst %,$(PATH_SRC)/%.ml,$(NOT_PACKED_MODULES)); do \
+	  $(OCAMLOPT) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $$file; \
+	done
+	cp $(patsubst %,$(PATH_SRC)/%.cmx,$(NOT_PACKED_MODULES)) $(PATH_BIN)
+	cp $(patsubst %,$(PATH_SRC)/%.o,$(NOT_PACKED_MODULES)) $(PATH_BIN)
 
 java: $(CMI_FILES) $(CMJ_FILES)
 	$(OCAMLJAVA) -I $(PATH_SRC) -pack -o $(LIBRARY).cmj $(CMJ_FILES)
 	$(OCAMLJAVA) -a -o $(LIBRARY).cmja $(LIBRARY).cmj
 	mv $(LIBRARY).cm* $(LIBRARY).jar $(PATH_BIN)
 	rm $(LIBRARY).jo
+	for file in $(patsubst %,$(PATH_SRC)/%.ml,$(NOT_PACKED_MODULES)); do \
+	  $(OCAMLJAVA) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $(OCAML_JAVA_FLAGS) $$file; \
+	done
+	cp $(patsubst %,$(PATH_SRC)/%.cmj,$(NOT_PACKED_MODULES)) $(PATH_BIN)
+	cp $(patsubst %,$(PATH_SRC)/%.jo,$(NOT_PACKED_MODULES)) $(PATH_BIN)
 
 html-doc:
-	$(OCAMLDOC) -sort -html -t '$(OCAML_DOC_TITLE)' -d $(PATH_DOC) -I $(PATH_SRC) $(PATH_SRC)/*.mli
+	$(OCAMLDOC) -sort -html -t '$(OCAML_DOC_TITLE)' -d $(PATH_DOC) -I $(PATH_SRC) -I $(PATH_BIN) $(PATH_SRC)/*.mli
 
 clean-all: clean clean-doc
 
@@ -126,7 +145,7 @@ clean-doc:
 
 install:
 	mkdir -p $(INSTALL_DIR)
-	cp $(PATH_BIN)/$(LIBRARY).* $(INSTALL_DIR)
+	cp $(PATH_BIN)/$(LIBRARY)*.* $(INSTALL_DIR)
 
 ocamlfind:
 	ocamlfind query kaputt && ocamlfind remove kaputt || echo ''

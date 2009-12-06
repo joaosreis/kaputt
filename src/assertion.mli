@@ -137,18 +137,6 @@ val not_equal_complex : ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> u
 (** Same as [not_equal], but specialized for [Complex.t] values.
     [eps] is the epsilon used for float comparison, defaulting to [epsilon_float]. *)
 
-val equal_big_int : ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
-(** Same as [equal], but specialized for [Big_int.big_int] values. *)
-
-val not_equal_big_int : ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
-(** Same as [not_equal], but specialized for [Big_int.big_int] values. *)
-
-val equal_num : ?msg:string -> Num.num -> Num.num -> unit
-(** Same as [equal], but specialized for [Num.num] values. *)
-
-val not_equal_num : ?msg:string -> Num.num -> Num.num -> unit
-(** Same as [not_equal], but specialized for [Num.num] values. *)
-
 
 (** {6 Miscellaneous} *)
 

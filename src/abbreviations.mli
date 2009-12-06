@@ -60,11 +60,6 @@ module Assert :
         ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
       val not_equal_complex :
         ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
-      val equal_big_int : ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
-      val not_equal_big_int :
-        ?msg:string -> Big_int.big_int -> Big_int.big_int -> unit
-      val equal_num : ?msg:string -> Num.num -> Num.num -> unit
-      val not_equal_num : ?msg:string -> Num.num -> Num.num -> unit
       val is_true : ?msg:string -> bool -> unit
       val is_false : ?msg:string -> bool -> unit
       val is_some : ?msg:string -> 'a option -> unit
@@ -160,8 +155,6 @@ module Gen :
       val float : float t
       val make_float : float -> float -> float t
       val complex : float t -> float t -> Complex.t t
-      val big_int : int t -> Big_int.big_int t
-      val num : Big_int.big_int t -> Big_int.big_int t -> Num.num t
       val array : int t -> 'a t -> 'a array t
       val list : int t -> 'a t -> 'a list t
       val option : bool t -> 'a t -> 'a option t
@@ -184,10 +177,6 @@ module Gen :
         functor (W : Weak.S) ->
           functor (G : sig type g = W.data val g : g t end) ->
             sig val gen : int t -> W.t t end
-      val bigarray :
-        ('a, 'b) Bigarray.kind ->
-        'c Bigarray.layout ->
-        int array t -> 'a t -> ('a, 'b, 'c) Bigarray.Genarray.t t
       val lift : 'a -> string -> 'a t
       val select_list : 'a list -> ('a -> string) -> 'a t
       val select_list_weighted : ('a * int) list -> ('a -> string) -> 'a t

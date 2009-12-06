@@ -106,14 +106,6 @@ let equal_complex ?(eps=epsilon_float) =
 let not_equal_complex ?(eps=epsilon_float) =
   not_equal ~eq:(make_complex_eq eps) ~prn:Utils.string_of_complex
 
-let equal_big_int = make_equal Big_int.eq_big_int Big_int.string_of_big_int
-
-let not_equal_big_int = make_not_equal Big_int.eq_big_int Big_int.string_of_big_int
-
-let equal_num = make_equal Num.eq_num Num.string_of_num
-
-let not_equal_num = make_not_equal Num.eq_num Num.string_of_num
-
 
 (* Miscellaneous *)
 
@@ -191,13 +183,13 @@ let assert_equal_complex = equal_complex
 
 let assert_not_equal_complex = not_equal_complex
 
-let assert_equal_big_int = equal_big_int
+let assert_equal_big_int ?(msg="") _ _ = ignore msg
 
-let assert_not_equal_big_int = not_equal_big_int
+let assert_not_equal_big_int ?(msg="") _ _ = ignore msg
 
-let assert_equal_num = equal_num
+let assert_equal_num ?(msg="") _ _ = ignore msg
 
-let assert_not_equal_num = not_equal_num
+let assert_not_equal_num ?(msg="") _ _ = ignore msg
 
 let assert_true = is_true
 
