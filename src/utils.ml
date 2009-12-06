@@ -19,8 +19,97 @@
 
 (* Conversion utilities *)
 
+let string_of_unit () =
+  String.copy "()"
+
 let string_of_string s =
   "\"" ^ (String.escaped s) ^ "\""
 
 let string_of_complex x =
   Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im
+
+let string_of_buffer x =
+  string_of_string (Buffer.contents x)
+
+let make_string_of_array f a =
+  let buf = Buffer.create 16 in
+  Buffer.add_string buf "[| ";
+  Array.iter
+    (fun x ->
+      Buffer.add_string buf (f x);
+      Buffer.add_string buf "; ")
+    a;
+  Buffer.add_string buf "|]";
+  Buffer.contents buf
+
+let make_string_of_list f l =
+  let buf = Buffer.create 16 in
+  Buffer.add_string buf "[ ";
+  List.iter
+    (fun x ->
+      Buffer.add_string buf (f x);
+      Buffer.add_string buf "; ")
+    l;
+  Buffer.add_string buf "]";
+  Buffer.contents buf
+
+let make_string_of_option f = function
+  | None -> "None"
+  | Some v -> "Some (" ^ (f v) ^ ")"
+
+let make_string_of_ref f x =
+  "ref (" ^ (f !x) ^ ")"
+
+let make_string_of_hashtbl f g h =
+  let l = Hashtbl.fold
+      (fun k v acc -> (Printf.sprintf "%s -> %s" (f k) (g v)) :: acc)
+      h
+      [] in
+  String.concat "; " (List.rev l)
+
+let make_string_of_queue f q =
+  let buf = Buffer.create 16 in
+  Queue.iter (fun e -> Buffer.add_string buf (f e); Buffer.add_string buf "; ") q;
+  Buffer.contents buf
+
+let make_string_of_stack f s =
+  let buf = Buffer.create 16 in
+  Stack.iter (fun e -> Buffer.add_string buf (f e); Buffer.add_string buf "; ") s;
+  Buffer.contents buf
+
+let make_string_of_weak f w =
+  let buf = Buffer.create 16 in
+  let len = Weak.length w in
+  Buffer.add_string buf "[|| ";
+  for i = 0 to (pred len) do
+    Buffer.add_string buf (f (Weak.get w i));
+    Buffer.add_string buf "; ";
+  done;
+  Buffer.add_string buf "||]";
+  Buffer.contents buf
+
+let make_string_of_tuple2 f1 f2 (x1, x2) =
+  let y1 = f1 x1 in
+  let y2 = f2 x2 in
+  Printf.sprintf "(%s, %s)" y1 y2
+
+let make_string_of_tuple3 f1 f2 f3 (x1, x2, x3) =
+  let y1 = f1 x1 in
+  let y2 = f2 x2 in
+  let y3 = f3 x3 in
+  Printf.sprintf "(%s, %s, %s)" y1 y2 y3
+
+let make_string_of_tuple4 f1 f2 f3 f4 (x1, x2, x3, x4) =
+  let y1 = f1 x1 in
+  let y2 = f2 x2 in
+  let y3 = f3 x3 in
+  let y4 = f4 x4 in
+  Printf.sprintf "(%s, %s, %s, %s)" y1 y2 y3 y4
+
+let make_string_of_tuple5 f1 f2 f3 f4 f5 (x1, x2, x3, x4, x5) =
+  let y1 = f1 x1 in
+  let y2 = f2 x2 in
+  let y3 = f3 x3 in
+  let y4 = f4 x4 in
+  let y5 = f5 x5 in
+  Printf.sprintf "(%s, %s, %s, %s, %s)" y1 y2 y3 y4 y5

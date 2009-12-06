@@ -37,7 +37,7 @@ type 'a t = (random -> 'a) * ('a -> string)
 
 let unit =
   (fun r -> ignore (Random.State.bool r)),
-  (fun () -> String.copy "()")
+  Utils.string_of_unit
 
 let bool =
   (fun r -> Random.State.bool r),
@@ -219,16 +219,7 @@ let array (gen_l, _) (gen_e, prn_e) =
   (fun r ->
     let len = gen_l r in
     Array.init len (fun _ -> gen_e r)),
-  (fun a ->
-    let buf = Buffer.create 16 in
-    Buffer.add_string buf "[| ";
-    Array.iter
-      (fun x ->
-        Buffer.add_string buf (prn_e x);
-        Buffer.add_string buf "; ")
-      a;
-    Buffer.add_string buf "|]";
-    Buffer.contents buf)
+  Utils.make_string_of_array prn_e
 
 let list (gen_l, _) (gen_e, prn_e) =
   (fun r ->
@@ -238,16 +229,7 @@ let list (gen_l, _) (gen_e, prn_e) =
       res := (gen_e r) :: !res;
     done;
     List.rev !res),
-  (fun l ->
-    let buf = Buffer.create 16 in
-    Buffer.add_string buf "[ ";
-    List.iter
-      (fun x ->
-        Buffer.add_string buf (prn_e x);
-        Buffer.add_string buf "; ")
-      l;
-    Buffer.add_string buf "]";
-    Buffer.contents buf)
+  Utils.make_string_of_list prn_e
 
 let option (gen_k, _) (gen_e, prn_e) =
   (fun r ->
@@ -256,20 +238,18 @@ let option (gen_k, _) (gen_e, prn_e) =
       Some (gen_e r)
     else
       None),
-  (function
-  | None -> "None"
-  | Some v -> "Some (" ^ (prn_e v) ^ ")")
+  Utils.make_string_of_option prn_e
 
 let ref (gen_e, prn_e) =
   (fun r -> ref (gen_e r)),
-  (fun x -> "ref (" ^ (prn_e !x) ^ ")")
+  Utils.make_string_of_ref prn_e
 
 let buffer (gen_e, _) =
   (fun r ->
     let buf = Buffer.create 16 in
     Buffer.add_string buf (gen_e r);
     buf),
-  (fun x -> Utils.string_of_string (Buffer.contents x))
+  Utils.string_of_buffer
 
 module type Gen = sig
   type g
@@ -334,12 +314,7 @@ let hashtbl (gen_l, _) (gen_k, prn_k) (gen_v, prn_v) =
       end
     done;
     res),
-  (fun h ->
-    let l = Hashtbl.fold
-        (fun k v acc -> (Printf.sprintf "%s -> %s" (prn_k k) (prn_v v)) :: acc)
-        h
-        [] in
-    String.concat "; " (List.rev l))
+  Utils.make_string_of_hashtbl prn_k prn_v
 
 let queue (gen_l, _) (gen_e, prn_e) =
   (fun r ->
@@ -350,10 +325,7 @@ let queue (gen_l, _) (gen_e, prn_e) =
       Queue.push e res
     done;
     res),
-  (fun s ->
-    let buf = Buffer.create 16 in
-    Queue.iter (fun e -> Buffer.add_string buf (prn_e e); Buffer.add_string buf "; ") s;
-    Buffer.contents buf)
+  Utils.make_string_of_queue prn_e
 
 let stack (gen_l, _) (gen_e, prn_e) =
   (fun r ->
@@ -364,10 +336,7 @@ let stack (gen_l, _) (gen_e, prn_e) =
       Stack.push e res
     done;
     res),
-  (fun s ->
-    let buf = Buffer.create 16 in
-    Stack.iter (fun e -> Buffer.add_string buf (prn_e e); Buffer.add_string buf "; ") s;
-    Buffer.contents buf)
+  Utils.make_string_of_stack prn_e
 
 let weak (gen_l, _) (gen_e, prn_e) =
   (fun r ->
@@ -378,16 +347,7 @@ let weak (gen_l, _) (gen_e, prn_e) =
       Weak.set res i e
     done;
     res),
-  (fun w ->
-    let buf = Buffer.create 16 in
-    let len = Weak.length w in
-    Buffer.add_string buf "[|| ";
-    for i = 0 to (pred len) do
-      Buffer.add_string buf (prn_e (Weak.get w i));
-      Buffer.add_string buf "; ";
-    done;
-    Buffer.add_string buf "||]";
-    Buffer.contents buf)
+  Utils.make_string_of_weak prn_e
 
 module Weak (W : Weak.S) (G : Gen with type g = W.data) = struct
   let gen (gen_l, _) =
@@ -571,10 +531,7 @@ let zip2 (f1, c1) (f2, c2) =
     let x1 = f1 r in
     let x2 = f2 r in
     (x1, x2)),
-  (fun (x, y) ->
-    let x1 = c1 x in
-    let x2 = c2 y in
-    Printf.sprintf "(%s, %s)" x1 x2)
+  (Utils.make_string_of_tuple2 c1 c2)
 
 let zip3 (f1, c1) (f2, c2) (f3, c3) =
   (fun r ->
@@ -582,11 +539,7 @@ let zip3 (f1, c1) (f2, c2) (f3, c3) =
     let x2 = f2 r in
     let x3 = f3 r in
     (x1, x2, x3)),
-  (fun (x, y, z) ->
-    let x1 = c1 x in
-    let x2 = c2 y in
-    let x3 = c3 z in
-    Printf.sprintf "(%s, %s, %s)" x1 x2 x3)
+  (Utils.make_string_of_tuple3 c1 c2 c3)
 
 let zip4 (f1, c1) (f2, c2) (f3, c3) (f4, c4) =
   (fun r ->
@@ -595,12 +548,7 @@ let zip4 (f1, c1) (f2, c2) (f3, c3) (f4, c4) =
     let x3 = f3 r in
     let x4 = f4 r in
     (x1, x2, x3, x4)),
-  (fun (x, y, z, t) ->
-    let x1 = c1 x in
-    let x2 = c2 y in
-    let x3 = c3 z in
-    let x4 = c4 t in
-    Printf.sprintf "(%s, %s, %s, %s)" x1 x2 x3 x4)
+  (Utils.make_string_of_tuple4 c1 c2 c3 c4)
 
 let zip5 (f1, c1) (f2, c2) (f3, c3) (f4, c4) (f5, c5) =
   (fun r ->
@@ -610,13 +558,7 @@ let zip5 (f1, c1) (f2, c2) (f3, c3) (f4, c4) (f5, c5) =
     let x4 = f4 r in
     let x5 = f5 r in
     (x1, x2, x3, x4, x5)),
-  (fun (x, y, z, t, u) ->
-    let x1 = c1 x in
-    let x2 = c2 y in
-    let x3 = c3 z in
-    let x4 = c4 t in
-    let x5 = c5 u in
-    Printf.sprintf "(%s, %s, %s, %s, %s)" x1 x2 x3 x4 x5)
+  (Utils.make_string_of_tuple5 c1 c2 c3 c4 c5)
 
 
 (* Currying functions *)
