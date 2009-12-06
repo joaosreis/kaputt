@@ -91,6 +91,12 @@ val make_simple_test : ?title:string -> (unit -> unit) -> t
     The function is intended to use functions from the [Assertion] module to
     check if computed values are equal to waited ones. *)
 
+val add_assert_test : ?title:string -> (unit -> 'a) -> ('a -> 'b) -> ('b -> unit) -> unit
+(** Equivalent to [make_assert_test], except that the built test is added to the ones to be run by [launch_tests]. *)
+
+val add_simple_test : ?title:string -> (unit -> unit) -> unit
+(** Equivalent to [make_simple_test], except that the built test is added to the ones to be run by [launch_tests]. *)
+
 
 (** {6 Generator-based tests} *)
 
@@ -125,6 +131,9 @@ val make_shell_test : ?title:string -> ('a, 'b, 'c) Shell.command list -> t
 (** [make_shell_test ~title:t l] constructs a test running the commands from
     [l] using [Shell.run_list]. *)
 
+val add_shell_test : ?title:string -> ('a, 'b, 'c) Shell.command list -> unit
+(** Equivalent to [make_shell_test], except that the built test is added to the ones to be run by [launch_tests]. *)
+
 
 (** {6 Test runners} *)
 
@@ -145,6 +154,11 @@ val run_tests : ?output:output_mode -> t list -> unit
     (by default bare text on the standard output).
 
     The output channel if closed only iff it is neither [stdout], nor [stderr]. *)
+
+val launch_tests : ?output:output_mode -> unit -> unit
+(** Equivalent to [run_tests], except that the list of tests to be run is
+    composed of all the tests build by the [add_XXX] functions of this module
+    since the last call of [launch_tests]. *)
 
 val check : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** [check ...] is equivalent to [run_test (make_random_test ...)]. *)

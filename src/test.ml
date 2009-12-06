@@ -38,6 +38,14 @@ type output_mode =
   | Csv_output of out_channel * string
 
 
+(* Tests to be run *)
+
+let tests = ref []
+
+let add_test x =
+  tests := x :: !tests
+
+
 (* Generation of titles *)
 
 let counter = ref 0
@@ -65,6 +73,12 @@ let return_unit = return ()
 
 let make_simple_test ?(title=get_title ()) f =
   make_assert_test ~title:title return_unit f ignore
+
+let add_assert_test ?(title=get_title ()) set_up f tear_down =
+  add_test (make_assert_test ~title:title set_up f tear_down)
+
+let add_simple_test ?(title=get_title ()) f =
+  add_test (make_simple_test ~title:title f)
 
 
 (** {6 Generator-based tests} *)
@@ -118,6 +132,9 @@ let make_shell_test ?(title=get_title ()) l =
   title,
   (fun () ->
     Exit_code (try Shell.run_list l with _ -> min_int))
+
+let add_shell_test ?(title=get_title ()) l =
+  add_test (make_shell_test ~title:title l)
 
 
 (* Test runners *)
@@ -500,6 +517,9 @@ let run_tests ?(output=(Text_output stdout)) l =
 
 let run_test ?(output=(Text_output stdout)) x =
   run_tests ~output:output [x]
+
+let launch_tests ?(output=(Text_output stdout)) () =
+  run_tests ~output:output (List.rev !tests)
 
 let check ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) generator f spec =
   run_test

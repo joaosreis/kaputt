@@ -462,6 +462,9 @@ module Test :
       val make_assert_test :
         ?title:string -> (unit -> 'a) -> ('a -> 'b) -> ('b -> unit) -> t
       val make_simple_test : ?title:string -> (unit -> unit) -> t
+      val add_assert_test :
+        ?title:string -> (unit -> 'a) -> ('a -> 'b) -> ('b -> unit) -> unit
+      val add_simple_test : ?title:string -> (unit -> unit) -> unit
       val default_classifier : 'a classifier
       val make_random_test :
         ?title:string ->
@@ -469,15 +472,33 @@ module Test :
         ?classifier:'a classifier ->
         ?random_src:Generator.random ->
         'a Generator.t -> ('a -> 'b) -> ('a, 'b) Specification.t list -> t
+      val add_random_test :
+        ?title:string ->
+        ?nb_runs:int ->
+        ?classifier:'a classifier ->
+        ?random_src:Generator.random ->
+        'a Generator.t -> ('a -> 'b) -> ('a, 'b) Specification.t list -> unit
+      val make_enum_test :
+        ?title:string ->
+        'a Enumerator.t -> ('a -> 'b) -> ('a, 'b) Specification.t list -> t
+      val add_enum_test :
+        ?title:string ->
+        'a Enumerator.t -> ('a -> 'b) -> ('a, 'b) Specification.t list -> unit
       val make_shell_test :
         ?title:string ->
         ([< `Input | `No_input ], [< `No_output | `Output ],
          [< `Error | `No_error ])
         Shell.command list -> t
+      val add_shell_test :
+        ?title:string ->
+        ([< `Input | `No_input ], [< `No_output | `Output ],
+         [< `Error | `No_error ])
+        Shell.command list -> unit
       val exec_test : t -> result
       val exec_tests : t list -> result list
       val run_test : ?output:output_mode -> t -> unit
       val run_tests : ?output:output_mode -> t list -> unit
+      val launch_tests : ?output:output_mode -> unit -> unit
       val check :
         ?title:string ->
         ?nb_runs:int ->
