@@ -1,0 +1,24 @@
+<testsuite name="Kaputt Report" tests="314" errors="5" failures="0">
+  <properties>
+    <property name="KAPUTT_VERSION" version="1.0"/>
+  </properties>
+  <testcase name="succ test"/>
+  <testcase name="untitled no 1">
+    <failure type="random test" message="1 counterexample found, 0 uncaught exception">
+      0
+    </failure>
+  </testcase>
+  <testcase name="sum of odds"/>
+  <testcase name="strings">
+    <failure type="random test" message="2 counterexamples found, 0 uncaught exception">
+      "Ws"
+      "iBAuFe"
+    </failure>
+  </testcase>
+  <testcase name="lists">
+    <failure type="random test" message="2 counterexamples found, 0 uncaught exception">
+      [ 1; 3; ]
+      [ 2; 4; 5; 2; 2; 2; 1; ]
+    </failure>
+  </testcase>
+</testsuite>

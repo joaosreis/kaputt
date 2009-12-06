@@ -83,6 +83,7 @@ default:
 	@echo "  clean-doc   deletes documentation files"
 	@echo "  install     copies library files"
 	@echo "  ocamlfind   installs through ocamlfind"
+	@echo "  tests       runs the tests"
 	@echo "  depend      populates the dependency files (they are initially empty)"
 	@echo "installation is usually done by: 'make all' and 'sudo make install'"
 
@@ -150,6 +151,26 @@ install:
 ocamlfind:
 	ocamlfind query kaputt && ocamlfind remove kaputt || echo ''
 	ocamlfind install kaputt META $(PATH_BIN)/$(LIBRARY)*.*
+
+tests::
+	@for id in tests/*; do \
+	  if [ -d $$id ]; then \
+	    echo " *** running '$$id' tests (bytecode)"; \
+	    cd $$id && \
+	    $(MAKE) COMPILER=ocamlc EXECUTABLE=bytecode RUN=./ LIB_EXT=cma && \
+	    cd ../.. || cd ../..; \
+	    echo " *** running '$$id' tests (native)"; \
+	    cd $$id && \
+	    $(MAKE) COMPILER=ocamlopt EXECUTABLE=native RUN=./ LIB_EXT=cmxa && \
+	    cd ../.. || cd ../..; \
+	    if [ $(OCAMLJAVA_AVAILABLE) == yes ]; then \
+	      echo " *** running '$$id' tests (java)"; \
+	      cd $$id && \
+	      $(MAKE) COMPILER=ocamljava FLAGS=-standalone EXECUTABLE=prog.jar RUN='java -jar ' LIB_EXT=cmja && \
+	      cd ../.. || cd ../..; \
+	    fi \
+	  fi \
+	done
 
 
 # GENERIC TARGETS

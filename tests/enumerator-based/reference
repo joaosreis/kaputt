@@ -1,0 +1,30 @@
+Test 'bool' ... 0/2 case passed
+  counterexamples: false, true
+Test 'int' ... 0/5 case passed
+  counterexamples: 1, 2, 3, 4, 5
+Test 'int32' ... 0/5 case passed
+  counterexamples: 1, 2, 3, 4, 5
+Test 'int64' ... 0/5 case passed
+  counterexamples: 1, 2, 3, 4, 5
+Test 'nativeint' ... 0/5 case passed
+  counterexamples: 1, 2, 3, 4, 5
+Test 'char' ... 0/5 case passed
+  counterexamples: e, f, g, h, i
+Test '[aa..cc]' ... 0/9 case passed
+  counterexamples: "aa", "ab", "ac", "ba", "bb", "bc", "ca", "cb", "cc"
+Test 'float[1,1]' ... 0/1 case passed
+  counterexample: 1.
+Test 'float[1,4]' ... 0/4 case passed
+  counterexamples: 1., 2., 3., 4.
+Test 'bool array' ... 0/4 case passed
+  counterexamples: [| false; false; |], [| false; true; |], [| true; false; |], [| true; true; |]
+Test 'bool list' ... 0/4 case passed
+  counterexamples: [ false; false; ], [ false; true; ], [ true; false; ], [ true; true; ]
+Test 'bool option' ... 0/3 case passed
+  counterexamples: None, Some (false), Some (true)
+Test '[1..10 | even]' ... 0/5 case passed
+  counterexamples: 2, 4, 6, 8, 10
+Test '[1..10] [13..15]' ... 0/13 case passed
+  counterexamples: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15
+Test '[10*i..1O*i+5 | i <- 1..2]' ... 0/12 case passed
+  counterexamples: 10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25
