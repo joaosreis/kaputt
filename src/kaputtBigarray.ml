@@ -75,7 +75,7 @@ let bigarray_iter f ba =
     done
   with End_of_array -> ()
 
-(* Same as [bigarray_iter], except that the function also reveices the coordinates of the
+(* Same as [bigarray_iter], except that the function also receives the coordinates of the
    elements as the first argument. *)
 let bigarray_iteri f ba =
   let coords, next = iterator ba in

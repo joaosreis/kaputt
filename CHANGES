@@ -1,3 +1,13 @@
+Version 1.0 (2009-12-17):
+-------------------------
+  - switch to OCaml 3.11.1
+  - support for enumeration-based tests
+  - new output mode: JUnit-compatible XML
+  - some tests were added
+  - support for ocamlfind installation
+  - minor code refactoring and improvement
+  - bug #45: better handling of dependencies to 'bigarray' and 'num'
+
 Version 1.0-beta (2009-05-31):
 ------------------------------
   - 'Assert.assert_xyz' functions renamed to 'Assert.xyz'

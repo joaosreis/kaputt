@@ -198,7 +198,7 @@ let escape s =
     s;
   Buffer.contents buff
 
-let version = "1.0-beta"
+let version = "1.0"
 
 let safe_close out =
   if (out != stdout) && (out != stderr) then close_out_noerr out
