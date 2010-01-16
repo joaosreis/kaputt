@@ -156,18 +156,12 @@ tests::
 	@for id in tests/*; do \
 	  if [ -d $$id ]; then \
 	    echo " *** running '$$id' tests (bytecode)"; \
-	    cd $$id && \
-	    $(MAKE) COMPILER=ocamlc EXECUTABLE=bytecode RUN=./ LIB_EXT=cma && \
-	    cd ../.. || cd ../..; \
+	    $(MAKE) -s -C $$id PATH_OCAML_BIN=$(PATH_OCAML_BIN) COMPILER=ocamlc EXECUTABLE=bytecode RUN=./ LIB_EXT=cma; \
 	    echo " *** running '$$id' tests (native)"; \
-	    cd $$id && \
-	    $(MAKE) COMPILER=ocamlopt EXECUTABLE=native RUN=./ LIB_EXT=cmxa && \
-	    cd ../.. || cd ../..; \
+	    $(MAKE) -s -C $$id PATH_OCAML_BIN=$(PATH_OCAML_BIN) COMPILER=ocamlopt EXECUTABLE=native RUN=./ LIB_EXT=cmxa; \
 	    if [ $(OCAMLJAVA_AVAILABLE) == yes ]; then \
 	      echo " *** running '$$id' tests (java)"; \
-	      cd $$id && \
-	      $(MAKE) COMPILER=ocamljava FLAGS=-standalone EXECUTABLE=prog.jar RUN='java -jar ' LIB_EXT=cmja && \
-	      cd ../.. || cd ../..; \
+	      $(MAKE) -s -C $$id PATH_OCAML_BIN=$(PATH_OCAML_BIN) COMPILER=ocamljava FLAGS=-standalone EXECUTABLE=prog.jar RUN='java -jar ' LIB_EXT=cmja; \
 	    fi \
 	  fi \
 	done

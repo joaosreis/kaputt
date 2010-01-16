@@ -25,7 +25,7 @@ clean::
 	@rm -f $(COMPILED_FILES)
 
 compile::
-	@$(COMPILER) $(COMPILE_FLAGS) -o $(EXECUTABLE) source.ml
+	@$(PATH_OCAML_BIN)/$(COMPILER) $(COMPILE_FLAGS) -o $(EXECUTABLE) source.ml
 
 run::
 	@$(RUN)$(EXECUTABLE)
