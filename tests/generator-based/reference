@@ -1,5 +1,5 @@
 Test 'int * float' ... 0/3 case passed
-  counterexamples: (-55371690, 5.38698853554e+307), (-563004376, 6.34370952581e+307), (26195810, 1.65510826925e+308)
+  counterexamples: (115, 240.), (827, -720.), (236, -232.)
 Test 'int[1..10] * float[1..2[' ... 0/3 case passed
   counterexamples: (6, 1.00026568036), (5, 1.52433868583), (5, 1.3528805558)
 Test 'bool * digit * letter * word' ... 0/3 case passed

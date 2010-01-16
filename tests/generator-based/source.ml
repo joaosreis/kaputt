@@ -25,7 +25,7 @@ let () =
     ~title:"int * float"
     ~nb_runs:3
     ~random_src:(Gen.make_random_seed seed)
-    (Gen.zip2 Gen.int Gen.float)
+    (Gen.zip2 (Gen.make_int 1 1000) (Gen.transform (fun x -> mod_float x 1000.) Gen.float))
     (fun (x, y) -> (float x) +. y)
     [Spec.always ==> Spec.never]
 

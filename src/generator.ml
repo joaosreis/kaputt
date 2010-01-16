@@ -33,6 +33,18 @@ let make_random_full x = Random.State.make x
 type 'a t = (random -> 'a) * ('a -> string)
 
 
+(* 64-bit compatible int generator *)
+
+let random_state_int =
+  match Sys.word_size with
+  | 32 -> Random.State.int
+  | 64 -> (fun r x ->
+      if x < 1073741824 then
+        Random.State.int r x
+      else
+        Int64.to_int (Random.State.int64 r (Int64.of_int x)))
+  | _ -> assert false
+
 (* Predefined generators *)
 
 let unit =
@@ -47,7 +59,7 @@ let make_bool w1 w2 =
   if w1 < 0 then invalid_arg "Kaputt.Generator.make_bool";
   if w2 < 0 then invalid_arg "Kaputt.Generator.make_bool";
   (fun r ->
-    let w = Random.State.int r (w1 + w2) in
+    let w = random_state_int r (w1 + w2) in
     w < w1),
   string_of_bool
 
@@ -74,7 +86,7 @@ let create_int_functions id gen max neg add sub prn =
 let int, pos_int, neg_int, make_int =
   create_int_functions
     "int"
-    Random.State.int
+    random_state_int
     max_int
     (~-)
     (+)
@@ -397,7 +409,7 @@ let select_list l f =
   if l = [] then invalid_arg "Kaputt.Generator.select_list";
   (fun r ->
     let len = List.length l in
-    let i = Random.State.int r len in
+    let i = random_state_int r len in
     List.nth l i),
   f
 
@@ -411,7 +423,7 @@ let select_list_weighted l f =
   if l = [] then invalid_arg "Kaputt.Generator.select_list_weighted";
   let total = sum_list (List.map snd l) in
   (fun r ->
-    let w = Random.State.int r total in
+    let w = random_state_int r total in
     get_list w l),
   f
 
@@ -419,7 +431,7 @@ let select_array a f =
   if a = [||] then invalid_arg "Kaputt.Generator.select_array";
   (fun r ->
     let len = Array.length a in
-    let i = Random.State.int r len in
+    let i = random_state_int r len in
     a.(i)),
   f
 
@@ -434,7 +446,7 @@ let select_array_weighted a f =
   if a = [||] then invalid_arg "Kaputt.Generator.select_array_weighted";
   let total = sum_array (Array.map snd a) in
   (fun r ->
-    let w = Random.State.int r total in
+    let w = random_state_int r total in
     get_array w a 0),
   f
 
@@ -442,7 +454,7 @@ let choose_list l =
   if l = [] then invalid_arg "Kaputt.Generator.choose_list";
   (fun r ->
     let len = List.length l in
-    let i = Random.State.int r len in
+    let i = random_state_int r len in
     let (gen, _) = List.nth l i in
     gen r),
   (snd (List.hd l))
@@ -451,7 +463,7 @@ let choose_list_weighted l =
   if l = [] then invalid_arg "Kaputt.Generator.choose_list_weighted";
   let total = sum_list (List.map snd l) in
   (fun r ->
-    let w = Random.State.int r total in
+    let w = random_state_int r total in
     let (gen, _) = get_list w l in
     gen r),
   (snd (fst (List.hd l)))
@@ -460,7 +472,7 @@ let choose_array a =
   if a = [||] then invalid_arg "Kaputt.Generator.choose_array";
   (fun r ->
     let len = Array.length a in
-    let i = Random.State.int r len in
+    let i = random_state_int r len in
     let (gen, _) = a.(i) in
     gen r),
   (snd a.(0))
@@ -469,7 +481,7 @@ let choose_array_weighted a =
   if a = [||] then invalid_arg "Kaputt.Generator.choose_array_weighted";
   let total = sum_array (Array.map snd a) in
   (fun r ->
-    let w = Random.State.int r total in
+    let w = random_state_int r total in
     let (gen, _) = get_array w a 0 in
     gen r),
   (snd (fst a.(0)))
