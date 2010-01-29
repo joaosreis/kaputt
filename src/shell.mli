@@ -109,7 +109,7 @@ val dirname : string -> string
 val concatname : string -> string -> string
 (** Equivalent to [Filename.concatname]. *)
 
-val temp_file : string -> string -> string
+val temp_file : ?temp_dir:string -> string -> string -> string
 (** Equivalent to [Filename.temp_file]. *)
 
 val quote : string -> string

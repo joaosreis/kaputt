@@ -406,7 +406,7 @@ module Shell :
       val basename : string -> string
       val dirname : string -> string
       val concatname : string -> string -> string
-      val temp_file : string -> string -> string
+      val temp_file : ?temp_dir:string -> string -> string -> string
       val quote : string -> string
       val pwd : unit -> string
       val cd : string -> unit
