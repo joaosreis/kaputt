@@ -24,7 +24,7 @@ Test 'equal_char' ... failed
 Test 'not_equal_char' ... failed
   expected anything excluding `'e'` but received `'e'`
 Test 'equal_string' ... failed
-  expected `"azerty"` but received `"zertyu"`
+  expected `"azerty"` but received `"qwerty"`
 Test 'not_equal_string' ... failed
   expected anything excluding `"azerty"` but received `"azerty"`
 Test 'equal_float' ... failed

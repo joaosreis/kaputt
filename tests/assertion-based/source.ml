@@ -35,7 +35,7 @@ let () =
       Assert.equal_char 'e' 'e';
       Assert.not_equal_char 'e' 'f';
       Assert.equal_string "azerty" "azerty";
-      Assert.not_equal_string "azerty" "azerty2";
+      Assert.not_equal_string "azerty" "qwerty";
       Assert.equal_float 1. 1.;
       Assert.not_equal_float 1. 2.)
 
@@ -102,7 +102,7 @@ let () =
 let () =
   Test.add_simple_test
     ~title:"equal_string"
-    (fun () -> Assert.equal_string "azerty" "zertyu")
+    (fun () -> Assert.equal_string "azerty" "qwerty")
 
 let () =
   Test.add_simple_test
