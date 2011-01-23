@@ -1,12 +1,12 @@
 Test 'int * float' ... 0/3 case passed
-  counterexamples: (115, 240.), (827, -720.), (236, -232.)
+  counterexamples: (229, -608.), (240, -344.), (206, 8.)
 Test 'int[1..10] * float[1..2[' ... 0/3 case passed
-  counterexamples: (6, 1.00026568036), (5, 1.52433868583), (5, 1.3528805558)
+  counterexamples: (4, 1.96510941951), (5, 1.07902616141), (4, 1.41538053991)
 Test 'bool * digit * letter * word' ... 0/3 case passed
-  counterexamples: (false, 0, A, "B"), (true, 4, o, "ECgb"), (true, 3, J, "hDg")
+  counterexamples: (false, 3, O, "bHu"), (true, 8, E, "ggs"), (true, 5, H, "HvU")
 Test 'string option' ... 0/3 case passed
-  counterexamples: None, Some ("OBSoqEF"), Some ("acuh")
+  counterexamples: None, Some ("RqhWU")
 Test '(string * number) list' ... 0/3 case passed
-  counterexamples: [ ("AKm", "74"); ], [ ("EFP", "038"); ("TgxVQZxF", "506"); ("D", "71"); ], [ ]
+  counterexamples: [ ("OR", "439"); ], [ ("UEg", "672"); ("soHvUdP", "929"); ], [ ("KxeO", "41"); ("dUXKfxz", "810"); ]
 Test '(int[1..10] -> float[1..2[) map' ... 0/3 case passed
-  counterexamples: , 3 -> 1.91839857148
+  counterexamples: 4 -> 1.84402117409; 6 -> 1.69966275532; 10 -> 1.81620314011, , 1 -> 1.58329376737
