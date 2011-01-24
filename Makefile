@@ -16,179 +16,90 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include Makefile.config
+
 # PATHS
 
-PATH_BASE=$(shell pwd)
+PATH_BASE=`pwd`
+PATH_BUILD=$(PATH_BASE)/_build
+PATH_OCAMLDOC=$(PATH_BASE)/ocamldoc
 PATH_SRC=$(PATH_BASE)/src
-PATH_BIN=$(PATH_BASE)/bin
-PATH_DOC=$(PATH_BASE)/ocamldoc
 PATH_TESTS=$(PATH_BASE)/tests
-PATH_OCAML_BIN=$(shell which ocamlc > /dev/null && dirname `which ocamlc` || echo '')
-ifeq ($(PATH_OCAML_BIN),)
-$(error cannot find path of OCaml compilers)
-endif
+PATH_INSTALL=$(PATH_OCAML_PREFIX)/lib/ocaml/kaputt
 
 
 # DEFINITIONS
 
-OCAMLC=$(PATH_OCAML_BIN)/ocamlc
-OCAMLOPT=$(PATH_OCAML_BIN)/ocamlopt
-OCAMLJAVA=$(PATH_OCAML_BIN)/ocamljava
-ifeq ($(findstring $(OCAMLJAVA),$(wildcard $(OCAMLJAVA))),$(OCAMLJAVA))
-OCAMLJAVA_AVAILABLE=yes
-else
-OCAMLJAVA_AVAILABLE=no
-endif
-OCAMLDOC=$(PATH_OCAML_BIN)/ocamldoc
-OCAML_COMPILE_FLAGS=-w Ael -warn-error A -I $(PATH_SRC) -for-pack Kaputt
-OCAML_JAVA_FLAGS=-java-package fr.x9c.kaputt
-OCAML_LIBRARIES=
-
-LIBRARY=kaputt
-OCAML_DOC_TITLE=Kaputt $(shell cat VERSION)
-
-INSTALL_DIR_BASE=$(shell $(OCAMLC) -where)
-INSTALL_DIR=$(INSTALL_DIR_BASE)/kaputt
-
-CMA_FILES=$(patsubst %,%.cma,$(OCAML_LIBRARIES))
-CMXA_FILES=$(patsubst %,%.cmxa,$(OCAML_LIBRARIES))
-CMJA_FILES=$(patsubst %,%.cmja,$(OCAML_LIBRARIES))
-
-MODULES=utils assertion generator enumerator specification shell test abbreviations
-NOT_PACKED_MODULES=kaputtBigarray kaputtNums
-
-ifeq ($(OCAMLJAVA_AVAILABLE),yes)
-	EXTENSIONS=cmi cmo cmx cmj
-else
-	EXTENSIONS=cmi cmo cmx
-endif
-
-CMI_FILES=$(patsubst %,$(PATH_SRC)/%.cmi,$(MODULES))
-CMO_FILES=$(patsubst %,$(PATH_SRC)/%.cmo,$(MODULES))
-CMX_FILES=$(patsubst %,$(PATH_SRC)/%.cmx,$(MODULES))
-CMJ_FILES=$(patsubst %,$(PATH_SRC)/%.cmj,$(MODULES))
+PROJECT_NAME=kaputt
+OCAMLBUILD=$(PATH_OCAML_PREFIX)/bin/ocamlbuild
+OCAMLBUILD_FLAGS=-classic-display -no-links
+MODULES_ODOCL=$(PROJECT_NAME).odocl
+MODULES_MLPACK=$(PROJECT_NAME).mlpack
 
 
 # TARGETS
 
 default:
 	@echo "available targets:"
-	@echo "  all         compiles all files, and generates html documentation"
-	@echo "  bytecode    compiles the bytecode version (ocamlc)"
-	@echo "  native      compiles the native version (ocamlopt)"
-	@echo "  java        compiles the java version (ocamljava)"
-	@echo "  html-doc    generates html documentation"
-	@echo "  clean-all   deletes all produced files (including documentation)"
+	@echo "  all         compiles all files"
+	@echo "  doc         generates ocamldoc documentations"
+	@echo "  tests       runs tests"
 	@echo "  clean       deletes all produced files (excluding documentation)"
-	@echo "  clean-doc   deletes documentation files"
-	@echo "  install     copies library files"
-	@echo "  ocamlfind   installs through ocamlfind"
-	@echo "  tests       runs the tests"
-	@echo "  depend      populates the dependency files (they are initially empty)"
-	@echo "installation is usually done by: 'make all' and 'sudo make install'"
+	@echo "  veryclean   deletes all produced files (including documentation)"
+	@echo "  install     copies executable and library files"
+	@echo "  generate    generates files needed for build"
 
+all: generate
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME).otarget
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)Bigarray.cmo
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)Nums.cmo
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)Bigarray.cmx
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)Nums.cmx
 
-ifeq ($(OCAMLJAVA_AVAILABLE),yes)
-all: clean-all bytecode native java html-doc
-else
-all: clean-all bytecode native html-doc
-endif
+doc: FORCE
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME).docdir/index.html
+	cp $(PATH_BUILD)/$(PROJECT_NAME).docdir/*.html $(PATH_BUILD)/$(PROJECT_NAME).docdir/*.css $(PATH_OCAMLDOC)
 
-bytecode: $(CMI_FILES) $(CMO_FILES)
-	$(OCAMLC) -I $(PATH_SRC) -pack -o $(LIBRARY).cmo $(CMO_FILES)
-	$(OCAMLC) -a -o $(LIBRARY).cma $(LIBRARY).cmo
-	mv $(LIBRARY).cm* $(PATH_BIN)
-	for file in $(patsubst %,$(PATH_SRC)/%.mli,$(NOT_PACKED_MODULES)); do \
-	  $(OCAMLC) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $$file; \
-	done
-	for file in $(patsubst %,$(PATH_SRC)/%.ml,$(NOT_PACKED_MODULES)); do \
-	  $(OCAMLC) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $$file; \
-	done
-	cp $(patsubst %,$(PATH_SRC)/%.cmi,$(NOT_PACKED_MODULES)) $(PATH_BIN)
-	cp $(patsubst %,$(PATH_SRC)/%.cmo,$(NOT_PACKED_MODULES)) $(PATH_BIN)
+tests: FORCE
+	test -f $(PATH_TESTS)/Makefile && (cd $(PATH_TESTS) && $(MAKE) $(MAKE_QUIET) all && cd ..) || true
 
-native: $(CMI_FILES) $(CMX_FILES)
-	$(OCAMLOPT) -I $(PATH_SRC) -pack -o $(LIBRARY).cmx $(CMX_FILES)
-	$(OCAMLOPT) -a -o $(LIBRARY).cmxa $(LIBRARY).cmx
-	mv $(LIBRARY).cm* $(LIBRARY).a $(PATH_BIN)
-	rm $(LIBRARY).o
-	for file in $(patsubst %,$(PATH_SRC)/%.ml,$(NOT_PACKED_MODULES)); do \
-	  $(OCAMLOPT) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $$file; \
-	done
-	cp $(patsubst %,$(PATH_SRC)/%.cmx,$(NOT_PACKED_MODULES)) $(PATH_BIN)
-	cp $(patsubst %,$(PATH_SRC)/%.o,$(NOT_PACKED_MODULES)) $(PATH_BIN)
+clean: FORCE
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) -clean
+	test -f $(PATH_TESTS)/Makefile && (cd $(PATH_TESTS) && $(MAKE) $(MAKE_QUIET) clean && cd ..) || true
+	rm -f $(MODULES_ODOCL) $(MODULES_MLPACK) $(PROJECT_NAME).itarget
 
-java: $(CMI_FILES) $(CMJ_FILES)
-	$(OCAMLJAVA) -I $(PATH_SRC) -pack -o $(LIBRARY).cmj $(CMJ_FILES)
-	$(OCAMLJAVA) -a -o $(LIBRARY).cmja $(LIBRARY).cmj
-	mv $(LIBRARY).cm* $(LIBRARY).jar $(PATH_BIN)
-	rm $(LIBRARY).jo
-	for file in $(patsubst %,$(PATH_SRC)/%.ml,$(NOT_PACKED_MODULES)); do \
-	  $(OCAMLJAVA) -c -w Ael -warn-error A -I $(PATH_SRC) -I $(PATH_BIN) $(OCAML_JAVA_FLAGS) $$file; \
-	done
-	cp $(patsubst %,$(PATH_SRC)/%.cmj,$(NOT_PACKED_MODULES)) $(PATH_BIN)
-	cp $(patsubst %,$(PATH_SRC)/%.jo,$(NOT_PACKED_MODULES)) $(PATH_BIN)
+veryclean: clean
+	rm -f $(PATH_OCAMLDOC)/*.html $(PATH_OCAMLDOC)/*.css
 
-html-doc:
-	$(OCAMLDOC) -sort -html -t '$(OCAML_DOC_TITLE)' -d $(PATH_DOC) -I $(PATH_SRC) -I $(PATH_BIN) $(PATH_SRC)/*.mli
+install: all
+	if [ -x "$(PATH_OCAMLFIND)" ]; then \
+	  $(PATH_OCAMLFIND) query $(PROJECT_NAME) && $(PATH_OCAMLFIND) remove $(PROJECT_NAME) || true; \
+	  $(PATH_OCAMLFIND) install $(PROJECT_NAME) META \
+	    $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.cm* \
+	    $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.o \
+	    $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.jo \
+	    $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.cm* \
+	    $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.o \
+	    $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.jo \
+	    $(PATH_BUILD)/$(PROJECT_NAME).a \
+	    $(PATH_BUILD)/$(PROJECT_NAME).cma \
+	    $(PATH_BUILD)/$(PROJECT_NAME).cmxa \
+	    $(PATH_BUILD)/$(PROJECT_NAME).cmja \
+	    $(PATH_BUILD)/$(PROJECT_NAME).ja; \
+	else \
+	  mkdir -p $(PATH_INSTALL); \
+	  for ext in cmi cmo cmx o cmj jo; do \
+	    test -f $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.$$ext && cp $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.$$ext $(PATH_INSTALL) || true; \
+	    test -f $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.$$ext && cp $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.$$ext $(PATH_INSTALL) || true; \
+	  done; \
+	  for ext in a cma cmxa cmja ja; do \
+	    test -f $(PATH_BUILD)/$(PROJECT_NAME).$$ext && cp $(PATH_BUILD)/$(PROJECT_NAME).$$ext $(PATH_INSTALL) || true; \
+	  done \
+	fi
 
-clean-all: clean clean-doc
+generate: FORCE
+	echo '$(PROJECT_NAME).cma' > $(PROJECT_NAME).itarget
+	(test -x $(PATH_OCAML_PREFIX)/bin/ocamlopt && echo '$(PROJECT_NAME).cmxa' >> $(PROJECT_NAME).itarget) || true
+	(test -x $(PATH_OCAML_PREFIX)/bin/ocamljava && echo '$(PROJECT_NAME).cmja' >> $(PROJECT_NAME).itarget) || true
 
-clean:
-	rm -f $(PATH_SRC)/*.cm*
-	rm -f $(PATH_SRC)/*.o
-	rm -f $(PATH_SRC)/*.jo
-	rm -f $(PATH_BIN)/*.*
-
-clean-doc:
-	rm -f $(PATH_DOC)/*.html
-	rm -f $(PATH_DOC)/*.css
-
-install:
-	mkdir -p $(INSTALL_DIR)
-	cp $(PATH_BIN)/$(LIBRARY)*.* $(INSTALL_DIR)
-
-ocamlfind:
-	ocamlfind query kaputt && ocamlfind remove kaputt || echo ''
-	ocamlfind install kaputt META $(PATH_BIN)/$(LIBRARY)*.*
-
-tests::
-	@for id in tests/*; do \
-	  if [ -d $$id ]; then \
-	    echo " *** running '$$id' tests (bytecode)"; \
-	    $(MAKE) -s -C $$id PATH_OCAML_BIN=$(PATH_OCAML_BIN) COMPILER=ocamlc EXECUTABLE=bytecode RUN=./ LIB_EXT=cma; \
-	    echo " *** running '$$id' tests (native)"; \
-	    $(MAKE) -s -C $$id PATH_OCAML_BIN=$(PATH_OCAML_BIN) COMPILER=ocamlopt EXECUTABLE=native RUN=./ LIB_EXT=cmxa; \
-	    if [ $(OCAMLJAVA_AVAILABLE) == yes ]; then \
-	      echo " *** running '$$id' tests (java)"; \
-	      $(MAKE) -s -C $$id PATH_OCAML_BIN=$(PATH_OCAML_BIN) COMPILER=ocamljava FLAGS=-standalone EXECUTABLE=prog.jar RUN='java -jar ' LIB_EXT=cmja; \
-	    fi \
-	  fi \
-	done
-
-
-# GENERIC TARGETS
-
-.SUFFIXES: .ml .mli .cmo .cmi .cmx .cmj
-
-.mli.cmi:
-	$(OCAMLC) $(OCAML_COMPILE_FLAGS) -c $<
-
-.ml.cmo:
-	$(OCAMLC) $(OCAML_COMPILE_FLAGS) -c $<
-
-.ml.cmx:
-	$(OCAMLOPT) $(OCAML_COMPILE_FLAGS) -c $<
-
-.ml.cmj:
-	$(OCAMLJAVA) $(OCAML_JAVA_FLAGS) $(OCAML_COMPILE_FLAGS) -c $<
-
-
-# DEPENDENCIES
-
-depend::
-	$(OCAMLDEP) -I $(PATH_SRC) $(PATH_SRC)/*.ml* > depend
-	$(OCAMLDEP) -I $(PATH_SRC) $(PATH_SRC)/*.ml* | sed 's/\.cmx/\.cmj/g'> depend.cafesterol
-
-include depend
-include depend.cafesterol
+FORCE:

@@ -16,17 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-COMPILE_FLAGS=-I ../../_build unix.$(LIB_EXT) bigarray.$(LIB_EXT) nums.$(LIB_EXT) kaputt.$(LIB_EXT) $(FLAGS)
-COMPILED_FILES=*.cm* *.o *.jo $(EXECUTABLE)
+# Directories
+true: -traverse
+<src/**>: include
 
-default: clean compile run
+# Options
+<src/**> and not "src/kaputtBigarray.ml" and not "src/kaputtNums.ml": for-pack(Kaputt)
+<src/**/*.ml{,i}>: warn_Ae
+<src/**/*.ml{,i}>: warn_error_A
 
-clean::
-	@rm -f $(COMPILED_FILES)
-
-compile::
-	@$(PATH_OCAML_BIN)/$(COMPILER) $(COMPILE_FLAGS) -o $(EXECUTABLE) source.ml
-
-run::
-	@$(RUN)$(EXECUTABLE)
-	@rm -f $(COMPILED_FILES)
+# Generation of version file
+"src/test.ml": src_version_ml
