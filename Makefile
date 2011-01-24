@@ -75,12 +75,12 @@ install: all
 	if [ -x "$(PATH_OCAMLFIND)" ]; then \
 	  $(PATH_OCAMLFIND) query $(PROJECT_NAME) && $(PATH_OCAMLFIND) remove $(PROJECT_NAME) || true; \
 	  $(PATH_OCAMLFIND) install $(PROJECT_NAME) META \
-	    $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.cm* \
-	    $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.o \
-	    $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.jo \
-	    $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.cm* \
-	    $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.o \
-	    $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.jo \
+	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.cm* \
+	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.o \
+	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.jo \
+	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.cm* \
+	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.o \
+	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.jo \
 	    $(PATH_BUILD)/$(PROJECT_NAME).a \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cma \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cmxa \
@@ -89,8 +89,8 @@ install: all
 	else \
 	  mkdir -p $(PATH_INSTALL); \
 	  for ext in cmi cmo cmx o cmj jo; do \
-	    test -f $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.$$ext && cp $(PATH_BUILD)/src/$(PROJECT_NAME)Bigarray.$$ext $(PATH_INSTALL) || true; \
-	    test -f $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.$$ext && cp $(PATH_BUILD)/src/$(PROJECT_NAME)Nums.$$ext $(PATH_INSTALL) || true; \
+	    test -f $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.$$ext && cp $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.$$ext $(PATH_INSTALL) || true; \
+	    test -f $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.$$ext && cp $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.$$ext $(PATH_INSTALL) || true; \
 	  done; \
 	  for ext in a cma cmxa cmja ja; do \
 	    test -f $(PATH_BUILD)/$(PROJECT_NAME).$$ext && cp $(PATH_BUILD)/$(PROJECT_NAME).$$ext $(PATH_INSTALL) || true; \

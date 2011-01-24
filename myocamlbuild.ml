@@ -20,7 +20,7 @@ open Ocamlbuild_plugin
 
 let odocl_file = Pathname.pwd / "kaputt.odocl"
 let mlpack_file = Pathname.pwd / "kaputt.mlpack"
-let src_path = Pathname.pwd / "src"
+let src_path = Pathname.pwd / "src" / "library"
 
 let ignore_modules = [
   "KaputtBigarray";
@@ -47,8 +47,8 @@ let () =
   close_out_noerr odocl_chan;
   close_out_noerr mlpack_chan
 
-let version_tag = "src_version_ml"
-let version_ml = "src/version.ml"
+let version_tag = "src_library_version_ml"
+let version_ml = "src/library/version.ml"
 let version_file = "../VERSION"
 
 let () =
