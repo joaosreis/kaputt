@@ -36,9 +36,8 @@
 type result =
   | Passed
       (** Indicates that the assertion-based test passed. *)
-  | Failed of string * string * string
-      (** Indicates that the assertion-based test failed
-          (parameters are expected value, actual value, and message). *)
+  | Failed of Assertion.failure
+      (** Indicates that the assertion-based test failed. *)
   | Uncaught of exn * string
       (** Indicates that the assertion-based test raised a exception
           (parameters are exception, and associated backtrace). *)

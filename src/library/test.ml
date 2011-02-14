@@ -21,7 +21,7 @@
 
 type result =
   | Passed
-  | Failed of string * string * string
+  | Failed of Assertion.failure
   | Uncaught of exn * string
   | Report of int * int * int * (string list) * ((string * int) list)
   | Exit_code of int
@@ -66,7 +66,7 @@ let make_assert_test ?(title=get_title ()) set_up f tear_down =
       tear_down (f (set_up ()));
       Passed
     with
-    | Assertion.Failed (x, y, z) -> Failed (x, y, z)
+    | Assertion.Failed f -> Failed f
     | e -> Uncaught (e, Printexc.get_backtrace ()))
 
 let return_unit = return ()
@@ -211,16 +211,30 @@ let make_output kind =
           match res with
           | Passed ->
               Printf.fprintf out "Test '%s' ... passed\n" name
-          | Failed (expected, actual, "") ->
-              if expected <> actual then
-                Printf.fprintf out "Test '%s' ... failed\n  expected `%s` but received `%s`\n" name expected actual
+          | Failed { Assertion.expected_value ; actual_value ; message = "" } ->
+              if expected_value <> actual_value then
+                Printf.fprintf out "Test '%s' ... failed\n  expected `%s` but received `%s`\n"
+                  name
+                  expected_value
+                  actual_value
               else
-                Printf.fprintf out "Test '%s' ... failed\n  expected anything excluding `%s` but received `%s`\n" name expected actual
-          | Failed (expected, actual, message) ->
-              if expected <> actual then
-                Printf.fprintf out "Test '%s' ... failed\n  %s (expected `%s` but received `%s`)\n" name message expected actual
+                Printf.fprintf out "Test '%s' ... failed\n  expected anything excluding `%s` but received `%s`\n"
+                  name
+                  expected_value
+                  actual_value
+          | Failed { Assertion.expected_value ; actual_value ; message } ->
+              if expected_value <> actual_value then
+                Printf.fprintf out "Test '%s' ... failed\n  %s (expected `%s` but received `%s`)\n"
+                  name
+                  message
+                  expected_value
+                  actual_value
               else
-                Printf.fprintf out "Test '%s' ... failed\n  %s (expected anything excluding `%s` but received `%s`)\n" name message expected actual
+                Printf.fprintf out "Test '%s' ... failed\n  %s (expected anything excluding `%s` but received `%s`)\n"
+                  name
+                  message
+                  expected_value
+                  actual_value
           | Uncaught (e, bt) ->
               Printf.fprintf out "Test '%s' ... raised an exception\n  %s\n%s\n" name (Printexc.to_string e) bt
           | Report (valid, total, uncaught, counterexamples, categories) ->
@@ -308,16 +322,16 @@ let make_output kind =
                   "<td align=\"center\">"; name; "</td>";
                   "<td>passed</td>";
                   "</tr>\n" ]
-          | Failed (expected, actual, message) ->
+          | Failed { Assertion.expected_value ; actual_value ; message } ->
               output_strings
                 [ "<tr style=\"font-family: monospace;\">";
                   "<td align=\"center\">Assertion-based</td>";
                   "<td align=\"center\">"; name; "</td>" ];
               flush out;
               Printf.fprintf out "<td>failed - %s '%s' but received '%s'%s"
-                (if expected <> actual then "expected" else "expected anything excluding")
-                (escape expected)
-                (escape actual)
+                (if expected_value <> actual_value then "expected" else "expected anything excluding")
+                (escape expected_value)
+                (escape actual_value)
                 (if message = "" then "" else ("<br/>" ^ (escape message)));
               flush out;
               output_strings [ "</td></tr>\n" ]
@@ -380,18 +394,18 @@ let make_output kind =
           match res with
           | Passed ->
               Printf.fprintf out "  <passed-test name=\"%s\"/>\n" (escape name)
-          | Failed (expected, actual, "") ->
+          | Failed { Assertion.expected_value ; actual_value ; message = "" } ->
               Printf.fprintf out "  <failed-test name=\"%s\" %s=\"%s\" actual=\"%s\"/>\n"
                 (escape name)
-                (if expected <> actual then "expected" else "not-expected")
-                (escape expected)
-                (escape actual)
-          | Failed (expected, actual, message) ->
+                (if expected_value <> actual_value then "expected" else "not-expected")
+                (escape expected_value)
+                (escape actual_value)
+          | Failed { Assertion.expected_value ; actual_value ; message } ->
               Printf.fprintf out "  <failed-test name=\"%s\" %s=\"%s\" actual=\"%s\" message=\"%s\"/>\n"
                 (escape name)
-                (if expected <> actual then "expected" else "not-expected")
-                (escape expected)
-                (escape actual)
+                (if expected_value <> actual_value then "expected" else "not-expected")
+                (escape expected_value)
+                (escape actual_value)
                 (escape message)
           | Uncaught (e, bt) ->
               Printf.fprintf out "  <uncaught-exception name=\"%s\" exception=\"%s\">\n"
@@ -445,14 +459,14 @@ let make_output kind =
           (match res with
           | Passed ->
               output_string out "/>\n"
-          | Failed (expected, actual, message) ->
+          | Failed { Assertion.expected_value ; actual_value ; message } ->
               output_string out ">\n";
               Printf.fprintf
                 out
                 "    <failure type=\"%s '%s' but received '%s'\" message=\"%s\"/>\n"
-                (if expected <> actual then "expected" else "expected anything excluding")
-                (escape expected)
-                (escape actual)
+                (if expected_value <> actual_value then "expected" else "expected anything excluding")
+                (escape expected_value)
+                (escape actual_value)
                 (escape message);
               output_string out "  </testcase>\n"
           | Uncaught (e, bt) ->
@@ -500,11 +514,11 @@ let make_output kind =
           match res with
           | Passed ->
               output_strings ["passed-test"; sep; name; "\n"]
-          | Failed (expected, actual, message) ->
+          | Failed { Assertion.expected_value ; actual_value ; message } ->
               output_strings [ "failed-test"; sep;
                                name; sep;
-                               expected; sep;
-                               actual; "\n" ];
+                               expected_value; sep;
+                               actual_value; "\n" ];
               if message <> "" then  output_strings [sep; message]
           | Uncaught (e, _) ->
               output_strings ["uncaught-exception"; sep; name; sep; (Printexc.to_string e); "\n"]

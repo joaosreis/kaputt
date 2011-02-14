@@ -19,9 +19,17 @@
 
 (* Exception *)
 
-exception Failed of string * string * string
+type failure = {
+    expected_value : string; (** Expected value converted to string. *)
+    actual_value : string; (** Actual value converted to string. *)
+    message : string; (** Short message associated with failure. *)
+  }
 
-let fail x y z = raise (Failed (x, y, z))
+exception Failed of failure
+
+let fail x y z =
+  let f = { expected_value = x; actual_value = y; message = z; } in
+  raise (Failed f)
 
 let fail_msg = fail "" ""
 

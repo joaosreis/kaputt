@@ -21,12 +21,15 @@
 
 (** {6 Exception} *)
 
-exception Failed of string * string * string
-(** The exception raised when an assertion fails.
-    The parameters are:
-    - the expected value (as a string);
-    - the actual value (as a string);
-    - the message associated with the failure. *)
+type failure = {
+    expected_value : string; (** Expected value converted to string. *)
+    actual_value : string; (** Actual value converted to string. *)
+    message : string; (** Short message associated with failure. *)
+  }
+(** Description of an assertion failure. *)
+
+exception Failed of failure
+(** The exception raised when an assertion fails. *)
 
 val fail : string -> string -> string -> 'a
 (** Raises [Failed] with the passed parameters
