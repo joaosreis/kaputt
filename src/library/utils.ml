@@ -19,20 +19,25 @@
 
 (* Conversion utilities *)
 
+let buffer_size = 256
+
 let string_of_unit () =
   String.copy "()"
 
 let string_of_string s =
-  "\"" ^ (String.escaped s) ^ "\""
+  Printf.sprintf "%S" s
 
 let string_of_complex x =
-  Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im
+  if x.Complex.im > 0. then
+    Printf.sprintf "%f+%fi" x.Complex.re x.Complex.im
+  else
+    Printf.sprintf "%f%fi" x.Complex.re x.Complex.im
 
 let string_of_buffer x =
   string_of_string (Buffer.contents x)
 
 let make_string_of_array f a =
-  let buf = Buffer.create 16 in
+  let buf = Buffer.create buffer_size in
   Buffer.add_string buf "[| ";
   Array.iter
     (fun x ->
@@ -43,7 +48,7 @@ let make_string_of_array f a =
   Buffer.contents buf
 
 let make_string_of_list f l =
-  let buf = Buffer.create 16 in
+  let buf = Buffer.create buffer_size in
   Buffer.add_string buf "[ ";
   List.iter
     (fun x ->
@@ -61,24 +66,36 @@ let make_string_of_ref f x =
   "ref (" ^ (f !x) ^ ")"
 
 let make_string_of_hashtbl f g h =
-  let l = Hashtbl.fold
-      (fun k v acc -> (Printf.sprintf "%s -> %s" (f k) (g v)) :: acc)
-      h
-      [] in
-  String.concat "; " (List.rev l)
+  let buf = Buffer.create buffer_size in
+  Hashtbl.iter
+    (fun k v ->
+      Buffer.add_string buf (f k);
+      Buffer.add_string buf " -> ";
+      Buffer.add_string buf (g v);
+      Buffer.add_string buf "; ")
+    h;
+  Buffer.contents buf
 
 let make_string_of_queue f q =
-  let buf = Buffer.create 16 in
-  Queue.iter (fun e -> Buffer.add_string buf (f e); Buffer.add_string buf "; ") q;
+  let buf = Buffer.create buffer_size in
+  Queue.iter
+    (fun e ->
+      Buffer.add_string buf (f e);
+      Buffer.add_string buf "; ")
+    q;
   Buffer.contents buf
 
 let make_string_of_stack f s =
-  let buf = Buffer.create 16 in
-  Stack.iter (fun e -> Buffer.add_string buf (f e); Buffer.add_string buf "; ") s;
+  let buf = Buffer.create buffer_size in
+  Stack.iter
+    (fun e ->
+      Buffer.add_string buf (f e);
+      Buffer.add_string buf "; ")
+    s;
   Buffer.contents buf
 
 let make_string_of_weak f w =
-  let buf = Buffer.create 16 in
+  let buf = Buffer.create buffer_size in
   let len = Weak.length w in
   Buffer.add_string buf "[|| ";
   for i = 0 to (pred len) do
@@ -87,6 +104,8 @@ let make_string_of_weak f w =
   done;
   Buffer.add_string buf "||]";
   Buffer.contents buf
+
+external make_string_of_tuple1 : 'a -> 'a = "%identity"
 
 let make_string_of_tuple2 f1 f2 (x1, x2) =
   let y1 = f1 x1 in
