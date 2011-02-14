@@ -74,7 +74,7 @@ veryclean: clean
 install: all
 	if [ -x "$(PATH_OCAMLFIND)" ]; then \
 	  $(PATH_OCAMLFIND) query $(PROJECT_NAME) && $(PATH_OCAMLFIND) remove $(PROJECT_NAME) || true; \
-	  $(PATH_OCAMLFIND) install $(PROJECT_NAME) META \
+	  $(PATH_OCAMLFIND) install $(PROJECT_NAME) META -optional \
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.cm* \
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.o \
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.jo \
