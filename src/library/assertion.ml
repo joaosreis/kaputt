@@ -80,11 +80,9 @@ let equal_nativeint = make_equal (=) Nativeint.to_string
 
 let not_equal_nativeint = make_not_equal (=) Nativeint.to_string
 
-let string_of_char c = "'" ^ (Char.escaped c) ^ "'"
+let equal_char = make_equal (=) Utils.string_of_char
 
-let equal_char = make_equal (=) string_of_char
-
-let not_equal_char = make_not_equal (=) string_of_char
+let not_equal_char = make_not_equal (=) Utils.string_of_char
 
 let equal_string = make_equal (=) Utils.string_of_string
 

@@ -46,19 +46,21 @@ val default_printer : 'a -> string
 
 val equal : ?eq:('a -> 'a -> bool) -> ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
 (** [equal ~eq:e ~prn:p ~msg:m x y] raises [Failed] if [x] and [y] are
-    not equal, relatively to the equality function [e]. [p] is used to convert
-    [x] and [y] to strings (used only upon failure), and [m] is the message
-    associated with the assertion.
+    not equal, relatively to the equality function [e]. [p] is used to
+    convert [x] and [y] into strings (used only upon failure), and [m]
+    is the message associated with the assertion.
+
     Default parameter values:
     - [e] defaults to [(=)];
     - [p] defaults to [default_printer];
     - [m] defaults to [""]. *)
 
 val not_equal : ?eq:('a -> 'a -> bool) -> ?prn:('a -> string) -> ?msg:string -> 'a -> 'a -> unit
-(** [not_equal ~eq:e ~prn:p ~msg:m x y] raises [Failed] if [x] and [y] are
-    equal, relatively to the equality function [e]. [p] is used to convert [x]
-    and [y] to strings (used only upon failure), and [m] is the message associated
-    with the assertion.
+(** [not_equal ~eq:e ~prn:p ~msg:m x y] raises [Failed] if [x] and [y]
+    are equal, relatively to the equality function [e]. [p] is used to
+    convert [x] and [y] into strings (used only upon failure), and [m]
+    is the message associated with the assertion.
+
     Default parameter values:
     - [e] defaults to [(=)];
     - [p] defaults to [default_printer];
@@ -126,29 +128,33 @@ val not_equal_string : ?msg:string -> string -> string -> unit
 
 val equal_float : ?eps:float -> ?msg:string -> float -> float -> unit
 (** Same as [equal], but specialized for [float] values.
-    [eps] is the epsilon used for float comparison, defaulting to [epsilon_float]. *)
+    [eps] is the epsilon used for float comparison,
+    defaulting to [epsilon_float]. *)
 
 val not_equal_float : ?eps:float -> ?msg:string -> float -> float -> unit
 (** Same as [not_equal], but specialized for [float] values.
-    [eps] is the epsilon used for float comparison, defaulting to [epsilon_float]. *)
+    [eps] is the epsilon used for float comparison,
+    defaulting to [epsilon_float]. *)
 
 val equal_complex : ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
 (** Same as [equal], but specialized for [Complex.t] values.
-    [eps] is the epsilon used for float comparison, defaulting to [epsilon_float]. *)
+    [eps] is the epsilon used for float comparison,
+    defaulting to [epsilon_float]. *)
 
 val not_equal_complex : ?eps:float -> ?msg:string -> Complex.t -> Complex.t -> unit
 (** Same as [not_equal], but specialized for [Complex.t] values.
-    [eps] is the epsilon used for float comparison, defaulting to [epsilon_float]. *)
+    [eps] is the epsilon used for float comparison,
+    defaulting to [epsilon_float]. *)
 
 
 (** {6 Miscellaneous} *)
 
 val is_true : ?msg:string -> bool -> unit
-(** [is_true ~msg:m x] raises [Failed] if [x] false.
+(** [is_true ~msg:m x] raises [Failed] if [x] is [false].
     The default value for [m] is [""]. *)
 
 val is_false : ?msg:string -> bool -> unit
-(** [is_false ~msg:m x] raises [Failed] if [x] true.
+(** [is_false ~msg:m x] raises [Failed] if [x] is [true].
     The default value for [m] is [""]. *)
 
 val is_some : ?msg:string -> 'a option -> unit
@@ -168,10 +174,11 @@ val no_raise : ?msg:string -> (unit -> 'a) -> unit
     The default value for [m] is [""]. *)
 
 val make_raises : (exn -> bool) -> (exn -> string) -> ?msg:string -> (unit -> 'a) -> unit
-(** [make_raises eq p ~msg:m f] raises [Failed] if [f ()] evaluates without
-    raising an exception [e] that makes [eq e] evaluates to [true]. [p] is used
-    to convert [e] into a string (used only upon failure), and [m] is the
-    message associated with the assertion (defaulting to [""]). *)
+(** [make_raises eq p ~msg:m f] raises [Failed] if [f ()] evaluates
+    without raising an exception [e] that makes [eq e] evaluates to
+    [true]. [p] is used to convert [e] into a string (used only upon
+    failure), and [m] is the message associated with the assertion
+    (defaulting to [""]). *)
 
 
 (** {6 Deprecated functions} *)

@@ -24,6 +24,9 @@
 val string_of_unit : unit -> string
 (** Always returns ["()"]. *)
 
+val string_of_char : char -> string
+(** Converts a character into an escaped string, for display. *)
+
 val string_of_string : string -> string
 (** Converts a string into an escaped string, for display. *)
 

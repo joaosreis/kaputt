@@ -24,6 +24,9 @@ let buffer_size = 256
 let string_of_unit () =
   String.copy "()"
 
+let string_of_char c =
+  Printf.sprintf "%C" c
+
 let string_of_string s =
   Printf.sprintf "%S" s
 
