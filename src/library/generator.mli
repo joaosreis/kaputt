@@ -398,3 +398,18 @@ val apply4 : ('a -> 'b -> 'c -> 'd -> 'e) -> ('a * 'b * 'c * 'd) -> 'e
 
 val apply5 : ('a -> 'b -> 'c -> 'd -> 'e -> 'f) -> ('a * 'b * 'c * 'd * 'e) -> 'f
 (** [apply5 f (x, y, z, t, u)] is equivalent to [f x y z t u]. *)
+
+val tuple_apply1 : ('a -> 'b) -> ('a -> 'b)
+(** [tuple_apply1 f x] is equivalent to [f x]. *)
+
+val tuple_apply2 : (('a * 'b) -> 'c) -> ('a -> 'b -> 'c)
+(** [tuple_apply2 f x y] is equivalent to [f (x, y)]. *)
+
+val tuple_apply3 : (('a * 'b * 'c) -> 'd) -> ('a -> 'b -> 'c -> 'd)
+(** [tuple_apply3 f x y z] is equivalent to [f (x, y, z)]. *)
+
+val tuple_apply4 : (('a * 'b * 'c * 'd) -> 'e) -> ('a -> 'b -> 'c -> 'd -> 'e)
+(** [tuple_apply4 f x y z t] is equivalent to [f (x, y, z, t)]. *)
+
+val tuple_apply5 : (('a * 'b * 'c * 'd * 'e) -> 'f) -> ('a -> 'b -> 'c -> 'd -> 'e -> 'f)
+(** [tuple_apply5 f x y z t u] is equivalent to [f (x, y, z, t, u)]. *)

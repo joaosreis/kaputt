@@ -620,3 +620,13 @@ let apply3 f (x, y, z) = f x y z
 let apply4 f (x, y, z, t) = f x y z t
 
 let apply5 f (x, y, z, t, u) = f x y z t u
+
+let tuple_apply1 f x = f x
+
+let tuple_apply2 f x y = f (x, y)
+
+let tuple_apply3 f x y z = f (x, y, z)
+
+let tuple_apply4 f x y z t = f (x, y, z, t)
+
+let tuple_apply5 f x y z t u = f (x, y, z, t, u)
