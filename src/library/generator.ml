@@ -225,6 +225,42 @@ let complex (gen_re, _) (gen_im, _) =
   Utils.string_of_complex
 
 
+(* Generators for functions *)
+
+type 'a outcome =
+  | Value of 'a
+  | Exception of exn
+
+let total_function (gen, _) =
+  (fun r ->
+    let memo = Hashtbl.create 17 in
+    let func x =
+      try
+        Hashtbl.find memo x
+      with Not_found ->
+        let y = gen r in
+        Hashtbl.add memo x y;
+        y in
+    func),
+  (fun _ -> String.copy "<fun>")
+
+let partial_function (gen, _) =
+  let return = function
+    | Value v -> v
+    | Exception e -> raise e in
+  (fun r ->
+    let memo = Hashtbl.create 17 in
+    let func x =
+      try
+        return (Hashtbl.find memo x)
+      with Not_found ->
+        let y = gen r in
+        Hashtbl.add memo x y;
+        return y in
+    func),
+  (fun _ -> String.copy "<fun>")
+
+
 (* Generators for containers *)
 
 let array (gen_l, _) (gen_e, prn_e) =
