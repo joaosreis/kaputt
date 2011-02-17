@@ -1,3 +1,4 @@
+Test 'function builders' ... passed
 Test 'specialized functions' ... passed
 Test 'equal_bool' ... failed
   expected `true` but received `false`

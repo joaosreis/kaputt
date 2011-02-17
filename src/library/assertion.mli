@@ -81,6 +81,93 @@ val make_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a -> 'a
 val make_not_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a -> 'a -> unit
 (** [make_not_equal e p] is equivalent to [not_equal ~eq:e ~prn:p]. *)
 
+val make_equal_array : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a array -> 'a array -> unit
+(** [make_equal_array eq prn] returns a function for testing equality of
+    arrays. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_not_equal_array : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a array -> 'a array -> unit
+(** [make_not_equal_array eq prn] returns a function for testing inequality
+    of arrays. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_equal_list : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a list -> 'a list -> unit
+(** [make_equal_list eq prn] returns a function for testing equality of
+    list. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_not_equal_list : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a list -> 'a list -> unit
+(** [make_not_equal_list eq prn] returns a function for testing inequality
+    of lists. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_equal_hashtbl : ('b -> 'b -> bool) -> ('a -> string) -> ('b -> string) -> ?msg:string -> ('a, 'b) Hashtbl.t -> ('a, 'b) Hashtbl.t -> unit
+(** [make_equal_hashtbl eq prn prn'] returns a function for testing
+    equality of hash tables. [eq] is used to compare elements, while
+    [prn] is used to print keys and [prn'] is used to print values. *)
+
+val make_not_equal_hashtbl : ('b -> 'b -> bool) -> ('a -> string) -> ('b -> string) -> ?msg:string -> ('a, 'b) Hashtbl.t -> ('a, 'b) Hashtbl.t -> unit
+(** [make_not_equal_hashtbl eq prn prn'] returns a function for testing
+    inequality of hash tables. [eq] is used to compare elements, while
+    [prn] is used to print keys and [prn'] is used to print values. *)
+
+module type Printer = sig
+  type t
+  (** The type of tested values. *)
+
+  val to_string : t -> string
+  (** Conversion function into strings. *)
+end
+(** Module type used for functor-based containers. *)
+
+module Map (M : Map.S) (P : Printer with type t = M.key) : sig
+  val make_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a M.t -> 'a M.t -> unit
+  (** [make_equal eq prn] returns a function for testing equality of maps.
+      [eq] is used to compare values, while [prn] is used to print them. *)
+  val make_not_equal : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string  -> 'a M.t -> 'a M.t -> unit
+  (** [make_not_equal eq prn] returns a function for testing inequality of maps.
+      [eq] is used to compare values, while [prn] is used to print them. *)
+end
+(** Functor used to build assertion functions for [Map.S.t] values. *)
+
+module Set (S : Set.S) (P : Printer with type t = S.elt) : sig
+  val equal : ?msg:string -> S.t -> S.t -> unit
+  (** Same as [equal], but specialized for set values. *)
+  val not_equal : ?msg:string -> S.t -> S.t -> unit
+  (** Same as [not_equal], but specialized for set values. *)
+end
+(** Functor used to build assertion functions for [Map.S.t] values. *)
+
+val make_equal_queue : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a Queue.t -> 'a Queue.t -> unit
+(** [make_equal_queue eq prn] returns a function for testing equality of
+    queues. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_not_equal_queue : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a Queue.t -> 'a Queue.t -> unit
+(** [make_not_equal_queue eq prn] returns a function for testing inequality
+    of queues. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_equal_stack : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a Stack.t -> 'a Stack.t -> unit
+(** [make_equal_stack eq prn] returns a function for testing equality of
+    stacks. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_not_equal_stack : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a Stack.t -> 'a Stack.t -> unit
+(** [make_not_equal_stack eq prn] returns a function for testing inequality
+    of stacks. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_equal_weak : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a Weak.t -> 'a Weak.t -> unit
+(** [make_equal_weak eq prn] returns a function for testing equality of
+    weak arrays. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
+val make_not_equal_weak : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> 'a Weak.t -> 'a Weak.t -> unit
+(** [make_not_equal_weak eq prn] returns a function for testing inequality
+    of weak arrays. [eq] is used to compare elements, while [prn] is used to
+    print them. *)
+
 
 (** {6 Specialized functions} *)
 

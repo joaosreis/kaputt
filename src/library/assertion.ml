@@ -57,6 +57,296 @@ let make_equal e p = equal ~eq:e ~prn:p
 
 let make_not_equal e p = not_equal ~eq:e ~prn:p
 
+let make_equal_array eq prn ?(msg="") x y =
+  let lx = Array.length x in
+  let ly = Array.length y in
+  if lx = ly then
+    for i = 0 to pred lx do
+      let xi = x.(i) in
+      let yi = y.(i) in
+      if not (eq xi yi) then
+        let fm = Printf.sprintf "%s (at index %d)" msg i in
+        fail (prn xi) (prn yi) fm
+    done
+  else
+    let fm =
+      Printf.sprintf "%s (arrays of different sizes - %d and %d)"
+        msg
+        lx
+        ly in
+    fail_msg fm
+
+let make_not_equal_array eq _ ?(msg="") x y =
+  let lx = Array.length x in
+  let ly = Array.length y in
+  if lx = ly then begin
+    let i = ref 0 in
+    while (!i < lx) && (eq x.(!i) y.(!i)) do
+      incr i
+    done;
+    if !i = lx then fail_msg msg
+  end
+
+let make_equal_list eq prn ?(msg="") x y =
+  let rec iter i x y =
+    match x, y with
+    | hd_x :: tl_x, hd_y :: tl_y ->
+        if eq hd_x hd_y then
+          iter (succ i) tl_x tl_y
+        else
+          let fm = Printf.sprintf "%s (at index %d)" msg i in
+          fail (prn hd_x) (prn hd_y) fm
+    | _ :: _, [] | [], _ :: _ ->
+        let fm = Printf.sprintf "%s (lists of different sizes)" msg in
+        fail_msg fm
+    | [], [] ->
+        () in
+  iter 0 x y
+
+let make_not_equal_list eq _ ?(msg="") x y =
+  let rec iter x y =
+    match x, y with
+    | hd_x :: tl_x, hd_y :: tl_y ->
+        if eq hd_x hd_y then
+          iter tl_x tl_y
+        else
+          ()
+    | _ :: _, [] | [], _ :: _ ->
+        ()
+    | [], [] ->
+        fail_msg msg in
+  iter x y
+
+let make_equal_hashtbl eq prn prn' ?(msg="") x y =
+  let lx = Hashtbl.length x in
+  let ly = Hashtbl.length y in
+  if lx = ly then
+    Hashtbl.iter
+      (fun k v ->
+        let l = try Hashtbl.find_all y k with _ -> [] in
+        if not (List.exists (fun x -> eq x v) l) then
+          let fm =
+            Printf.sprintf "%s (%s, %s present only in first table)"
+              msg
+              (prn k)
+              (prn' v) in
+          fail_msg fm)
+      x
+  else
+    let fm =
+      Printf.sprintf "%s (hashtables of different sizes - %d and %d)"
+        msg
+        lx
+        ly in
+    fail_msg fm
+
+let make_not_equal_hashtbl eq _ _ ?(msg="") x y =
+  let lx = Hashtbl.length x in
+  let ly = Hashtbl.length y in
+  if lx = ly then begin
+    try
+      Hashtbl.iter
+        (fun k v ->
+          let l = try Hashtbl.find_all y k with _ -> [] in
+          if not (List.exists (fun x -> eq x v) l) then raise Not_found)
+        x;
+      fail_msg msg
+    with Not_found -> ()
+  end
+
+module type Printer = sig
+  type t
+  val to_string : t -> string
+end
+
+module Map (M : Map.S) (P : Printer with type t = M.key) = struct
+  let make_equal eq prn ?(msg="") x y =
+    let _ =
+      M.merge
+        (fun k v v' ->
+          match v, v' with
+          | Some _, None ->
+              let fm =
+                Printf.sprintf "%s (key %s present only in first table)"
+                  msg
+                  (P.to_string k) in
+              fail_msg fm
+          | None, Some _ ->
+              let fm =
+                Printf.sprintf "%s (key %s present only in second table)"
+                  msg
+                  (P.to_string k) in
+              fail_msg fm
+          | Some xi', Some yi' when not (eq xi' yi') ->
+              let fm =
+                Printf.sprintf "%s (for key %s)"
+                  msg
+                  (P.to_string k) in
+              fail fm (prn xi') (prn yi')
+          | _ -> None)
+        x
+        y in
+    ()
+
+  let make_not_equal eq prn ?(msg="") x y =
+    if (M.cardinal y) = (M.cardinal x) then begin
+      let res =
+        M.merge
+          (fun k v v' ->
+            match v, v' with
+            | Some xi', Some yi' when eq xi' yi' -> Some xi'
+            | _ -> None)
+          x
+          y in
+      if (M.cardinal res) = (M.cardinal x) then
+        fail_msg msg
+    end
+end
+
+module Set (S : Set.S) (P : Printer with type t = S.elt) = struct
+  let equal ?(msg="") x y =
+    let diff = S.diff x y in
+    if not (S.is_empty diff) then
+      let fm =
+        Printf.sprintf "%s (element %s present only in second table)"
+          msg
+          (P.to_string (S.choose diff)) in
+      fail_msg fm
+    else begin
+      let diff' = S.diff y x in
+      if not (S.is_empty diff') then
+        let fm =
+          Printf.sprintf "%s (element %s present only in first table)"
+            msg
+            (P.to_string (S.choose diff)) in
+        fail_msg fm
+    end
+    
+  let not_equal ?(msg="") x y =
+    let lx = S.cardinal x in
+    let ly = S.cardinal y in
+    if (lx = ly) && (S.subset x y) then
+      fail_msg msg
+end
+
+let make_equal_queue eq prn ?(msg="") x y =
+  let lx = Queue.length x in
+  let ly = Queue.length y in
+  if lx = ly then
+    let x' = Queue.copy x in
+    let i = ref 0 in
+    Queue.iter
+      (fun yi ->
+        let xi = Queue.pop x' in
+        if not (eq xi yi) then
+          let fm = Printf.sprintf "%s (at index %d)" msg !i in
+          fail (prn xi) (prn yi) fm
+        else
+          incr i)
+      y
+  else
+    let fm =
+      Printf.sprintf "%s (queues of different sizes - %d and %d)"
+        msg
+        lx
+        ly in
+    fail_msg fm
+
+let make_not_equal_queue eq prn ?(msg="") x y =
+  let lx = Queue.length x in
+  let ly = Queue.length y in
+  if lx = ly then begin
+    let x' = Queue.copy x in
+    try
+      Queue.iter
+        (fun yi ->
+          let xi = Queue.pop x' in
+          if not (eq xi yi) then raise Not_found)
+        y;
+      fail_msg msg
+    with Not_found -> ()
+  end
+
+let make_equal_stack eq prn ?(msg="") x y =
+  let lx = Stack.length x in
+  let ly = Stack.length y in
+  if lx = ly then
+    let x' = Stack.copy x in
+    let i = ref 0 in
+    Stack.iter
+      (fun yi ->
+        let xi = Stack.pop x' in
+        if not (eq xi yi) then
+          let fm = Printf.sprintf "%s (at index %d)" msg !i in
+          fail (prn xi) (prn yi) fm
+        else
+          incr i)
+      y
+  else
+    let fm =
+      Printf.sprintf "%s (stacks of different sizes - %d and %d)"
+        msg
+        lx
+        ly in
+    fail_msg fm
+
+let make_not_equal_stack eq prn ?(msg="") x y =
+  let lx = Stack.length x in
+  let ly = Stack.length y in
+  if lx = ly then begin
+    let x' = Stack.copy x in
+    try
+      Stack.iter
+        (fun yi ->
+          let xi = Stack.pop x' in
+          if not (eq xi yi) then raise Not_found)
+        y;
+      fail_msg msg
+    with Not_found -> ()
+  end
+
+let make_equal_weak eq prn ?(msg="") x y =
+  let lx = Weak.length x in
+  let ly = Weak.length y in
+  if lx = ly then
+    for i = 0 to pred lx do
+      let xi = Weak.get x i in
+      let yi = Weak.get y i in
+      let prn' = function
+        | Some z -> "Some " ^ (prn z)
+        | None -> "None" in
+      let fail' () =
+        let fm = Printf.sprintf "%s (at index %d)" msg i in
+        fail (prn' xi) (prn' yi) fm in
+      match xi, yi with
+      | Some _, None
+      | None, Some _ -> fail' ()
+      | Some xi', Some yi' when not (eq xi' yi') -> fail' ()
+      | _ -> ()
+    done
+  else
+    let fm =
+      Printf.sprintf "%s (weak arrays of different sizes - %d and %d)"
+        msg
+        lx
+        ly in
+    fail_msg fm
+
+let make_not_equal_weak eq prn ?(msg="") x y =
+  let lx = Weak.length x in
+  let ly = Weak.length y in
+  if lx = ly then begin
+    let i = ref 0 in
+    while (!i < lx) &&
+      (match (Weak.get x !i), (Weak.get y !i) with
+      | None, None -> true
+      | Some xi, Some yi when eq xi yi -> true
+      | _ -> false) do
+      incr i
+    done;
+    if !i = lx then fail_msg msg
+  end
+
 
 (* Specialized functions *)
 

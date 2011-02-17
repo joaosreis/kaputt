@@ -18,6 +18,70 @@
 
 open Kaputt.Abbreviations
 
+module StringMap = Map.Make (String)
+module StringSet = Set.Make (String)
+let id x = x
+
+module Prn = struct type t = string let to_string = id end
+module AssertMap = Assert.Map (StringMap) (Prn)
+module AssertSet = Assert.Set (StringSet) (Prn)
+
+let ht1 = Hashtbl.create 17
+let ht2 = Hashtbl.create 17
+let () =
+  Hashtbl.add ht1 "k" "abc";
+  Hashtbl.add ht1 "k" "def";
+  Hashtbl.add ht2 "k" "abc"
+
+let m1 = StringMap.add "k1" "abc" (StringMap.add "k2" "def" StringMap.empty)
+let m2 = StringMap.add "k1" "abc" (StringMap.add "k2" "ghi" StringMap.empty)
+
+let s1 = StringSet.add "abc" (StringSet.add "def" StringSet.empty)
+let s2 = StringSet.add "abc" StringSet.empty
+
+let q1 = Queue.create ()
+let q2 = Queue.create ()
+let () =
+  Queue.push "abc" q1;
+  Queue.push "def" q1;
+  Queue.push "abc" q2
+
+let st1 = Stack.create ()
+let st2 = Stack.create ()
+let () =
+  Stack.push "abc" st1;
+  Stack.push "def" st1;
+  Stack.push "abc" st2
+
+let w1 = Weak.create 2
+let w2 = Weak.create 2
+let () =
+  Weak.set w1 0 (Some "abc");
+  Weak.set w1 1 (Some "def");
+  Weak.set w2 0 (Some "abc")
+
+
+let () =
+  Test.add_simple_test
+    ~title:"function builders"
+    (fun () ->
+      Assert.make_equal_array (=) id [| "abc"; "def" |] [| "abc"; "def" |];
+      Assert.make_not_equal_array (=) id [| "abc"; "def" |] [| "abc"; "ghi" |];
+      Assert.make_equal_list (=) id [ "abc"; "def" ] [ "abc"; "def" ];
+      Assert.make_not_equal_list (=) id [ "abc"; "def" ] [ "abc"; "ghi" ];
+      Assert.make_equal_hashtbl (=) id id ht1 ht1;
+      Assert.make_not_equal_hashtbl (=) id id ht1 ht2;
+      AssertMap.make_equal (=) id m1 m1;
+      AssertMap.make_not_equal (=) id m1 m2;
+      AssertSet.equal s1 s1;
+      AssertSet.not_equal s1 s2;
+      Assert.make_equal_queue (=) id q1 q1;
+      Assert.make_not_equal_queue (=) id q1 q2;
+      Assert.make_equal_stack (=) id st1 st1;
+      Assert.make_not_equal_stack (=) id st1 st2;
+      Assert.make_equal_weak (=) id w1 w1;
+      Assert.make_not_equal_weak (=) id w1 w2)
+
 let () =
   Test.add_simple_test
     ~title:"specialized functions"
