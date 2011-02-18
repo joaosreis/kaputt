@@ -145,29 +145,31 @@ val strings : string -> int t -> string t -> string t
     by [i]. *)
 
 val number : int t -> string t
-(** [number n] constructs a generator for [string] values representing numbers.
-    [n] is used to determine the number of (decimal) digits. *)
+(** [number n] constructs a generator for [string] values representing
+    numbers. [n] is used to determine the number of (decimal) digits. *)
 
 val number_bin : int t -> string t
-(** [number_bin n] constructs a generator for [string] values representing numbers.
-    [n] is used to determine the number of (binary) digits. *)
+(** [number_bin n] constructs a generator for [string] values
+    representing numbers. [n] is used to determine the number of (binary)
+    digits. *)
 
 val number_oct : int t -> string t
-(** [number_oct n] constructs a generator for [string] values representing numbers.
-    [n] is used to determine the number of (octal) digits. *)
+(** [number_oct n] constructs a generator for [string] values representing
+    numbers. [n] is used to determine the number of (octal) digits. *)
 
 val number_hex : int t -> string t
-(** [number_hex n] constructs a generator for [string] values representing numbers.
-    [n] is used to determine the number of (hexadecimal) digits. *)
+(** [number_hex n] constructs a generator for [string] values representing
+    numbers. [n] is used to determine the number of (hexadecimal) digits. *)
 
 val word : int t -> string t
 (** [word n] constructs a generator for [string] values representing words.
     [n] is used to determine the number of letters. *)
 
 val words : int t -> int t -> string t
-(** [words n p] constructs a generator for [string] values representing sequences of words.
-    [n] is used to determine the number of words, while [p] is used to determine the number
-    of letters for a word. Words are separated by single whitespaces. *)
+(** [words n p] constructs a generator for [string] values representing
+    sequences of words. [n] is used to determine the number of words,
+    while [p] is used to determine the number of letters for a word.
+    Words are separated by single whitespaces. *)
 
 val float : float t
 (** Generator for [float] values. *)
@@ -216,8 +218,8 @@ val list : int t -> 'a t -> ('a list) t
 
 val option : bool t -> 'a t -> ('a option) t
 (** [option b e] constructs a generator for option values.
-    [b] is used to determine if the option is [None] (when [b] returns [false]),
-    while [e] is used to generate the embedded element. *)
+    [b] is used to determine if the option is [None] (when [b] returns
+    [false]), while [e] is used to generate the embedded element. *)
 
 val ref : 'a t -> ('a ref) t
 (** [ref e] constructs a generator for reference values.
@@ -268,8 +270,8 @@ val stack : int t -> 'a t -> 'a Stack.t t
 
 val weak : int t -> 'a option t -> 'a Weak.t t
 (** [weak s e] constructs a generator for [Weak.t] values.
-    [s] is used to determine the size of the weak array, while [e] is used
-    to generate elements. *)
+    [s] is used to determine the size of the weak array, while [e] is
+    used to generate elements. *)
 
 module Weak (W : Weak.S) (G : Gen with type g = W.data) : sig
   val gen : int t -> W.t t
@@ -286,25 +288,27 @@ val lift : 'a -> string -> 'a t
     [s] is the string representation of [e]. *)
 
 val select_list : 'a list -> ('a -> string) -> 'a t
-(** [select_list l f] constructs a generator that returns an element of [l].
-    [f] is used to converts values into strings.
+(** [select_list l f] constructs a generator that returns an element of
+    [l]. [f] is used to converts values into strings.
     Raises [Invalid_argument] if [l] is empty. *)
 
 val select_list_weighted : ('a * int) list -> ('a -> string) -> 'a t
-(** [select_list_weighted l f] constructs a generator that returns an element
-    of [l]. [f] is used to converts values into strings. The integers of [l]
-    are interpreted as the weights of the associated elements.
+(** [select_list_weighted l f] constructs a generator that returns an
+    element of [l]. [f] is used to converts values into strings. The
+    integers of [l] are interpreted as the weights of the associated
+    elements.
     Raises [Invalid_argument] if [l] is empty or if a weight is negative. *)
 
 val select_array : 'a array -> ('a -> string) -> 'a t
-(** [select_array a f] constructs a generator that returns an element of [a].
-    [f] is used to converts values into strings.
+(** [select_array a f] constructs a generator that returns an element of
+    [a]. [f] is used to converts values into strings.
     Raises [Invalid_argument] if [a] is empty. *)
 
 val select_array_weighted : ('a * int) array -> ('a -> string) -> 'a t
-(** [select_array_weighted a f] constructs a generator that returns an element
-    of [a]. [f] is used to converts values into strings. The integers of [a]
-    are interpreted as the weights of the associated elements.
+(** [select_array_weighted a f] constructs a generator that returns an
+    element of [a]. [f] is used to converts values into strings.
+    The integers of [a] are interpreted as the weights of the associated
+    elements.
     Raises [Invalid_argument] if [a] is empty or if a weight is negative. *)
 
 val choose_list : ('a t) list -> 'a t
@@ -314,10 +318,10 @@ val choose_list : ('a t) list -> 'a t
     Raises [Invalid_argument] if [l] is empty. *)
 
 val choose_list_weighted : (('a t) * int) list -> 'a t
-(** [choose_list_weighted l] constructs a generator that returns an element by
-    first selecting a generator from [l] and using it to generate the actual
-    value. The integers of [l] are interpreted as the weights of the associated
-    elements.
+(** [choose_list_weighted l] constructs a generator that returns an
+    element by first selecting a generator from [l] and using it to
+    generate the actual value. The integers of [l] are interpreted as the
+    weights of the associated elements.
     Raises [Invalid_argument] if [l] is empty or if a weight is negative. *)
 
 val choose_array : ('a t) array -> 'a t
@@ -327,15 +331,15 @@ val choose_array : ('a t) array -> 'a t
     Raises [Invalid_argument] if [a] is empty. *)
 
 val choose_array_weighted : (('a t) * int) array -> 'a t
-(** [choose_array_weigthed a] constructs a generator that returns an element by
-    first selecting a generator from [a] and using it to generate the actual
-    value. The integers of [a] are interpreted as the weights of the associated
-    elements.
+(** [choose_array_weigthed a] constructs a generator that returns an
+    element by first selecting a generator from [a] and using it to
+    generate the actual value. The integers of [a] are interpreted as the
+    weights of the associated elements.
     Raises [Invalid_argument] if [a] is empty or if a weight is negative. *)
 
 val filter : ('a -> bool) -> 'a t -> 'a t
-(** [filter f g] constructs a generator equivalent to [g] filtered by [f],
-    that is skips all values [x] such that [f x] returns [false]. *)
+(** [filter f g] constructs a generator equivalent to [g] filtered by
+    [f], that is skips all values [x] such that [f x] returns [false]. *)
 
 val transform : ('a -> 'a) -> 'a t -> 'a t
 (** [transform f g] constructs a generator applying the function [f]
@@ -352,34 +356,40 @@ val map2 : ('a -> 'b -> 'c) -> ('c -> string) -> (('a t) * ('b t)) -> 'c t
     values generated by the returned generator into strings. *)
 
 val map3 : ('a -> 'b -> 'c -> 'd) -> ('d -> string) -> (('a t) * ('b t) * ('c t)) -> 'd t
-(** [map3 f p (g1, g2, g3)] constructs a generator applying the function [f]
-    to the values generated by [g1], [g2] and [g3]. [p] is used to convert the
-    values generated by the returned generator into strings. *)
+(** [map3 f p (g1, g2, g3)] constructs a generator applying the function
+    [f] to the values generated by [g1], [g2] and [g3]. [p] is used to
+    convert the values generated by the returned generator into strings. *)
 
 val map4 : ('a -> 'b -> 'c -> 'd -> 'e) -> ('e -> string) -> (('a t) * ('b t) * ('c t) * ('d t)) -> 'e t
-(** [map4 f p (g1, g2, g3, g4)] constructs a generator applying the function [f]
-    to the values generated by [g1], [g2], [g3] and [g4]. [p] is used to convert the
-    values generated by the returned generator into strings. *)
+(** [map4 f p (g1, g2, g3, g4)] constructs a generator applying the
+    function [f] to the values generated by [g1], [g2], [g3] and [g4].
+    [p] is used to convert the values generated by the returned generator
+    into strings. *)
 
 val map5 : ('a -> 'b -> 'c -> 'd -> 'e -> 'f) -> ('f -> string) -> (('a t) * ('b t) * ('c t) * ('d t) * ('e t)) -> 'f t
-(** [map5 f p (g1, g2, g3, g4, g5)] constructs a generator applying the function [f]
-    to the values generated by [g1], [g2], [g3], [g4] and [g5]. [p] is used to convert the
-    values generated by the returned generator into strings. *)
+(** [map5 f p (g1, g2, g3, g4, g5)] constructs a generator applying the
+    function [f] to the values generated by [g1], [g2], [g3], [g4]
+    and [g5]. [p] is used to convert the values generated by the returned
+    generator into strings. *)
 
 val zip1 : 'a t -> 'a t
 (** The identity function. *)
 
 val zip2 : 'a t -> 'b t -> ('a * 'b) t
-(** [zip2 g1 g2] zips [g1] and [g2] into a generator producing couple values. *)
+(** [zip2 g1 g2] zips [g1] and [g2] into a generator producing couple
+    values. *)
 
 val zip3 : 'a t -> 'b t -> 'c t -> ('a * 'b * 'c) t
-(** [zip3 g1 g2 g3] zips [g1], [g2] and [g3] into a generator producing triple values. *)
+(** [zip3 g1 g2 g3] zips [g1], [g2] and [g3] into a generator producing
+    triple values. *)
 
 val zip4 : 'a t -> 'b t -> 'c t -> 'd t -> ('a * 'b * 'c * 'd) t
-(** [zip4 g1 g2 g3 g4] zips [g1], [g2], [g3] and [g4] into a generator producing quadruple values. *)
+(** [zip4 g1 g2 g3 g4] zips [g1], [g2], [g3] and [g4] into a generator
+    producing quadruple values. *)
 
 val zip5 : 'a t -> 'b t -> 'c t -> 'd t -> 'e t -> ('a * 'b * 'c * 'd * 'e) t
-(** [zip5 g1 g2 g3 g4 g5] zips [g1], [g2], [g3], [g4] and [g5] into a generator producing quintuple values. *)
+(** [zip5 g1 g2 g3 g4 g5] zips [g1], [g2], [g3], [g4] and [g5] into a
+    generator producing quintuple values. *)
 
 
 (** {6 Currying functions} *)
