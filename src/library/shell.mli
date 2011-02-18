@@ -68,6 +68,12 @@ val command : string -> ('a, 'b, 'c) command
     parameter types of the command type. Should be used only to provide
     base commands not defined in this module. *)
 
+val coerce : ('a, 'b, 'c) command -> ('d, 'e, 'f) command
+(** [coerce c] allows one to change the parameter types of the command type. *)
+
+val ignore : ('a, 'b, 'c) command -> ('a, [`No_output], [`No_error]) command
+(** A specialized version of [coerce] that ignores both outputs. *)
+
 val run : ('a, 'b, 'c) command -> int
 (** [run c] runs the command [c], returning its exit code. *)
 
@@ -151,7 +157,8 @@ val pushd : string -> unit
     Raises [Sys_error] if the directory does not exist. *)
 
 val popd : unit -> string
-(** Changes the current directory to the value poped from the directory stack.
+(** Changes the current directory to the value poped from the directory stack,
+    and returns it.
     Raise [Stack.Empty] if the directory stack is empty.
     Raises [Sys_error] if the directory does not exist. *)
 
@@ -163,6 +170,9 @@ val exit : int -> ([`No_input], [`No_output], [`No_error]) command
 
 
 (** {6 Directory commands} *)
+
+val pwdir : unit -> ([`No_input], [`Output], [`No_error]) command
+(** Equivalent to [pwd], as a command. *)
 
 val chdir : string -> ([`No_input], [`No_output], [`Error]) command
 (** Equivalent to [cd], as a command. *)
@@ -222,6 +232,20 @@ val grep_files : ?options:string list -> string -> string list -> ([`No_input], 
 val sed : ?options:string list -> string -> ([`Input], [`Output], [`Error]) command
 (** [sed ~options:options x] builds a command applying the expression [x] to input,
     passing [options] to the sed executable. [options] defaults to [[]]. *)
+
+val sort : ?options:string list -> string list -> ([`Input], [`Output], [`Error]) command
+(** [sed ~options:options l] builds a command sorting the data it receives,
+    passing [options] to the sort executable. [options] defaults to [[]]. *)
+
+val cut : ?options:string list -> string list -> ([`Input], [`Output], [`Error]) command
+(** [cut ~options:options l] builds a command extract elements from the data it receives,
+    passing [options] to the cut executable. [options] defaults to [[]]. *)
+
+
+(** {6 Miscellaneous commands} *)
+
+val sleep : int -> ([`No_input], [`No_output], [`No_error]) command
+(** [sleep x] suspends the execution for [x] seconds. *)
 
 
 (** {6 Combinators over commands} *)

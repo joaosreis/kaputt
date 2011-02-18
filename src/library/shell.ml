@@ -58,7 +58,7 @@ let read_lines fn =
     while true do
       res := (input_line ch) :: !res
     done;
-    []
+    assert false
   with
   | End_of_file ->
       close_in_noerr ch;
@@ -81,6 +81,10 @@ let write_lines l fn =
     raise e
 
 external command : string -> ('a, 'b, 'c) command = "%identity"
+
+external coerce : ('a, 'b, 'c) command -> ('d, 'e, 'f) command = "%identity"
+
+external ignore : ('a, 'b, 'c) command -> ('a, [`No_output], [`No_error]) command = "%identity"
 
 let run = Sys.command
 
@@ -179,6 +183,8 @@ let exit n = make_command "exit" [] [string_of_int n]
 
 (* Directory commands *)
 
+let pwdir x = make_command "pwd" [] []
+
 let chdir x = make_command "cd" [] [x]
 
 let mkdir ?(options=[]) x = make_command "mkdir" options [x]
@@ -209,6 +215,15 @@ let grep ?(options=[]) e = make_command "grep" options [e]
 let grep_files ?(options=[]) e l = make_command "grep" options (e :: l)
 
 let sed ?(options=[]) e = make_command "sed" options [e]
+
+let sort ?(options=[]) l = make_command "sort" options l
+
+let cut ?(options=[]) l = make_command "cut" options l
+
+
+(* Miscellaneous commands *)
+
+let sleep x = make_command "sleep" [string_of_int x] []
 
 
 (* Combinators over commands *)

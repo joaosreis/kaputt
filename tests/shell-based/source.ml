@@ -38,6 +38,13 @@ let _ =
     (List.map
        (fun s -> Shell.redirect_append (Shell.cat [s]) "result")
        [ "data2"; "data3" ])
+
+let _ =
+  let (!!) = Shell.coerce in
+  Shell.run_list
+    [Shell.sleep 1;
+     !! (Shell.touch ["."]);
+     Shell.exit 0]
     
 
 let () =
