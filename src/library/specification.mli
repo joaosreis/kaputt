@@ -25,7 +25,10 @@
 type 'a predicate = 'a -> bool
 (** The type of unary predicates. *)
 
-type ('a, 'b) t = { precond : 'a predicate; postcond : ('a * 'b) predicate }
+type ('a, 'b) t = {
+    precond : 'a predicate;
+    postcond : ('a * 'b) predicate
+  }
 (** The type of specifications, that is: a precondition and a postcondition:
     - ['a] is the type for the domain of the function to be tested;
     - ['b] is the type for the codomain (or range) of the function to be tested.
@@ -312,17 +315,35 @@ val logand : 'a predicate -> 'a predicate -> 'a predicate
 val (&&&) : 'a predicate -> 'a predicate -> 'a predicate
 (** Shorthand for [logand]. *)
 
+val logand_list : 'a predicate list -> 'a predicate
+(** Constructs a predicate that is the conjunction of the passed ones. *)
+
+val (&&&&) : 'a predicate list -> 'a predicate
+(** Shorthand for [logand_list]. *)
+
 val logor : 'a predicate -> 'a predicate -> 'a predicate
 (** Constructs a predicate that is the disjunction of the passed ones. *)
 
 val (|||) : 'a predicate -> 'a predicate -> 'a predicate
 (** Shorthand for [logor]. *)
 
+val logor_list : 'a predicate list -> 'a predicate
+(** Constructs a predicate that is the disjunction of the passed ones. *)
+
+val (||||) : 'a predicate list -> 'a predicate
+(** Shorthand for [logor_list]. *)
+
 val logxor : 'a predicate -> 'a predicate -> 'a predicate
 (** Constructs a predicate that is the exclusive disjunction of the passed ones. *)
 
 val (^^^) : 'a predicate -> 'a predicate -> 'a predicate
 (** Shorthand for [logxor]. *)
+
+val logxor_list : 'a predicate list -> 'a predicate
+(** Constructs a predicate that is the exclusive disjunction of the passed ones. *)
+
+val (^^^^) : 'a predicate list -> 'a predicate
+(** Shorthand for [logxor_list]. *)
 
 val not : 'a predicate -> 'a predicate
 (** Constructs a predicate that is the negation of the passed one. *)

@@ -32,7 +32,7 @@ let implies p1 p2 =
 let (=>) = implies
 
 let implies' p1 p2 =
-  { precond = p1; postcond = (fun (_, x) -> p2 x) }
+  { precond = p1; postcond = (fun x -> p2 (snd x)) }
 
 let (==>) = implies'
 
@@ -275,15 +275,30 @@ let logand p1 p2 =
 
 let (&&&) = logand
 
+let logand_list l =
+  fun x -> List.for_all (fun p -> p x) l
+
+let (&&&&) = logand_list
+
 let logor p1 p2 =
   fun x -> (p1 x) || (p2 x)
 
 let (|||) = logor
 
+let logor_list l =
+  fun x -> List.exists (fun p -> p x) l
+
+let (||||) = logor_list
+
 let logxor p1 p2 =
   fun x -> let r1 = p1 x and r2 = p2 x in (r1 && (not r2)) || ((not r1) && r2)
 
 let (^^^) = logxor
+
+let logxor_list l =
+  fun x -> List.fold_left (fun acc p -> if acc then not (p x) else p x) false l
+
+let (^^^^) = logxor_list
 
 let not p =
   fun x -> not (p x)
