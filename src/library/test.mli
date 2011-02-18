@@ -105,28 +105,32 @@ val add_simple_test : ?title:string -> (unit -> unit) -> unit
 val default_classifier : 'a classifier
 (** The default classifier, always returning [""]. *)
 
-val make_random_test : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
-(** [make_random_test ~title:t ~nb_runs:nb ~classifier:c ~random_src:rnd gen f spec]
-    constructs a random test. [f] is the function to be tested; when run, the
-    framework will generate [nb] input values for [f] satisfying [spec] using
-    [gen] (an input value satisfies [spec] if it makes one of the preconditions
-    evaluate to [true]). The function [f] is then feed with those values,
-    and the output is passed to the associated postcondition to check it
-    evaluates to [true] (otherwise, a counterexample has been found).
-    The classifier [c] is used to group generated elements into categories in
-    order to have a better understanding of what the random elements actually
-    tested.
+val make_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
+(** [make_random_test ~title:t ~nb_runs:nb ~nb_tries:nt ~classifier:c ~random_src:rnd gen f spec]
+    constructs a random test. [f] is the function to be tested; when run,
+    the framework will generate [nb] input values for [f] satisfying
+    [spec] using [gen] (an input value satisfies [spec] if it makes one
+    of the preconditions evaluate to [true]). As it is possible to find
+    no such input value, [nt] defines the maximum number of tries when
+    generating a value.
+
+    The function [f] is then feed with those values, and the output is
+    passed to the associated postcondition to check it evaluates to [true]
+    (otherwise, a counterexample has been found). The classifier [c] is
+    used to group generated elements into categories in order to have a
+    better understanding of what the random elements actually tested.
 
     The default values are:
     - a auto-generated ["untitled no X"] string
       ("X" being the value of a counter) for [title];
     - [100] for [nb_runs];
+    - [10 * nb_runs] for [nb_tries];
     - [default_classifier] for [classifier];
     - [Generator.make_random ()] for [random_src].
 
-    Raises [Invalid_arg] if [nb] is not strictly positive. *)
+    Raises [Invalid_arg] if either [nb] or [nt] is not strictly positive. *)
 
-val add_random_test : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
+val add_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** Equivalent to [make_random_test], except that the built test is added to the ones to be run by [launch_tests]. *)
 
 
@@ -174,8 +178,8 @@ val run_tests : ?output:output_mode -> t list -> unit
 
 val launch_tests : ?output:output_mode -> unit -> unit
 (** Equivalent to [run_tests], except that the list of tests to be run is
-    composed of all the tests build by the [add_XXX] functions of this module
+    composed of all the tests build by the [add_xyz] functions of this module
     since the last call of [launch_tests]. *)
 
-val check : ?title:string -> ?nb_runs:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
+val check : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** [check ...] is equivalent to [run_test (make_random_test ...)]. *)

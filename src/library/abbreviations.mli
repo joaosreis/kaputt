@@ -58,7 +58,7 @@ val (|||) : 'a Specification.predicate -> 'a Specification.predicate -> 'a Speci
 val (^^^) : 'a Specification.predicate -> 'a Specification.predicate -> 'a Specification.predicate
 (** Shorthand for [Specification.logxor] function. *)
 
-val check : ?title:string -> ?nb_runs:int -> ?classifier:'a Test.classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
+val check : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a Test.classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** Shorthand for [Test.check] function. *)
 
 val (|>) : ('a, [`Output], 'c1) Shell.command -> ([`Input], 'b , 'c2) Shell.command -> ('a, 'b, 'c2) Shell.command

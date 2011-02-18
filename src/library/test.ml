@@ -95,40 +95,47 @@ let rec extract x = function
         extract x tl
   | [] -> dummy_post
 
-let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
+let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
   if nb_runs <= 0 then invalid_arg "Kaputt.Test.make_random_test";
+  if nb_tries <= 0 then invalid_arg "Kaputt.Test.make_random_test";
   title,
   (fun () ->
     let valid = ref 0 in
     let uncaught = ref 0 in
+    let actual_runs = ref 0 in
     let counterexamples = ref [] in
     let categories = Hashtbl.create 16 in
     for i = 1 to nb_runs do
       let x = ref (gen random_src) in
       let post = ref (extract !x spec) in
-      while !post == dummy_post do
+      let tries = ref nb_tries in
+      while (!post == dummy_post) && (!tries > 0) do
         let tmp = gen random_src in
         x := tmp;
-        post := extract tmp spec
+        post := extract tmp spec;
+        decr tries
       done;
-      try
-        let y = f !x in
-        let cat = classifier !x in
-        let curr = try Hashtbl.find categories cat with _ -> 0 in
-        Hashtbl.replace categories cat (succ curr);
-        if !post (!x, y) then
-          incr valid
-        else
-          let x' = prn !x in
-          if not (List.mem x' !counterexamples) then
-            counterexamples := x' :: !counterexamples
-      with _ -> incr uncaught
+      if !post != dummy_post then begin
+        incr actual_runs;
+        try
+          let y = f !x in
+          let cat = classifier !x in
+          let curr = try Hashtbl.find categories cat with _ -> 0 in
+          Hashtbl.replace categories cat (succ curr);
+          if !post (!x, y) then
+            incr valid
+          else
+            let x' = prn !x in
+            if not (List.mem x' !counterexamples) then
+              counterexamples := x' :: !counterexamples
+        with _ -> incr uncaught
+      end
     done;
     let categories' = Hashtbl.fold (fun k v acc -> (k, v) :: acc) categories [] in
-    Report (!valid, nb_runs, !uncaught, (List.rev !counterexamples), categories'))
+    Report (!valid, !actual_runs, !uncaught, (List.rev !counterexamples), categories'))
 
-let add_random_test ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
-  add_test (make_random_test ~title:title ~nb_runs:nb_runs ~classifier:classifier ~random_src:random_src (gen, prn) f spec)
+let add_random_test ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
+  add_test (make_random_test ~title:title ~nb_runs:nb_runs ~nb_tries:nb_tries ~classifier:classifier ~random_src:random_src (gen, prn) f spec)
 
 
 (* Enumerator-based tests *)
@@ -587,11 +594,12 @@ let run_test ?(output=(Text_output stdout)) x =
 let launch_tests ?(output=(Text_output stdout)) () =
   run_tests ~output:output (List.rev !tests)
 
-let check ?(title=get_title ()) ?(nb_runs=100) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) generator f spec =
+let check ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) generator f spec =
   run_test
     (make_random_test
        ~title:title
        ~nb_runs:nb_runs
+       ~nb_tries:nb_tries
        ~classifier:classifier
        ~random_src:random_src
        generator
