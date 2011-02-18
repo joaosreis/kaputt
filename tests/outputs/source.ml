@@ -86,7 +86,7 @@ let outputs = [
 
 let () =
   List.iter
-    (fun o -> Test.launch_tests ~output:o ())
+    (fun o -> Test.launch_tests ~output:o ~clear:false ())
     outputs
 
 let () =

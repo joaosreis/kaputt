@@ -137,7 +137,7 @@ val add_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classif
 (** {6 Enumerator-based tests} *)
 
 val make_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
-(** [make_enum_test  ~title:t e f spec] constructs an enumerator-based test
+(** [make_enum_test ~title:t e f spec] constructs an enumerator-based test
     [f] is the function to be tested against the values enumerated by [e],
     ensuring that the specification [spec] is satisfied
     ({i cf.} {!Test.make_random_test}). *)
@@ -176,10 +176,11 @@ val run_tests : ?output:output_mode -> t list -> unit
 
     The output channel if closed only iff it is neither [stdout], nor [stderr]. *)
 
-val launch_tests : ?output:output_mode -> unit -> unit
+val launch_tests : ?output:output_mode -> ?clear:bool -> unit -> unit
 (** Equivalent to [run_tests], except that the list of tests to be run is
-    composed of all the tests build by the [add_xyz] functions of this module
-    since the last call of [launch_tests]. *)
+    composed of all the tests build by the [add_xyz] functions of this module.
+    The [clear] parameter indicates whether the list of tests should be
+    emptied, and defaults to [true]. *)
 
 val check : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** [check ...] is equivalent to [run_test (make_random_test ...)]. *)

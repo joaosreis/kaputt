@@ -591,8 +591,9 @@ let run_tests ?(output=(Text_output stdout)) l =
 let run_test ?(output=(Text_output stdout)) x =
   run_tests ~output:output [x]
 
-let launch_tests ?(output=(Text_output stdout)) () =
-  run_tests ~output:output (List.rev !tests)
+let launch_tests ?(output=(Text_output stdout)) ?(clear=true) () =
+  run_tests ~output:output (List.rev !tests);
+  if clear then tests := []
 
 let check ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) generator f spec =
   run_test
