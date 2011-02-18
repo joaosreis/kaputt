@@ -20,16 +20,36 @@
     allowing to encode shell scripts. *)
 
 
-(** {6 Type definition} *)
+(** {6 Type definitions} *)
 
 type ('a, 'b, 'c) command
   constraint 'a = [< `Input | `No_input ]
   constraint 'b = [< `Output | `No_output]
   constraint 'c = [< `Error | `No_error]
 (** The type of commands, the type parameters being phantom types indicating:
-    - whether the command reads data from standard input ;
-    - whether the command writes data to standard output ;
+    - whether the command reads data from standard input;
+    - whether the command writes data to standard output;
     - whether the command writes data to standard error. *)
+
+type configuration = {
+    pipe : string; (** The notation used for shell pipes. *)
+    redirect_output : string; (** The notation used to redirect ouput. *)
+    redirect_append_output : string; (** The notation used to redirect ouput in append mode. *)
+    redirect_error : string; (** The notation used to redirect error. *)
+    redirect_append_error : string; (** The notation used to redirect error in append mode. *)
+  }
+(** The type of shell configuration, defining some syntactic elements. *)
+
+
+(** {6 Configuration} *)
+
+val bash : configuration
+(** The configuration for bash shells. *)
+
+val set_configuration : configuration -> unit
+(** [set_configuration c] changes the configuration to [c].
+
+    The default configuration is [bash]. *)
 
 
 (** {6 Utility functions} *)
@@ -229,3 +249,9 @@ val redirect_error : ('a, 'b, [`Error]) command -> string -> ('a, 'b, [`No_error
 
 val (>>>>) : ('a, 'b, [`Error]) command -> string -> ('a, 'b, [`No_error]) command
 (** Bare synonym for [redirect_error]. *)
+
+val redirect_append_error : ('a, 'b, [`Error]) command -> string -> ('a, 'b, [`No_error]) command
+(** [redirect_error c f] builds a command that redirect the error of command [c] to file [f] in append mode. *)
+
+val (>>>>>) : ('a, 'b, [`Error]) command -> string -> ('a, 'b, [`No_error]) command
+(** Bare synonym for [redirect_append_error]. *)

@@ -24,6 +24,30 @@ type ('a, 'b, 'c) command  = string
   constraint 'b = [< `Output | `No_output]
   constraint 'c = [< `Error | `No_error]
 
+type configuration = {
+    pipe : string;
+    redirect_output : string;
+    redirect_append_output : string;
+    redirect_error : string;
+    redirect_append_error : string;
+  }
+
+
+(* Configuration *)
+
+let bash = {
+  pipe = "|";
+  redirect_output = ">";
+  redirect_append_output = ">>";
+  redirect_error = "2>";
+  redirect_append_error = "2>>";
+}
+
+let configuration = ref bash
+
+let set_configuration c =
+  configuration := c
+
 
 (* Utility functions *)
 
@@ -190,21 +214,26 @@ let sed ?(options=[]) e = make_command "sed" options [e]
 (* Combinators over commands *)
 
 let pipe c1 c2 =
-  "(" ^ c1 ^ ") | (" ^ c2 ^ ")"
+  Printf.sprintf "(%s) %s (%s)" c1 !configuration.pipe c2
 
 let (|>) = pipe
 
 let redirect_output c f =
-  "((" ^ c ^ ") > " ^ (quote f) ^ ")"
+  Printf.sprintf "((%s) %s %s)" c !configuration.redirect_output (quote f)
 
 let (>>) = redirect_output
 
 let redirect_append c f =
-  "((" ^ c ^ ") >> " ^ (quote f) ^ ")"
+  Printf.sprintf "((%s) %s %s)" c !configuration.redirect_append_output (quote f)
 
 let (>>>) = redirect_append
 
 let redirect_error c f =
-  "((" ^ c ^ ") 2> " ^ (quote f) ^ ")"
+  Printf.sprintf "((%s) %s %s)" c !configuration.redirect_error (quote f)
 
 let (>>>>) = redirect_error
+
+let redirect_append_error c f =
+  Printf.sprintf "((%s) %s %s)" c !configuration.redirect_append_error (quote f)
+
+let (>>>>>) = redirect_append_error
