@@ -10,3 +10,5 @@ Test '(string * number) list' ... 0/3 case passed
   counterexamples: [ ("OR", "439"); ], [ ("UEg", "672"); ("soHvUdP", "929"); ], [ ("KxeO", "41"); ("dUXKfxz", "810"); ]
 Test '(int[1..10] -> float[1..2[) map' ... 0/3 case passed
   counterexamples: 4 -> 1.84402117409; 6 -> 1.69966275532; 10 -> 1.81620314011, , 1 -> 1.58329376737
+Test 'int list (with reduction)' ... 2/3 cases passed
+  counterexample: [ 1; 4; 9; 14; 2; 1; 7; 9; 10; 12; 9; 7; 14; 13; ] reduced to [ 13; ]

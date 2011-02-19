@@ -105,8 +105,11 @@ val add_simple_test : ?title:string -> (unit -> unit) -> unit
 val default_classifier : 'a classifier
 (** The default classifier, always returning [""]. *)
 
-val make_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
-(** [make_random_test ~title:t ~nb_runs:nb ~nb_tries:nt ~classifier:c ~random_src:rnd gen f spec]
+val default_reducer : 'a Reducer.t
+(** The default reducer, always returning [[]]. *)
+
+val make_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?reducer:'a Reducer.t -> ?reduce_depth:int -> ?reduce_smaller:('a -> 'a -> bool) -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
+(** [make_random_test ~title:t ~nb_runs:nb ~nb_tries:nt ~classifier:c ~reducer:red ~random_src:rnd gen f spec]
     constructs a random test. [f] is the function to be tested; when run,
     the framework will generate [nb] input values for [f] satisfying
     [spec] using [gen] (an input value satisfies [spec] if it makes one
@@ -116,7 +119,8 @@ val make_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classi
 
     The function [f] is then feed with those values, and the output is
     passed to the associated postcondition to check it evaluates to [true]
-    (otherwise, a counterexample has been found). The classifier [c] is
+    (otherwise, a counterexample has been found). The reducer is used
+    to try to producer a smaller counterexample (. The classifier [c] is
     used to group generated elements into categories in order to have a
     better understanding of what the random elements actually tested.
 
@@ -126,11 +130,12 @@ val make_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classi
     - [100] for [nb_runs];
     - [10 * nb_runs] for [nb_tries];
     - [default_classifier] for [classifier];
+    - [default_reducer] for [reducer];
     - [Generator.make_random ()] for [random_src].
 
     Raises [Invalid_arg] if either [nb] or [nt] is not strictly positive. *)
 
-val add_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
+val add_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?reducer:'a Reducer.t -> ?reduce_depth:int -> ?reduce_smaller:('a -> 'a -> bool) -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** Equivalent to [make_random_test], except that the built test is added to the ones to be run by [launch_tests]. *)
 
 

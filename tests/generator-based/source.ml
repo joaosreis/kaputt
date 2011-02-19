@@ -78,6 +78,16 @@ let () =
     (fun _ -> 0)
     [Spec.always ==> Spec.never]
 
+let () =
+  Test.add_random_test
+    ~title:"int list (with reduction)"
+    ~nb_runs:3
+    ~reducer:Red.list
+    ~random_src:(Gen.make_random_seed seed)
+    (Gen.list (Gen.make_int 8 24) (Gen.make_int 0 16))
+    (fun x -> x)
+    [(fun x -> x <> []) ==> (List.mem 0)]
+
 
 let () =
   Test.launch_tests ~output:(Test.Text_output (open_out "result")) ();

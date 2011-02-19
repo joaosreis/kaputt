@@ -85,19 +85,71 @@ let add_simple_test ?(title=get_title ()) f =
 
 let default_classifier _ = ""
 
-let dummy_post _ = false
+let default_reducer _ = []
+
+let default_smaller _ _ = true
+
+let dummy_spec =
+  let dummy_pre _ = false in
+  let dummy_post _ = false in
+  let open Specification in
+  { precond = dummy_pre; postcond = dummy_post; }
 
 let rec extract x = function
   | hd :: tl ->
       if hd.Specification.precond x then
-        hd.Specification.postcond
+        hd
       else
         extract x tl
-  | [] -> dummy_post
+  | [] -> dummy_spec
 
-let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
+let rec reduce_candidates n red spec x f =
+  let candidates = red x in
+  let candidates =
+    List.filter
+      (fun c ->
+        (spec.Specification.precond c)
+          && not (spec.Specification.postcond (c, f c)))
+      candidates in
+  if n > 0 then
+    List.flatten
+      (List.map
+         (fun c -> reduce_candidates (pred n) red spec c f)
+         candidates)
+  else
+    candidates
+  
+let reduce smaller n red spec x f =
+  if (n > 0) && (red != default_reducer) then begin
+    match reduce_candidates n red spec x f with
+    | hd :: tl ->
+        let min =
+          List.fold_left
+            (fun acc elem ->
+              if smaller elem acc then
+                elem
+              else
+                acc)
+            hd
+            tl in
+        Some min
+    | [] -> None
+  end else
+    None
+
+let make_random_test
+    ?(title=get_title ())
+    ?(nb_runs=100)
+    ?(nb_tries=10*nb_runs)
+    ?(classifier=default_classifier)
+    ?(reducer=default_reducer)
+    ?(reduce_depth=4)
+    ?(reduce_smaller=default_smaller)
+    ?(random_src=Generator.make_random ())
+    (gen, prn) f spec =
   if nb_runs <= 0 then invalid_arg "Kaputt.Test.make_random_test";
   if nb_tries <= 0 then invalid_arg "Kaputt.Test.make_random_test";
+  if reduce_depth < 0 then invalid_arg "Kaputt.Test.make_random_test";
   title,
   (fun () ->
     let valid = ref 0 in
@@ -107,25 +159,29 @@ let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs)
     let categories = Hashtbl.create 16 in
     for i = 1 to nb_runs do
       let x = ref (gen random_src) in
-      let post = ref (extract !x spec) in
+      let pre_post = ref (extract !x spec) in
       let tries = ref nb_tries in
-      while (!post == dummy_post) && (!tries > 0) do
+      while (!pre_post == dummy_spec) && (!tries > 0) do
         let tmp = gen random_src in
         x := tmp;
-        post := extract tmp spec;
+        pre_post := extract tmp spec;
         decr tries
       done;
-      if !post != dummy_post then begin
+      if !pre_post != dummy_spec then begin
         incr actual_runs;
         try
           let y = f !x in
           let cat = classifier !x in
           let curr = try Hashtbl.find categories cat with _ -> 0 in
           Hashtbl.replace categories cat (succ curr);
-          if !post (!x, y) then
+          if (!pre_post).Specification.postcond (!x, y) then
             incr valid
           else
             let x' = prn !x in
+            let reduced = reduce reduce_smaller reduce_depth reducer !pre_post !x f in
+            let x' = match reduced with
+            | Some r -> x' ^ " reduced to " ^ (prn r)
+            | None -> x' in
             if not (List.mem x' !counterexamples) then
               counterexamples := x' :: !counterexamples
         with _ -> incr uncaught
@@ -134,11 +190,31 @@ let make_random_test ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs)
     let categories' = Hashtbl.fold (fun k v acc -> (k, v) :: acc) categories [] in
     Report (!valid, !actual_runs, !uncaught, (List.rev !counterexamples), categories'))
 
-let add_random_test ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) (gen, prn) f spec =
-  add_test (make_random_test ~title:title ~nb_runs:nb_runs ~nb_tries:nb_tries ~classifier:classifier ~random_src:random_src (gen, prn) f spec)
+let add_random_test
+    ?(title=get_title ())
+    ?(nb_runs=100)
+    ?(nb_tries=10*nb_runs)
+    ?(classifier=default_classifier)
+    ?(reducer=default_reducer)
+    ?(reduce_depth=4)
+    ?(reduce_smaller=default_smaller)
+    ?(random_src=Generator.make_random ())
+    (gen, prn) f spec =
+  add_test (make_random_test
+              ~title:title
+              ~nb_runs:nb_runs
+              ~nb_tries:nb_tries
+              ~classifier:classifier
+              ~reducer:reducer
+              ~reduce_depth:reduce_depth
+              ~reduce_smaller:reduce_smaller
+              ~random_src:random_src
+              (gen, prn) f spec)
 
 
 (* Enumerator-based tests *)
+
+let dummy_post _ = false
 
 let make_enum_test ?(title=get_title ()) enum f spec =
   title,
@@ -150,7 +226,7 @@ let make_enum_test ?(title=get_title ()) enum f spec =
     let prn = snd enum in
     Enumerator.iter
       (fun x ->
-        let post = extract x spec in
+        let post = (extract x spec).Specification.postcond in
         if post == dummy_post then begin
           let x' = prn x in
           if not (List.mem x' !counterexamples) then
