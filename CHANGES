@@ -1,3 +1,17 @@
+Version 1.1 (2011-02-20):
+-------------------------
+  - update for Objective Caml 3.12.0
+  - new build system (ocamlbuild-based)
+  - assertion builders for data containers
+  - generators for functions (both total and partial)
+  - enumerators for file contents (chars, bytes, lines, and marshalled values)
+  - additional shell commands, and possibility to configure shell syntax
+  - enhanced big array, and big num support
+  - fix for possible non-termination on unsatisfiable precondition
+  - implementation of reduction (to try to produce smaller counterexamples)
+  - bug #51: unportable use of 'which'
+  - bug #57: tests fail on 64-bit platform
+
 Version 1.0 (2009-12-17):
 -------------------------
   - switch to OCaml 3.11.1

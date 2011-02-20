@@ -1,12 +1,12 @@
 description="testing tool"
 requires="kaputt.base"
-version="1.0"
+version="1.1"
 
 package "base" (
   archive(byte)="kaputt.cma"
   archive(native)="kaputt.cmxa"
   archive(java)="kaputt.cmja"
-  version="1.0"
+  version="1.1"
 )
 
 package "bigarray" (
@@ -14,7 +14,7 @@ package "bigarray" (
   archive(byte)="kaputtBigarray.cmo"
   archive(native)="kaputtBigarray.cmx"
   archive(java)="kaputtBigarray.cmj"
-  version="1.0"
+  version="1.1"
 )
 
 package "num" (
@@ -22,5 +22,5 @@ package "num" (
   archive(byte)="kaputtNums.cmo"
   archive(native)="kaputtNums.cmx"
   archive(java)="kaputtNums.cmj"
-  version="1.0"
+  version="1.1"
 )
