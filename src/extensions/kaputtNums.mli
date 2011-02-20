@@ -68,3 +68,59 @@ module Enumerator : sig
       denominators. *)
 
 end
+
+
+(** {6 Specifications} *)
+
+module Specification : sig
+
+  val is_pos_big_int : Big_int.big_int Kaputt.Specification.predicate
+  (** Predicate testing whether the [Big_int.big_int] argument is greater than or equal to zero. *)
+
+  val is_neg_big_int : Big_int.big_int Kaputt.Specification.predicate
+  (** Predicate testing whether the [Big_int.big_int] argument is lower than or equal to zero. *)
+
+  val is_zero_big_int : Big_int.big_int Kaputt.Specification.predicate
+  (** Predicate testing whether the [Big_int.big_int] argument is equal to zero. *)
+
+  val is_nonzero_big_int : Big_int.big_int Kaputt.Specification.predicate
+  (** Predicate testing whether the [Big_int.big_int] argument is different from zero. *)
+
+  val is_even_big_int : Big_int.big_int Kaputt.Specification.predicate
+  (** Predicate testing whether the [Big_int.big_int] argument is even. *)
+
+  val is_odd_big_int : Big_int.big_int Kaputt.Specification.predicate
+  (** Predicate testing whether the [Big_int.big_int] argument is odd. *)
+
+  val is_pos_num : Num.num Kaputt.Specification.predicate
+  (** Predicate testing whether the [Num.num] argument is greater than or equal to zero. *)
+
+  val is_neg_num : Num.num Kaputt.Specification.predicate
+  (** Predicate testing whether the [Num.num] argument is lower than or equal to zero. *)
+
+  val is_zero_num : Num.num Kaputt.Specification.predicate
+  (** Predicate testing whether the [Num.num] argument is equal to zero. *)
+
+  val is_nonzero_num : Num.num Kaputt.Specification.predicate
+  (** Predicate testing whether the [Num.num] argument is different from zero. *)
+
+  val is_even_num : Num.num Kaputt.Specification.predicate
+  (** Predicate testing whether the [Num.num] argument is even. *)
+
+  val is_odd_num : Num.num Kaputt.Specification.predicate
+  (** Predicate testing whether the [Num.num] argument is odd. *)
+
+end
+
+
+(** {6 Reducers} *)
+
+module Reducer : sig
+
+  val big_int : Big_int.big_int Kaputt.Reducer.t
+  (** Reducer for [Big_int.big_int] values. *)
+
+  val num : Num.num Kaputt.Reducer.t
+  (** Reducer for [Num.num] values. *)
+
+end

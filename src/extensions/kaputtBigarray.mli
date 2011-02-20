@@ -42,3 +42,54 @@ module Enumerator : sig
       enumerate elements. *)
 
 end
+
+
+(** {6 Assertion} *)
+
+module Assertion : sig
+
+  val make_equal_bigarray : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> ('a, 'b, 'c) Bigarray.Genarray.t -> ('a, 'b, 'c) Bigarray.Genarray.t -> unit
+  (** [make_equal_bigarray eq prn] returns a function for testing equality of
+      big arrays. [eq] is used to compare elements, while [prn] is used to
+      print them. *)
+
+  val make_not_equal_bigarray : ('a -> 'a -> bool) -> ('a -> string) -> ?msg:string -> ('a, 'b, 'c) Bigarray.Genarray.t -> ('a, 'b, 'c) Bigarray.Genarray.t -> unit
+  (** [make_not_equal_bigarray eq prn] returns a function for testing inequality
+      of big arrays. [eq] is used to compare elements, while [prn] is used to
+      print them. *)
+
+end
+
+
+(** {6 Specification} *)
+
+module Specification : sig
+
+  val is_empty_bigarray : (('a, 'b, 'c) Bigarray.Genarray.t) Kaputt.Specification.predicate
+  (** Predicate testing whether the [Bigarray.Genarray.t] argument is empty. *)
+
+  val is_nonempty_bigarray : (('a, 'b, 'c) Bigarray.Genarray.t) Kaputt.Specification.predicate
+  (** Predicate testing whether the [Bigarray.Genarray.t] argument is not empty. *)
+
+  val exists_bigarray : 'a Kaputt.Specification.predicate -> (('a, 'b, 'c) Bigarray.Genarray.t) Kaputt.Specification.predicate
+  (** [exists_bigarray p] constructs a predicate that evaluates to [true]
+      iff any of the elements makes [p] evaluate to [true]. *)
+
+  val for_all_bigarray : 'a Kaputt.Specification.predicate -> (('a, 'b, 'c) Bigarray.Genarray.t) Kaputt.Specification.predicate
+  (** [for_all_bigarray p] constructs a predicate that evaluates to [true]
+      iff all of the elements make [p] evaluate to [true]. *)
+
+end
+
+
+(** {6 Reducer} *)
+
+module Reducer : sig
+
+  val bigarray_c : (('a, 'b, Bigarray.c_layout) Bigarray.Genarray.t) Kaputt.Reducer.t
+  (** Reducer for [Bigarray.Genarray.t] values. *)
+
+  val bigarray_fortran : (('a, 'b, Bigarray.fortran_layout) Bigarray.Genarray.t) Kaputt.Reducer.t
+  (** Reducer for [Bigarray.Genarray.t] values. *)
+
+end

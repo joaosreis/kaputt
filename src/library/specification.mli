@@ -362,3 +362,8 @@ val zip4 : 'a predicate -> 'b predicate -> 'c predicate -> 'd predicate -> ('a *
 
 val zip5 : 'a predicate -> 'b predicate -> 'c predicate -> 'd predicate -> 'e predicate -> ('a * 'b * 'c * 'd * 'e) predicate
 (** [zip5 p1 p2 p3 p4 p5] zips [p1], [p2], [p3], [p4] and [p5] into a predicate over quintuples. *)
+
+(**/**)
+
+val create_int_functions : ('a -> 'a -> int) -> 'a -> ('a -> 'a -> 'a) -> 'a ->
+  ('a predicate * 'a predicate *'a predicate * 'a predicate * 'a predicate * 'a predicate)
