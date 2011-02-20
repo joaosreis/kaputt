@@ -37,6 +37,10 @@ let iter f e =
 
 (* Predefined enumerators *)
 
+let empty =
+  (fun () -> Nil),
+  (fun _ -> "")
+
 let unit =
   (fun () -> Cons ((), lazy Nil)),
   Utils.string_of_unit
@@ -139,8 +143,10 @@ let string ch len =
     Utils.string_of_string
 
 let float x y steps =
-  if (x = y) && (steps < 1) then invalid_arg "Kaputt.Enumerator.float"
-  else if (x <> y) && (steps < 2) then invalid_arg "Kaputt.Enumerator.float";
+  if (x = y) && (steps < 1) then
+    invalid_arg "Kaputt.Enumerator.float"
+  else if (x <> y) && (steps < 2) then
+    invalid_arg "Kaputt.Enumerator.float";
   let delta = (y -. x) /. (float_of_int (pred steps)) in
   let x0 = x in
   let rec float x y k () =
@@ -233,11 +239,73 @@ let weak elem len =
     (Utils.make_string_of_weak (snd elem))
 
 
+(* Combinators for files *)
+
+let file_chars fn =
+  let rec fc ch =
+    fun () ->
+      try
+        Cons (input_char ch, lazy (fc ch ()))
+      with End_of_file -> close_in_noerr ch; Nil in
+  (fc (open_in fn)), Utils.string_of_char
+
+let file_bytes fn =
+  let rec fb ch =
+    fun () ->
+      try
+        Cons (input_byte ch, lazy (fb ch ()))
+      with End_of_file -> close_in_noerr ch; Nil in
+  (fb (open_in fn)), string_of_int
+
+let file_lines fn =
+  let rec fl ch =
+    fun () ->
+      try
+        Cons (input_line ch, lazy (fl ch ()))
+      with End_of_file -> close_in_noerr ch; Nil in
+  (fl (open_in fn)), Utils.string_of_string
+
+let file_values fn p =
+  let rec fv ch =
+    fun () ->
+      try
+        Cons (input_value ch, lazy (fv ch ()))
+      with End_of_file -> close_in_noerr ch; Nil in
+  (fv (open_in fn)), p
+
+
 (* Combinators over enumerators *)
 
 let lift x s =
+  let s = String.copy s in
   (fun () -> Cons (x, lazy Nil)),
   (fun _ -> String.copy s)
+
+let lift_list x prn =
+  let rec l rem =
+    fun () ->
+      match rem with
+      | hd :: tl -> Cons (hd, lazy (l tl ()))
+      | [] -> Nil in
+  (l x), prn
+
+let lift_array x prn =
+  let rec a i =
+    fun () ->
+      if i < Array.length x then
+        Cons (x.(i), lazy (a (succ i) ()))
+      else
+        Nil in
+  (a 0), prn
+
+let lift_string x =
+  let rec s i =
+    fun () ->
+      if i < String.length x then
+        Cons (x.[i], lazy (s (succ i) ()))
+      else
+        Nil in
+  (s 0), Utils.string_of_char
 
 let filter p e =
   let rec f l =

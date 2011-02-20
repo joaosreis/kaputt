@@ -42,6 +42,9 @@ val iter : ('a -> unit) -> 'a t -> unit
 
 (** {6 Predefined enumerators} *)
 
+val empty : 'a t
+(** Dummy empty enumerator. *)
+
 val unit : unit t
 (** Dummy enumerator for [unit] value. *)
 
@@ -120,11 +123,44 @@ val weak : 'a option t -> int -> 'a Weak.t t
     [e] is used to generate the array elements. *)
 
 
+(** {6 Enumerators for files} *)
+
+val file_chars : string -> char t
+(** [file_chars fn] constructs an enumerator returning the characters
+    from file [fn]. Raises [Sys_error] if an i/o error occurs. *)
+
+val file_bytes : string -> int t
+(** [file_bytes fn] constructs an enumerator returning the bytes
+    from file [fn]. Raises [Sys_error] if an i/o error occurs. *)
+
+val file_lines : string -> string t
+(** [file_lines fn] constructs an enumerator returning the lines
+    from file [fn]. Raises [Sys_error] if an i/o error occurs. *)
+
+val file_values : string -> ('a -> string) -> 'a t
+(** [file_values fn p] constructs an enumerator returning the values
+    (as stored by marshalling) from file [fn], using [p] to convert
+    elements into their string representation. Raises [Sys_error]
+    if an i/o error occurs. *)
+
+
 (** {6 Combinators over enumerators} *)
 
 val lift : 'a -> string -> 'a t
 (** [lift e s] constructs an enumerator that only returns [e],
     [s] is the string representation of [e]. *)
+
+val lift_list : 'a list -> ('a -> string) -> 'a t
+(** [lift_list l p] constructs an enumerator that returns the elements
+    from [l], using [p] to convert elements into their string representation. *)
+
+val lift_array : 'a array -> ('a -> string) -> 'a t
+(** [lift_array a p] constructs an enumerator that returns the elements
+    from [a], using [p] to convert elements into their string representation. *)
+
+val lift_string : string -> char t
+(** [lift_string s] constructs an enumerator that returns the characters
+    from [s]. *)
 
 val filter : ('a -> bool) -> 'a t -> 'a t
 (** [filter f e] constructs an enumerator equivalent to [e] filtered by [f],
@@ -201,7 +237,8 @@ module State : sig
   val get : 'a state -> int -> 'a
   (** [get s i] returns the value of the [i]th enumerator of the state [s]. *)
 end
-(** . *)
+(** A State is an array of enumerators, keeping their current values as
+    well as way to {i restart} them. *)
 
 val create_state_based : (unit -> 'a t array) -> ('a State.state -> 'b) -> 'c -> (unit -> 'b lazy_list) * 'c
 (** [create_state_based init encode print] constructs a state-based enumerator:

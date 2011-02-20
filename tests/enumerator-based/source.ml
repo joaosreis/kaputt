@@ -20,6 +20,13 @@ open Kaputt.Abbreviations
 
 let () =
   Test.add_enum_test
+    ~title:"empty"
+    Enum.empty
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
     ~title:"bool"
     Enum.bool
     (fun _ -> ())
@@ -120,6 +127,57 @@ let () =
   Test.add_enum_test
     ~title:"[10*i..1O*i+5 | i <- 1..2]"
     (Enum.for_each 1 2 (fun i -> Enum.int (i * 10) (i * 10 + 5)))
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
+    ~title:"list [1; 2; 3]"
+    (Enum.lift_list [ 1; 2; 3] string_of_int)
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
+    ~title:"array [| 4; 5; 6 |]"
+    (Enum.lift_array [| 4; 5; 6 |] string_of_int)
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
+    ~title:"string \"azerty\""
+    (Enum.lift_string "azerty")
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
+    ~title:"characters from 'data' file"
+    (Enum.file_chars "data")
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
+    ~title:"bytes from 'data' file"
+    (Enum.file_bytes "data")
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
+    ~title:"lines from 'data' file"
+    (Enum.file_lines "data")
+    (fun _ -> ())
+    [Spec.always ==> Spec.never]
+
+type t = { x : int; y : string; }
+let string_of_t { x; y } = Printf.sprintf "%d is %S" x y
+let () =
+  Test.add_enum_test
+    ~title:"t values from 'data2' file"
+    (Enum.file_values "data2" string_of_t)
     (fun _ -> ())
     [Spec.always ==> Spec.never]
 
