@@ -30,46 +30,46 @@ type 'a t = 'a -> 'a list
 (** {6 Predefined reducers} *)
 
 val unit : unit t
-(** Generator for [unit] values. *)
+(** Reducer for [unit] values. *)
 
 val bool : bool t
-(** Generator for [bool] values. *)
+(** Reducer for [bool] values. *)
 
 val int : int t
-(** Generator for [int] values. *)
+(** Reducer for [int] values. *)
 
 val int32 : int32 t
-(** Generator for [int32] values. *)
+(** Reducer for [int32] values. *)
 
 val int64 : int64 t
-(** Generator for [int64] values. *)
+(** Reducer for [int64] values. *)
 
 val nativeint : nativeint t
-(** Generator for [nativeint] values. *)
+(** Reducer for [nativeint] values. *)
 
 val char : char t
-(** Generator for [char] values. *)
+(** Reducer for [char] values. *)
 
 val string : string t
-(** Generator for [string] values. *)
+(** Reducer for [string] values. *)
 
 val float : float t
-(** Generator for [float] values. *)
+(** Reducer for [float] values. *)
 
 val complex : Complex.t t
-(** Generator for [Complex.t] values. *)
+(** Reducer for [Complex.t] values. *)
 
 
 (** {6 Reducers for containers} *)
 
 val array : 'a array t
-(** Generator for [array] values. *)
+(** Reducer for [array] values. *)
 
 val list : 'a list t
-(** Generator for [list] values. *)
+(** Reducer for [list] values. *)
 
 val option : 'a option t
-(** Generator for [option] values. *)
+(** Reducer for [option] values. *)
 
 module Map (M : Map.S) : sig
   val red : 'a M.t t
@@ -82,13 +82,13 @@ end
 (** Functor used to build reducers for [Set.S.t] values. *)
 
 val hashtbl : ('a, 'b) Hashtbl.t t
-(** Generator for [Hashtbl.t] values. *)
+(** Reducer for [Hashtbl.t] values. *)
 
 val queue : 'a Queue.t t
-(** Generator for [Queue.t] values. *)
+(** Reducer for [Queue.t] values. *)
 
 val stack : 'a Stack.t t
-(** Generator for [Stack.t] values. *)
+(** Reducer for [Stack.t] values. *)
 
 val weak : 'a Weak.t t
-(** Generator for [Weak.t] values. *)
+(** Reducer for [Weak.t] values. *)
