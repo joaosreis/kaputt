@@ -49,11 +49,15 @@ default: gnumake
 gnumake:
 EOF`
 
+# ocaml version
+ocaml_version=`$ocaml_prefix/bin/ocamlc -vnum 2> /dev/null || echo 'unknown'`
+
 # file creation
 echo "# timestamp: `date`" > Makefile.config
 echo "PATH_OCAML_PREFIX=$ocaml_prefix" >> Makefile.config
 echo "PATH_OCAMLFIND=$ocamlfind" >> Makefile.config
 echo "NATIVE_DYNLINK=$native_dynlink" >> Makefile.config
 echo "MAKE_QUIET=$make_quiet" >> Makefile.config
+echo "OCAML_VERSION=$ocaml_version" >> Makefile.config
 echo "" >> Makefile.config
 echo 'Makefile.config successfully created'

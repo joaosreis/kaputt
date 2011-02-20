@@ -23,6 +23,8 @@ module Assert = Assertion
 
 module Gen = Generator
 
+module Red = Reducer
+
 module Enum = Enumerator
 
 module Spec = Specification
@@ -40,9 +42,15 @@ let (==>) = Specification.implies'
 
 let (&&&) = Specification.logand
 
+let (&&&&) = Specification.logand_list
+
 let (|||) = Specification.logor
 
+let (||||) = Specification.logor_list
+
 let (^^^) = Specification.logxor
+
+let (^^^^) = Specification.logxor_list
 
 let check = Test.check
 
@@ -53,3 +61,5 @@ let (>>) = Shell.redirect_output
 let (>>>) = Shell.redirect_append
 
 let (>>>>) = Shell.redirect_error
+
+let (>>>>>) = Shell.redirect_append_error

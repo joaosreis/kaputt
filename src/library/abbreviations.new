@@ -23,22 +23,93 @@
 
 (** Shorthand for [Assertion] module.
     {b The {i assert_xyz} functions are deprecated.} *)
-module Assert : module type of Assertion
+module Assert : sig
+  type failure = Assertion.failure = {
+      expected_value : string;
+      actual_value : string;
+      message : string;
+    }
+  include module type of Assertion
+    with type failure := Assertion.failure
+end
 
 (** Shorthand for [Generator] module. *)
-module Gen : module type of Generator
+module Gen : sig
+  type random = Generator.random
+  type 'a t = 'a Generator.t
+  type 'a outcome = 'a Generator.outcome =
+    | Value of 'a
+    | Exception of exn
+  include module type of Generator
+    with type random := Generator.random
+     and type 'a t := 'a Generator.t
+     and type 'a outcome := 'a Generator.outcome
+end
+
+(** Shorthand for [Reducer] module. *)
+module Red : sig
+  include module type of Reducer
+    with type 'a t := 'a Reducer.t
+end
 
 (** Shorthand for [Enumerator] module. *)
-module Enum : module type of Enumerator
+module Enum : sig
+  type 'a lazy_list = 'a Enumerator.lazy_list = Nil | Cons of 'a * ('a lazy_list lazy_t)
+  type 'a t = 'a Enumerator.t
+  include module type of Enumerator
+    with type 'a lazy_list := 'a Enumerator.lazy_list
+     and type 'a t := 'a Enumerator.t
+end
 
 (** Shorthand for [Specification] module. *)
-module Spec : module type of Specification
+module Spec : sig
+  type 'a predicate = 'a Specification.predicate
+  type ('a, 'b) t = ('a, 'b) Specification.t = {
+      precond : 'a predicate;
+      postcond : ('a * 'b) predicate
+    }
+  include module type of Specification
+    with type 'a predicate := 'a Specification.predicate
+     and type ('a, 'b) t := ('a, 'b) Specification.t
+end
 
-(** Shorthand for [Shell] module. *)
-module Shell : module type of Shell
+(** Bare alias for [Shell] module. *)
+module Shell : sig
+  type ('a, 'b, 'c) command = ('a, 'b, 'c) Shell.command
+  type configuration = Shell.configuration = {
+      pipe : string;
+      redirect_output : string;
+      redirect_append_output : string;
+      redirect_error : string;
+      redirect_append_error : string;
+    }
+  include module type of Shell
+    with type ('a, 'b, 'c) command := ('a, 'b, 'c) Shell.command
+     and type configuration := Shell.configuration
+end
 
 (** Bare alias for [Test] module. *)
-module Test : module type of Test
+module Test : sig
+  type result = Test.result =
+    | Passed
+    | Failed of Assertion.failure
+    | Uncaught of exn * string
+    | Report of int * int * int * (string list) * ((string * int) list)
+    | Exit_code of int
+  type 'a classifier = 'a Test.classifier
+  type t = Test.t
+  type output_mode = Test.output_mode =
+    | Text_output of out_channel
+    | Html_output of out_channel
+    | Xml_output of out_channel
+    | Xml_junit_output of out_channel
+    | Csv_output of out_channel * string
+  include module type of Test
+    with type result := Test.result
+     and type 'a classifier := 'a Test.classifier
+     and type t := Test.t
+     and type output_mode := Test.output_mode
+end
 
 
 (** {6 Shorthands for functions} *)
@@ -72,3 +143,6 @@ val (>>>) : ('a, [`Output], 'c) Shell.command -> string -> ('a, [`No_output], 'c
 
 val (>>>>) : ('a, 'b, [`Error]) Shell.command -> string -> ('a, 'b, [`No_error]) Shell.command
 (** Shorthand for [Shell.redirect_error] function. *)
+
+val (>>>>>) : ('a, 'b, [`Error]) Shell.command -> string -> ('a, 'b, [`No_error]) Shell.command
+(** Shorthand for [Shell.redirect_append_error] function. *)
