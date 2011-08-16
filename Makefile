@@ -83,6 +83,9 @@ install: all
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.jo \
 	    $(PATH_BUILD)/$(PROJECT_NAME).a \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cma \
+	    $(PATH_BUILD)/$(PROJECT_NAME).cmi \
+	    $(PATH_BUILD)/$(PROJECT_NAME).cmo \
+	    $(PATH_BUILD)/$(PROJECT_NAME).cmx \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cmxa \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cmja \
 	    $(PATH_BUILD)/$(PROJECT_NAME).ja; \
@@ -92,7 +95,7 @@ install: all
 	    test -f $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.$$ext && cp $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.$$ext $(PATH_INSTALL) || true; \
 	    test -f $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.$$ext && cp $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.$$ext $(PATH_INSTALL) || true; \
 	  done; \
-	  for ext in a cma cmxa cmja ja; do \
+	  for ext in a cma cmi cmo cmx cmxa cmja ja; do \
 	    test -f $(PATH_BUILD)/$(PROJECT_NAME).$$ext && cp $(PATH_BUILD)/$(PROJECT_NAME).$$ext $(PATH_INSTALL) || true; \
 	  done \
 	fi
