@@ -1,6 +1,6 @@
 (*
  * This file is part of Kaputt.
- * Copyright (C) 2008-2011 Xavier Clerc.
+ * Copyright (C) 2008-2012 Xavier Clerc.
  *
  * Kaputt is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
