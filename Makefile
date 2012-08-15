@@ -66,7 +66,7 @@ tests: FORCE
 clean: FORCE
 	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) -clean
 	test -f $(PATH_TESTS)/Makefile && (cd $(PATH_TESTS) && $(MAKE) $(MAKE_QUIET) clean && cd ..) || true
-	rm -f $(MODULES_ODOCL) $(MODULES_MLPACK) $(PROJECT_NAME).itarget src/library/abbreviations.mli
+	rm -f $(MODULES_ODOCL) $(MODULES_MLPACK) $(PROJECT_NAME).itarget
 
 veryclean: clean
 	rm -f $(PATH_OCAMLDOC)/*.html $(PATH_OCAMLDOC)/*.css
@@ -101,11 +101,6 @@ install: all
 	fi
 
 generate: FORCE
-	if [ "$(OCAML_VERSION)" '>' "3.12.0" ]; then \
-	  cp src/library/abbreviations.new src/library/abbreviations.mli; \
-	else \
-	  cp src/library/abbreviations.old src/library/abbreviations.mli; \
-	fi
 	echo '$(PROJECT_NAME).cma' > $(PROJECT_NAME).itarget
 	(test -x $(PATH_OCAML_PREFIX)/bin/ocamlopt && echo '$(PROJECT_NAME).cmxa' >> $(PROJECT_NAME).itarget) || true
 	(test -x $(PATH_OCAML_PREFIX)/bin/ocamljava && echo '$(PROJECT_NAME).cmja' >> $(PROJECT_NAME).itarget) || true
