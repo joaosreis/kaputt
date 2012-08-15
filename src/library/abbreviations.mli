@@ -21,8 +21,7 @@
 
 (** {6 Shorthands for modules} *)
 
-(** Shorthand for [Assertion] module.
-    {b The {i assert_xyz} functions are deprecated.} *)
+(** Shorthand for [Assertion] module. *)
 module Assert : sig
   type failure = Assertion.failure = {
       expected_value : string;
