@@ -39,10 +39,10 @@ one: FORCE
 	@echo "Running tests for '$(NAME)' (bytecode)..."
 	@cd $(NAME) && $(MAKE) PATH_OCAML_BIN=$(PATH_OCAML_PREFIX)/bin COMPILER=ocamlc EXECUTABLE=bytecode RUN=./ LIB_EXT=cma MDL_EXT=cmo && cd ..
 	@echo "Running tests for '$(NAME)' (native)..."
-	@cd $(NAME) && $(MAKE) PATH_OCAML_BIN=$(PATH_OCAML_PREFIX)/bin COMPILER=ocamlc EXECUTABLE=bytecode RUN=./ LIB_EXT=cma MDL_EXT=cmo && cd ..
+	@cd $(NAME) && $(MAKE) PATH_OCAML_BIN=$(PATH_OCAML_PREFIX)/bin COMPILER=ocamlopt EXECUTABLE=native RUN=./ LIB_EXT=cmxa MDL_EXT=cmx && cd ..
 	@if [ -x $(PATH_OCAML_PREFIX)/bin/ocamljava ]; then \
 	  echo "Running tests for '$(NAME)' (java)..."; \
-	  cd $(NAME) && $(MAKE) PATH_OCAML_BIN=$(PATH_OCAML_PREFIX)/bin COMPILER=ocamlc EXECUTABLE=bytecode RUN=./ LIB_EXT=cma&& cd ..; \
+	  cd $(NAME) && $(MAKE) PATH_OCAML_BIN=$(PATH_OCAML_PREFIX)/bin COMPILER=ocamljava EXECUTABLE=java RUN=./ LIB_EXT=cmja MDL_EXT=cmj && cd ..; \
 	fi
 
 clean: FORCE
