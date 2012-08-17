@@ -79,6 +79,7 @@ module Enumerator = struct
 
   let big_int =
     Kaputt.Enumerator.create_int_functions
+      ~inf_eq:Big_int.le_big_int
       Big_int.succ_big_int
       Big_int.string_of_big_int
 

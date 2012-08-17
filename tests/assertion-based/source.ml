@@ -237,6 +237,22 @@ let () =
         Printexc.to_string
         (fun () -> raise Not_found))
 
+let () =
+  Test.add_simple_test
+    ~title:"Bigarray"
+    (fun () ->
+      let a = Bigarray.Genarray.create Bigarray.int32 Bigarray.c_layout [| 3 |] in
+      KaputtBigarray.Assertion.make_equal_bigarray (=) Int32.to_string a a)
+
+let () =
+  Test.add_simple_test
+    ~title:"Nums"
+    (fun () ->
+      let x = Big_int.big_int_of_int 8 in
+      let y = Big_int.big_int_of_int 16 in
+      KaputtNums.Assertion.equal_big_int x x;
+      KaputtNums.Assertion.not_equal_big_int x y)
+
 
 let () =
   Test.launch_tests ~output:(Test.Text_output (open_out "result")) ();

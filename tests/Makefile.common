@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-COMPILE_FLAGS=-I ../../_build unix.$(LIB_EXT) bigarray.$(LIB_EXT) nums.$(LIB_EXT) kaputt.$(LIB_EXT) $(FLAGS)
+COMPILE_FLAGS=-I ../../_build -I ../../_build/src/extensions unix.$(LIB_EXT) bigarray.$(LIB_EXT) nums.$(LIB_EXT) kaputt.$(LIB_EXT) kaputtBigarray.$(MDL_EXT) kaputtNums.$(MDL_EXT) $(FLAGS)
 COMPILED_FILES=*.cm* *.o *.jo $(EXECUTABLE)
 
 default: clean compile run

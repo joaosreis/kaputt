@@ -210,7 +210,7 @@ module Assertion = struct
       bigarray_iteri2
         (fun i ex ey ->
           if not (eq ex ey) then
-            let index = Utils.make_string_of_array string_of_int in
+            let index = Kaputt.Utils.make_string_of_array string_of_int in
             let fm = Printf.sprintf "%s (at index %s)" msg (index i) in
             Kaputt.Assertion.fail (prn ex) (prn ey) fm)
         x

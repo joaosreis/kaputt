@@ -221,11 +221,12 @@ val zip5 : 'a t -> 'b t -> 'c t -> 'd t -> 'e t -> ('a * 'b * 'c * 'd * 'e) t
 
 (**/**)
 
-val create_int_functions : ('a -> 'a) -> ('a -> string) -> 'a -> 'a -> 'a t
+val create_int_functions : ?inf_eq:('a -> 'a -> bool) -> ('a -> 'a) -> ('a -> string) -> 'a -> 'a -> 'a t
 (** [create_int_functions s p x y] constructs an enumerator for {i int-like}
     values. [s] is the successor function, [p] is the function used to convert
     values into strings, while [x] and [y] are respectively the lower and upper
-    bounds (both inclusive). *)
+    bounds (both inclusive). The [inf_eq] parameter (defaulting to [(<=)]) is
+    used to test whether a value is inferior or equal to another one. *)
 
 module State : sig
   type 'a state = {

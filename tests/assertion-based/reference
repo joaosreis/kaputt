@@ -47,3 +47,5 @@ Test 'no_raise' ... failed
   expected `no exception` but received `an exception`
 Test 'make_raises' ... failed
   expected `a specific exception` but received `Not_found`
+Test 'Bigarray' ... passed
+Test 'Nums' ... passed

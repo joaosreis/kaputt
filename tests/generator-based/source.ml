@@ -88,6 +88,29 @@ let () =
     (fun x -> x)
     [(fun x -> x <> []) ==> (List.mem 0)]
 
+let () =
+  Test.add_random_test
+    ~title:"Bigarray"
+    ~nb_runs:3
+    ~random_src:(Gen.make_random_seed seed)
+    (KaputtBigarray.Generator.bigarray
+       Bigarray.int32
+       Bigarray.c_layout
+       (Gen.array (Gen.make_int 1 2) (Gen.make_int 2 16))
+       (Gen.make_int32 0l 256l))
+    (fun x -> x)
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_random_test
+    ~title:"Nums"
+    ~nb_runs:3
+    ~random_src:(Gen.make_random_seed seed)
+    (KaputtNums.Generator.big_int
+       (Gen.make_int 1 5))
+    (fun x -> x)
+    [Spec.always ==> Spec.never]
+
 
 let () =
   Test.launch_tests ~output:(Test.Text_output (open_out "result")) ();

@@ -181,6 +181,26 @@ let () =
     (fun _ -> ())
     [Spec.always ==> Spec.never]
 
+let () =
+  Test.add_enum_test
+    ~title:"Bigarray"
+    (KaputtBigarray.Enumerator.bigarray
+       Bigarray.int32
+       Bigarray.c_layout
+       [| 3 |]
+       (Enum.int32 0l 2l))
+    (fun x -> x)
+    [Spec.always ==> Spec.never]
+
+let () =
+  Test.add_enum_test
+    ~title:"Nums"
+    (KaputtNums.Enumerator.big_int
+       Big_int.zero_big_int
+       (Big_int.big_int_of_int 8))
+    (fun x -> x)
+    [Spec.always ==> Spec.never]
+
 
 let () =
   Test.launch_tests ~output:(Test.Text_output (open_out "result")) ();
