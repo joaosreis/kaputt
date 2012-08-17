@@ -139,6 +139,15 @@ val add_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classif
 (** Equivalent to [make_random_test], except that the built test is added to the ones to be run by [launch_tests]. *)
 
 
+(** {6 Generator-based tests (partial functions)} *)
+
+val make_partial_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?reducer:'a Reducer.t -> ?reduce_depth:int -> ?reduce_smaller:('a -> 'a -> bool) -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b Specification.outcome) Specification.t) list -> t
+(** Equivalent to [make_random_test] for partial functions. *)
+
+val add_partial_random_test : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?reducer:'a Reducer.t -> ?reduce_depth:int -> ?reduce_smaller:('a -> 'a -> bool) -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b Specification.outcome) Specification.t) list -> unit
+(** Equivalent to [make_partial_random_test], except that the built test is added to the ones to be run by [launch_tests]. *)
+
+
 (** {6 Enumerator-based tests} *)
 
 val make_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> t
@@ -149,6 +158,15 @@ val make_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b)
 
 val add_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** Equivalent to [make_enum_test], except that the built test is added to the ones to be run by [launch_tests]. *)
+
+
+(** {6 Enumerator-based tests (partial functions)} *)
+
+val make_partial_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b Specification.outcome) Specification.t) list -> t
+(** Equivalent to [make_enum_test] for partial functions. *)
+
+val add_partial_enum_test : ?title:string -> 'a Enumerator.t -> ('a -> 'b) -> (('a, 'b Specification.outcome) Specification.t) list -> unit
+(** Equivalent to [make_partial_enum_test], except that the built test is added to the ones to be run by [launch_tests]. *)
 
 
 (** {6 Shell-based tests} *)
@@ -189,3 +207,6 @@ val launch_tests : ?output:output_mode -> ?clear:bool -> unit -> unit
 
 val check : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** [check ...] is equivalent to [run_test (make_random_test ...)]. *)
+
+val check_partial : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b Specification.outcome) Specification.t) list -> unit
+(** Equivalent to [check] for partial functions. *)

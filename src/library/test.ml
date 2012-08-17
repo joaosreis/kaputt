@@ -137,16 +137,17 @@ let reduce smaller n red spec x f =
   end else
     None
 
-let make_random_test
-    ?(title=get_title ())
-    ?(nb_runs=100)
-    ?(nb_tries=10*nb_runs)
-    ?(classifier=default_classifier)
-    ?(reducer=default_reducer)
-    ?(reduce_depth=4)
-    ?(reduce_smaller=default_smaller)
-    ?(random_src=Generator.make_random ())
-    (gen, prn) f spec =
+let make_random_test_with_wrapper
+    ~title
+    ~nb_runs
+    ~nb_tries
+    ~classifier
+    ~reducer
+    ~reduce_depth
+    ~reduce_smaller
+    ~random_src
+    (gen, prn) f spec
+    wrap =
   if nb_runs <= 0 then invalid_arg "Kaputt.Test.make_random_test";
   if nb_tries <= 0 then invalid_arg "Kaputt.Test.make_random_test";
   if reduce_depth < 0 then invalid_arg "Kaputt.Test.make_random_test";
@@ -170,7 +171,7 @@ let make_random_test
       if !pre_post != dummy_spec then begin
         incr actual_runs;
         try
-          let y = f !x in
+          let y = wrap f !x in
           let cat = classifier !x in
           let curr = try Hashtbl.find categories cat with _ -> 0 in
           Hashtbl.replace categories cat (succ curr);
@@ -178,7 +179,7 @@ let make_random_test
             incr valid
           else
             let x' = prn !x in
-            let reduced = reduce reduce_smaller reduce_depth reducer !pre_post !x f in
+            let reduced = reduce reduce_smaller reduce_depth reducer !pre_post !x (wrap f) in
             let x' = match reduced with
             | Some r -> x' ^ " reduced to " ^ (prn r)
             | None -> x' in
@@ -189,6 +190,36 @@ let make_random_test
     done;
     let categories' = Hashtbl.fold (fun k v acc -> (k, v) :: acc) categories [] in
     Report (!valid, !actual_runs, !uncaught, (List.rev !counterexamples), categories'))
+
+let no_wrap f x =
+  f x
+
+let wrap_partial f x =
+  try
+    Specification.Result (f x)
+  with e -> Specification.Exception e
+
+let make_random_test
+    ?(title=get_title ())
+    ?(nb_runs=100)
+    ?(nb_tries=10*nb_runs)
+    ?(classifier=default_classifier)
+    ?(reducer=default_reducer)
+    ?(reduce_depth=4)
+    ?(reduce_smaller=default_smaller)
+    ?(random_src=Generator.make_random ())
+    (gen, prn) f spec =
+  make_random_test_with_wrapper
+    ~title:title
+    ~nb_runs:nb_runs
+    ~nb_tries:nb_tries
+    ~classifier:classifier
+    ~reducer:reducer
+    ~reduce_depth:reduce_depth
+    ~reduce_smaller:reduce_smaller
+    ~random_src:random_src
+    (gen, prn) f spec
+    no_wrap
 
 let add_random_test
     ?(title=get_title ())
@@ -212,11 +243,57 @@ let add_random_test
               (gen, prn) f spec)
 
 
+(* Generator-based tests (partial functions) *)
+
+let make_partial_random_test
+    ?(title=get_title ())
+    ?(nb_runs=100)
+    ?(nb_tries=10*nb_runs)
+    ?(classifier=default_classifier)
+    ?(reducer=default_reducer)
+    ?(reduce_depth=4)
+    ?(reduce_smaller=default_smaller)
+    ?(random_src=Generator.make_random ())
+    (gen, prn) f spec =
+  make_random_test_with_wrapper
+    ~title:title
+    ~nb_runs:nb_runs
+    ~nb_tries:nb_tries
+    ~classifier:classifier
+    ~reducer:reducer
+    ~reduce_depth:reduce_depth
+    ~reduce_smaller:reduce_smaller
+    ~random_src:random_src
+    (gen, prn) f spec
+    wrap_partial
+
+let add_partial_random_test
+    ?(title=get_title ())
+    ?(nb_runs=100)
+    ?(nb_tries=10*nb_runs)
+    ?(classifier=default_classifier)
+    ?(reducer=default_reducer)
+    ?(reduce_depth=4)
+    ?(reduce_smaller=default_smaller)
+    ?(random_src=Generator.make_random ())
+    (gen, prn) f spec =
+  add_test (make_partial_random_test
+              ~title:title
+              ~nb_runs:nb_runs
+              ~nb_tries:nb_tries
+              ~classifier:classifier
+              ~reducer:reducer
+              ~reduce_depth:reduce_depth
+              ~reduce_smaller:reduce_smaller
+              ~random_src:random_src
+              (gen, prn) f spec)
+
+
 (* Enumerator-based tests *)
 
 let dummy_post _ = false
 
-let make_enum_test ?(title=get_title ()) enum f spec =
+let make_enum_test_with_wrapper ~title enum f spec wrap =
   title,
   (fun () ->
     let valid = ref 0 in
@@ -233,7 +310,7 @@ let make_enum_test ?(title=get_title ()) enum f spec =
             counterexamples := x' :: !counterexamples
         end else begin
           try
-            let y = f x in
+            let y = wrap f x in
             if post (x, y) then
               incr valid
             else
@@ -246,8 +323,20 @@ let make_enum_test ?(title=get_title ()) enum f spec =
       enum;
     Report (!valid, !nb, !uncaught, (List.rev !counterexamples), []))
 
+let make_enum_test ?(title=get_title ()) enum f spec =
+  make_enum_test_with_wrapper ~title enum f spec no_wrap
+
 let add_enum_test ?(title=get_title ()) enum f spec =
   add_test (make_enum_test ~title:title enum f spec)
+
+
+(* Enumerator-based tests (partial functions) *)
+
+let make_partial_enum_test ?(title=get_title ()) enum f spec =
+  make_enum_test_with_wrapper ~title enum f spec wrap_partial
+
+let add_partial_enum_test ?(title=get_title ()) enum f spec =
+  add_test (make_partial_enum_test ~title:title enum f spec)
 
 
 (* Shell-based tests *)
@@ -671,9 +760,33 @@ let launch_tests ?(output=(Text_output stdout)) ?(clear=true) () =
   run_tests ~output:output (List.rev !tests);
   if clear then tests := []
 
-let check ?(title=get_title ()) ?(nb_runs=100) ?(nb_tries=10*nb_runs) ?(classifier=default_classifier) ?(random_src=Generator.make_random ()) generator f spec =
+let check
+    ?(title=get_title ())
+    ?(nb_runs=100)
+    ?(nb_tries=10*nb_runs)
+    ?(classifier=default_classifier)
+    ?(random_src=Generator.make_random ())
+    generator f spec =
   run_test
     (make_random_test
+       ~title:title
+       ~nb_runs:nb_runs
+       ~nb_tries:nb_tries
+       ~classifier:classifier
+       ~random_src:random_src
+       generator
+       f
+       spec)
+
+let check_partial
+    ?(title=get_title ())
+    ?(nb_runs=100)
+    ?(nb_tries=10*nb_runs)
+    ?(classifier=default_classifier)
+    ?(random_src=Generator.make_random ())
+    generator f spec =
+  run_test
+    (make_partial_random_test
        ~title:title
        ~nb_runs:nb_runs
        ~nb_tries:nb_tries

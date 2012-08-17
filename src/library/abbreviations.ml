@@ -54,6 +54,8 @@ let (^^^^) = Specification.logxor_list
 
 let check = Test.check
 
+let check_partial = Test.check_partial
+
 let (|>) = Shell.pipe
 
 let (>>) = Shell.redirect_output

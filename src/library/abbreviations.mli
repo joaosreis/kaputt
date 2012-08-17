@@ -67,9 +67,13 @@ module Spec : sig
       precond : 'a predicate;
       postcond : ('a * 'b) predicate
     }
+  type 'a outcome =
+    | Result of 'a
+    | Exception of exn
   include module type of Specification
     with type 'a predicate := 'a Specification.predicate
      and type ('a, 'b) t := ('a, 'b) Specification.t
+     and type 'a outcome := 'a Specification.outcome
 end
 
 (** Bare alias for [Shell] module. *)
@@ -130,6 +134,9 @@ val (^^^) : 'a Specification.predicate -> 'a Specification.predicate -> 'a Speci
 
 val check : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a Test.classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** Shorthand for [Test.check] function. *)
+
+val check_partial : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a Test.classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b Specification.outcome) Specification.t) list -> unit
+(** Shorthand for [Test.check_partial] function. *)
 
 val (|>) : ('a, [`Output], 'c1) Shell.command -> ([`Input], 'b , 'c2) Shell.command -> ('a, 'b, 'c2) Shell.command
 (** Shorthand for [Shell.pipe] function. *)

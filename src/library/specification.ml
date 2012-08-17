@@ -36,6 +36,18 @@ let implies' p1 p2 =
 
 let (==>) = implies'
 
+type 'a outcome =
+  | Result of 'a
+  | Exception of exn
+
+let is_exception p = function
+  | Result _ -> false
+  | Exception e -> p e
+
+let is_result p = function
+  | Result r -> p r
+  | Exception _ -> false
+
 
 (* Predifined predicates *)
 

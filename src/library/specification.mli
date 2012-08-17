@@ -49,6 +49,20 @@ val implies' : 'a predicate -> 'b predicate -> ('a, 'b) t
 val (==>) : 'a predicate -> 'b predicate -> ('a, 'b) t
 (** Shorthand for [implies']. *)
 
+type 'a outcome =
+  | Result of 'a (** Encodes the result returned by the function. *)
+  | Exception of exn (** Encodes the exception raised by the function. *)
+(** The type used to model partial functions, that is functions that may
+    either return a value or raise an exception. *)
+
+val is_exception : exn predicate -> 'a outcome predicate
+(** [is_exception p] returns a predicate that ensures that the outcome is
+    an exception satisfying predicate [p]. *)
+
+val is_result : 'a predicate -> 'a outcome predicate
+(** [is_result p] returns a predicate that ensures that the outcome is
+    a result satisfying predicate [p]. *)
+
 
 (** {6 Predifined predicates} *)
 
