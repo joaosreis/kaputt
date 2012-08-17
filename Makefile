@@ -51,6 +51,7 @@ default:
 
 all: generate
 	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME).otarget
+	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)_pp.byte
 	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)Bigarray.cmo
 	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)Nums.cmo
 	$(OCAMLBUILD) $(OCAMLBUILD_FLAGS) $(PROJECT_NAME)Bigarray.cmx
@@ -75,6 +76,7 @@ install: all
 	if [ -x "$(PATH_OCAMLFIND)" ]; then \
 	  $(PATH_OCAMLFIND) query $(PROJECT_NAME) && $(PATH_OCAMLFIND) remove $(PROJECT_NAME) || true; \
 	  $(PATH_OCAMLFIND) install $(PROJECT_NAME) META -optional \
+	    $(PATH_BUILD)/src/syntax/$(PROJECT_NAME)_pp.byte \
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.cm* \
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.o \
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.jo \
@@ -91,6 +93,7 @@ install: all
 	    $(PATH_BUILD)/$(PROJECT_NAME).ja; \
 	else \
 	  mkdir -p $(PATH_INSTALL); \
+	  cp $(PATH_BUILD)/src/syntax/$(PROJECT_NAME)_pp.byte $(PATH_OCAML_PREFIX)/bin; \
 	  for ext in cmi cmo cmx o cmj jo; do \
 	    test -f $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.$$ext && cp $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Bigarray.$$ext $(PATH_INSTALL) || true; \
 	    test -f $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.$$ext && cp $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.$$ext $(PATH_INSTALL) || true; \
