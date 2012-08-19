@@ -91,6 +91,14 @@ module Shell : sig
      and type configuration := Shell.configuration
 end
 
+(** Bare alias for [Mock] module. *)
+module Mock : sig
+  type ('a, 'b) t = ('a, 'b) Mock.t
+  include module type of Mock
+      with type ('a, 'b) t := ('a, 'b) Mock.t
+end
+
+
 (** Bare alias for [Test] module. *)
 module Test : sig
   type result = Test.result =

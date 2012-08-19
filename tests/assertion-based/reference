@@ -49,3 +49,6 @@ Test 'make_raises' ... failed
   expected `a specific exception` but received `Not_found`
 Test 'Bigarray' ... passed
 Test 'Nums' ... passed
+Test 'Mock (mapping)' ... passed
+Test 'Mock (sequence)' ... passed
+Test 'Mock (function)' ... passed

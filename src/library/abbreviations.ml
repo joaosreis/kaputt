@@ -31,6 +31,8 @@ module Spec = Specification
 
 module Shell = Shell
 
+module Mock = Mock
+
 module Test = Test
 
 

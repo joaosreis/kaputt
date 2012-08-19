@@ -253,6 +253,24 @@ let () =
       KaputtNums.Assertion.equal_big_int x x;
       KaputtNums.Assertion.not_equal_big_int x y)
 
+let () =
+  List.iter
+    (fun (impl, name) ->
+      Test.add_simple_test
+        ~title:(Printf.sprintf "Mock (%s)" name)
+        (fun () ->
+          let eq_int_list = Assert.make_equal_list (=) string_of_int in
+          let f = impl in
+          let i = [0; 1; 2; 0] in
+          let o = List.map (Mock.func f) i in
+          let o' = [1; 2; 3; 1] in
+          eq_int_list o' o;
+          eq_int_list i (Mock.calls f);
+          Assert.equal_int 4 (Mock.total f)))
+    [Mock.from_mapping [0, 1; 1, 2; 2, 3], "mapping";
+     Mock.from_sequence [0, 1; 1, 2; 2, 3; 0, 1], "sequence";
+     Mock.from_function succ, "function"]
+
 
 let () =
   Test.launch_tests ~output:(Test.Text_output (open_out "result")) ();
