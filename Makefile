@@ -72,7 +72,7 @@ clean: FORCE
 veryclean: clean
 	rm -f $(PATH_OCAMLDOC)/*.html $(PATH_OCAMLDOC)/*.css
 
-install: all
+install: FORCE
 	if [ -x "$(PATH_OCAMLFIND)" ]; then \
 	  $(PATH_OCAMLFIND) query $(PROJECT_NAME) && $(PATH_OCAMLFIND) remove $(PROJECT_NAME) || true; \
 	  $(PATH_OCAMLFIND) install $(PROJECT_NAME) META -optional \
