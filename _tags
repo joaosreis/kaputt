@@ -22,8 +22,7 @@ true: -traverse
 
 # Options
 <src/**> and not "src/extensions/kaputtBigarray.ml" and not "src/extensions/kaputtNums.ml": for-pack(Kaputt)
-<src/**/*.ml{,i}>: warn_Ae
-<src/**/*.ml{,i}>: warn_error_A
+<src/**/*.ml{,i}>: warnings
 
 # Generation of version file
 "src/library/version.mli": src_library_version_ml
