@@ -55,7 +55,7 @@ module Generator = struct
       let s = Random.State.bool r in
       let len = gen_l r in
       let res = ref Big_int.zero_big_int in
-      for i = 1 to len do
+      for _i = 1 to len do
         res := Big_int.add_int_big_int
             (gen_big_int_digit r)
             (Big_int.mult_int_big_int 10 !res)

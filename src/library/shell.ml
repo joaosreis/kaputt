@@ -183,7 +183,7 @@ let exit n = make_command "exit" [] [string_of_int n]
 
 (* Directory commands *)
 
-let pwdir x = make_command "pwd" [] []
+let pwdir _ = make_command "pwd" [] []
 
 let chdir x = make_command "cd" [] [x]
 

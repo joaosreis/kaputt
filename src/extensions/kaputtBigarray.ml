@@ -66,14 +66,14 @@ let iterator ba =
   coords, next
 
 (* [bigarray_iter f a] applies [f] in turn to all elements of [a]. *)
-let bigarray_iter f ba =
+(*let bigarray_iter f ba =
   let coords, next = iterator ba in
   try
     while true do
       f (Bigarray.Genarray.get ba coords);
       ignore (next ())
     done
-  with End_of_array -> ()
+  with End_of_array -> ()*)
 
 (* Same as [bigarray_iter], except that the function also receives the coordinates of the
    elements as the first argument. *)
@@ -117,7 +117,7 @@ let string_of_bigarray f ba =
   let nb_dims = Bigarray.Genarray.num_dims ba in
   let last = ref nb_dims in
   let print s =
-    for i = 1 to !last do
+    for _i = 1 to !last do
       Buffer.add_string buf s
     done in
   let coords, next = iterator ba in

@@ -89,7 +89,7 @@ let from_sequence (type s) ?(cmp=Pervasives.compare) ?(prn=default_printer) l =
   let get_calls () = List.rev !calls in
   { implementation ; get_count ; get_total ; get_calls }
 
-let from_function (type s) ?(cmp=Pervasives.compare) ?(prn=default_printer) f =
+let from_function (type s) ?(cmp=Pervasives.compare) f =
   let module M = Map.Make (struct type t = s let compare = cmp end) in
   let map = ref M.empty in
   let total = ref 0 in

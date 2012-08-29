@@ -188,11 +188,11 @@ module Map (M : Map.S) (P : Printer with type t = M.key) = struct
         y in
     ()
 
-  let make_not_equal eq prn ?(msg="") x y =
+  let make_not_equal eq _ ?(msg="") x y =
     if (M.cardinal y) = (M.cardinal x) then begin
       let res =
         M.merge
-          (fun k v v' ->
+          (fun _ v v' ->
             match v, v' with
             | Some xi', Some yi' when eq xi' yi' -> Some xi'
             | _ -> None)
@@ -252,7 +252,7 @@ let make_equal_queue eq prn ?(msg="") x y =
         ly in
     fail_msg fm
 
-let make_not_equal_queue eq prn ?(msg="") x y =
+let make_not_equal_queue eq _ ?(msg="") x y =
   let lx = Queue.length x in
   let ly = Queue.length y in
   if lx = ly then begin
@@ -290,7 +290,7 @@ let make_equal_stack eq prn ?(msg="") x y =
         ly in
     fail_msg fm
 
-let make_not_equal_stack eq prn ?(msg="") x y =
+let make_not_equal_stack eq _ ?(msg="") x y =
   let lx = Stack.length x in
   let ly = Stack.length y in
   if lx = ly then begin
@@ -332,7 +332,7 @@ let make_equal_weak eq prn ?(msg="") x y =
         ly in
     fail_msg fm
 
-let make_not_equal_weak eq prn ?(msg="") x y =
+let make_not_equal_weak eq _ ?(msg="") x y =
   let lx = Weak.length x in
   let ly = Weak.length y in
   if lx = ly then begin

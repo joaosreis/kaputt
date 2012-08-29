@@ -49,7 +49,7 @@ let bool =
   (fun () -> Cons (false, lazy (Cons (true, lazy Nil)))),
   string_of_bool
 
-let rec create_int_functions ?(inf_eq=(<=)) succ prn =
+let create_int_functions ?(inf_eq=(<=)) succ prn =
   let rec f x y =
     fun () ->
       if inf_eq x y then

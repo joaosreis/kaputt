@@ -101,7 +101,7 @@ let list x =
 
 let option x =
   match x with
-  | Some x -> [ None ]
+  | Some _ -> [ None ]
   | None -> []
 
 module Map (M : Map.S) = struct
@@ -146,7 +146,7 @@ let queue x =
   let len = Queue.length x in
   if len <> 0 then
     let res = Queue.copy x in
-    for i = 1 to len / 2 do
+    for _i = 1 to len / 2 do
       ignore (Queue.pop res)
     done;
     [ Queue.create (); res ]
@@ -157,7 +157,7 @@ let stack x =
   let len = Stack.length x in
   if len <> 0 then
     let res = Stack.copy x in
-    for i = 1 to len / 2 do
+    for _i = 1 to len / 2 do
       ignore (Stack.pop res)
     done;
     [ Stack.create (); res ]

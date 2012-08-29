@@ -182,7 +182,7 @@ let strings sep (gen_l, _) (gen_s, _) =
   (fun r ->
     let len = gen_l r in
     let lst = ref [] in
-    for i = 1 to len do
+    for _i = 1 to len do
       lst := (gen_s r) :: !lst
     done;
     String.concat sep (List.rev !lst)),
@@ -274,7 +274,7 @@ let list (gen_l, _) (gen_e, prn_e) =
   (fun r ->
     let len = gen_l r in
     let res = ref [] in
-    for i = 1 to len do
+    for _i = 1 to len do
       res := (gen_e r) :: !res;
     done;
     List.rev !res),
@@ -369,7 +369,7 @@ let queue (gen_l, _) (gen_e, prn_e) =
   (fun r ->
     let len = gen_l r in
     let res = Queue.create () in
-    for i = 1 to len do
+    for _i = 1 to len do
       let e = gen_e r in
       Queue.push e res
     done;
@@ -380,7 +380,7 @@ let stack (gen_l, _) (gen_e, prn_e) =
   (fun r ->
     let len = gen_l r in
     let res = Stack.create () in
-    for i = 1 to len do
+    for _i = 1 to len do
       let e = gen_e r in
       Stack.push e res
     done;

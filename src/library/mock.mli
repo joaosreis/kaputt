@@ -60,11 +60,11 @@ val from_sequence : ?cmp:('a -> 'a -> int) -> ?prn:('a -> string) -> ('a * 'b) l
 
     Raises [End_of_sequence] if more than [List.length l] calls. *)
 
-val from_function : ?cmp:('a -> 'a -> int) -> ?prn:('a -> string) -> ('a -> 'b) -> ('a, 'b) t
-(** [from_function ~cmp ~prn f] returns a mock function based on the
+val from_function : ?cmp:('a -> 'a -> int) -> ('a -> 'b) -> ('a, 'b) t
+(** [from_function ~cmp f] returns a mock function based on the
     function [f], only recording calls actually made to the function.
     [cmp] (defaulting to [Pervasives.compare]) is used to compare input
-    values), while [prn] is used to convert input values into strings.
+    values).
 
     [f] should raise [Unexpected_value] if presented an input value it
     cannot handle. *)

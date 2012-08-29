@@ -158,7 +158,7 @@ let make_random_test_with_wrapper
     let actual_runs = ref 0 in
     let counterexamples = ref [] in
     let categories = Hashtbl.create 16 in
-    for i = 1 to nb_runs do
+    for _i = 1 to nb_runs do
       let x = ref (gen random_src) in
       let pre_post = ref (extract !x spec) in
       let tries = ref nb_tries in
@@ -365,7 +365,7 @@ let escape s =
       | '>' -> Buffer.add_string buff "&gt;"
       | '\"' -> Buffer.add_string buff "&quot;"
       | '&' -> Buffer.add_string buff "&amp;"
-      | '\t' -> for i = 1 to 4 do Buffer.add_string buff "&nbsp;" done
+      | '\t' -> for _i = 1 to 4 do Buffer.add_string buff "&nbsp;" done
       | ch -> Buffer.add_char buff ch)
     s;
   Buffer.contents buff
