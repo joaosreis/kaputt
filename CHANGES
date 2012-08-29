@@ -1,3 +1,13 @@
+Version 1.2 (2012-08-29):
+-------------------------
+  - new 'Mock' module providing means of recording calls made to a function
+  - support for specification of partial functions (i. e. raising exceptions)
+  - preprocessor allowing to store tests in separated '.mlt' files
+  - removed deprecated functions
+  - update for OCaml 4.00.0
+  - bug#85: cmi file is not installed
+  - bugfixes to bigarray and nums support
+
 Version 1.1 (2011-02-20):
 -------------------------
   - update for Objective Caml 3.12.0
