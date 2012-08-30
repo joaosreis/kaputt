@@ -760,6 +760,9 @@ let launch_tests ?(output=(Text_output stdout)) ?(clear=true) () =
   run_tests ~output:output (List.rev !tests);
   if clear then tests := []
 
+let get_tests () =
+  List.rev !tests
+
 let check
     ?(title=get_title ())
     ?(nb_runs=100)

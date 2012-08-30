@@ -205,6 +205,9 @@ val launch_tests : ?output:output_mode -> ?clear:bool -> unit -> unit
     The [clear] parameter indicates whether the list of tests should be
     emptied, and defaults to [true]. *)
 
+val get_tests : unit -> t list
+(** Returns the list that tests that would be run by [launch_tests]. *)
+
 val check : ?title:string -> ?nb_runs:int -> ?nb_tries:int -> ?classifier:'a classifier -> ?random_src:Generator.random -> 'a Generator.t -> ('a -> 'b) -> (('a, 'b) Specification.t) list -> unit
 (** [check ...] is equivalent to [run_test (make_random_test ...)]. *)
 
