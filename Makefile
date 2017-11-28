@@ -84,6 +84,7 @@ install: FORCE
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.o \
 	    $(PATH_BUILD)/src/extensions/$(PROJECT_NAME)Nums.jo \
 	    $(PATH_BUILD)/$(PROJECT_NAME).a \
+	    $(PATH_BUILD)/$(PROJECT_NAME).o \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cma \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cmi \
 	    $(PATH_BUILD)/$(PROJECT_NAME).cmo \
@@ -105,7 +106,11 @@ install: FORCE
 
 generate: FORCE
 	echo '$(PROJECT_NAME).cma' > $(PROJECT_NAME).itarget
-	(test -x $(PATH_OCAML_PREFIX)/bin/ocamlopt && echo '$(PROJECT_NAME).cmxa' >> $(PROJECT_NAME).itarget) || true
+	if [ -x "$(PATH_OCAMLOPT)" ]; then \
+		echo '$(PROJECT_NAME).cmxa' >> $(PROJECT_NAME).itarget; \
+	else \
+		(test -x $(PATH_OCAML_PREFIX)/bin/ocamlopt && echo '$(PROJECT_NAME).cmxa' >> $(PROJECT_NAME).itarget) || true; \
+	fi
 	(test -x $(PATH_OCAML_PREFIX)/bin/ocamljava && echo '$(PROJECT_NAME).cmja' >> $(PROJECT_NAME).itarget) || true
 
 FORCE:
