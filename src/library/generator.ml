@@ -152,7 +152,7 @@ let letter =
     let c = Random.State.bool r in
     let l = Random.State.int r 26 in
     let x = Char.chr (l + (Char.code 'a')) in
-    if c then Char.uppercase x else x),
+    if c then Char.uppercase_ascii x else x),
   Char.escaped
 
 let alphanum =
@@ -171,11 +171,11 @@ let alphanum =
 let string (gen_l, _) (gen_c, _) =
   (fun r ->
     let len = gen_l r in
-    let res = String.create len in
+    let res = Bytes.create len in
     for i = 0 to pred len do
-      res.[i] <- gen_c r
+      Bytes.set res i (gen_c r)
     done;
-    res),
+    Bytes.to_string res),
   Utils.string_of_string
 
 let strings sep (gen_l, _) (gen_s, _) =
@@ -243,7 +243,7 @@ let total_function (gen, _) =
         Hashtbl.add memo x y;
         y in
     func),
-  (fun _ -> String.copy "<fun>")
+  (fun _ -> "<fun>")
 
 let partial_function (gen, _) =
   let return = function
@@ -259,7 +259,7 @@ let partial_function (gen, _) =
         Hashtbl.add memo x y;
         return y in
     func),
-  (fun _ -> String.copy "<fun>")
+  (fun _ -> "<fun>")
 
 
 (* Generators for containers *)
@@ -438,9 +438,9 @@ let sum_array = Array.fold_left
     0
 
 let lift x s =
-  let s' = String.copy s in
+  let s' = s in
   (fun _ -> x),
-  (fun _ -> String.copy s')
+  (fun _ -> s')
 
 let select_list l f =
   if l = [] then invalid_arg "Kaputt.Generator.select_list";

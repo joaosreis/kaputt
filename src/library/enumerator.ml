@@ -135,11 +135,11 @@ let string ch len =
   create_state_based
     (fun () -> (Array.init len (fun _ -> ch)))
     (fun s ->
-      let res = String.create len in
+      let res = Bytes.create len in
       for i = 0 to pred len do
-        res.[i] <- match s.State.curr.(i) with Cons (hd, _) -> hd | _ -> assert false
+        Bytes.set res i (match s.State.curr.(i) with Cons (hd, _) -> hd | _ -> assert false)
       done;
-      res)
+      Bytes.to_string res)
     Utils.string_of_string
 
 let float x y steps =
@@ -277,9 +277,9 @@ let file_values fn p =
 (* Combinators over enumerators *)
 
 let lift x s =
-  let s = String.copy s in
+  let s = s in
   (fun () -> Cons (x, lazy Nil)),
-  (fun _ -> String.copy s)
+  (fun _ -> s)
 
 let lift_list x prn =
   let rec l rem =
